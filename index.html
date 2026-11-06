@@ -5,22 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="theme-color" content="#1a1a1a" id="meta-theme" />
   <title>Look Creator</title>
   <style>
-    :root {
+    :root, [data-theme="light"] {
       --bg: #f4f2ef;
-      --card: #fff;
+      --card: #ffffff;
       --accent: #1a1a1a;
       --gold: #c9a87c;
-      --text: #111;
-      --muted: #888;
+      --text: #111111;
+      --muted: #888888;
       --border: #e6e2dc;
       --danger: #c0392b;
       --radius: 18px;
       --shadow: 0 4px 24px rgba(0,0,0,.07);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --input-bg: #f4f2ef;
+      --chip-bg: #ffffff;
     }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --accent: #f0f0f0;
+      --gold: #d4b48c;
+      --text: #f0f0f0;
+      --muted: #999999;
+      --border: #333333;
+      --danger: #e74c3c;
+      --shadow: 0 4px 24px rgba(0,0,0,.35);
+      --input-bg: #2a2a2a;
+      --chip-bg: #2a2a2a;
+    }
+    [data-theme="rose"] {
+      --bg: #fdf2f4;
+      --card: #ffffff;
+      --accent: #9b2d4a;
+      --gold: #d4a0a8;
+      --text: #2d1a20;
+      --muted: #8a6a72;
+      --border: #f0d8de;
+      --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(155,45,74,.08);
+      --input-bg: #fdf2f4;
+      --chip-bg: #ffffff;
+    }
+    [data-theme="ocean"] {
+      --bg: #eef5f9;
+      --card: #ffffff;
+      --accent: #1a4a6e;
+      --gold: #5b9bb8;
+      --text: #0f2a3d;
+      --muted: #5a7a8a;
+      --border: #d0e0ea;
+      --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(26,74,110,.08);
+      --input-bg: #eef5f9;
+      --chip-bg: #ffffff;
+    }
+    [data-theme="forest"] {
+      --bg: #f0f4ef;
+      --card: #ffffff;
+      --accent: #2d5a3d;
+      --gold: #8fbc8f;
+      --text: #1a2e1f;
+      --muted: #5a7a60;
+      --border: #d4e0d6;
+      --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(45,90,61,.08);
+      --input-bg: #f0f4ef;
+      --chip-bg: #ffffff;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
     body {
@@ -30,9 +85,9 @@
       line-height: 1.4;
       overflow-x: hidden;
       padding-bottom: calc(70px + var(--safe-bottom));
+      transition: background .25s, color .25s;
     }
 
-    /* Header */
     header {
       background: var(--card);
       padding: 12px 16px;
@@ -43,6 +98,7 @@
       top: 0;
       z-index: 100;
       box-shadow: var(--shadow);
+      transition: background .25s;
     }
     header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
     .gear-btn {
@@ -52,9 +108,9 @@
       font-size: 1.2rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
+      color: var(--text);
     }
 
-    /* Bottom nav – minimal icons */
     nav.bottom {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -63,6 +119,7 @@
       padding: 6px 0 calc(6px + var(--safe-bottom));
       box-shadow: 0 -4px 20px rgba(0,0,0,.06);
       z-index: 100;
+      transition: background .25s;
     }
     nav.bottom button {
       flex: 1;
@@ -81,7 +138,6 @@
     .section.active { display: block; animation: fade .2s ease; }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Buttons */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 12px 18px; border: none; border-radius: 14px;
@@ -89,10 +145,12 @@
       transition: transform .12s;
     }
     .btn:active { transform: scale(.97); }
-    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary { background: var(--accent); color: var(--card); }
+    [data-theme="dark"] .btn-primary { color: #121212; }
     .btn-gold { background: var(--gold); color: #fff; }
     .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
     .btn-danger { background: #fde8e8; color: var(--danger); }
+    [data-theme="dark"] .btn-danger { background: #3a2020; }
     .btn-sm { padding: 8px 12px; font-size: .8rem; border-radius: 10px; }
     .btn-block { width: 100%; }
     .btn-icon {
@@ -100,8 +158,8 @@
       background: rgba(255,255,255,.92); font-size: .9rem;
       box-shadow: 0 2px 8px rgba(0,0,0,.12); cursor: pointer;
     }
+    [data-theme="dark"] .btn-icon { background: rgba(40,40,40,.9); color: #eee; }
 
-    /* Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -113,6 +171,7 @@
       overflow: hidden;
       box-shadow: var(--shadow);
       position: relative;
+      transition: background .25s;
     }
     .item-card img {
       width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #eee;
@@ -130,7 +189,6 @@
     .item-card:active .actions, .item-card:focus-within .actions { opacity: 1; }
     @media (hover: hover) { .item-card:hover .actions { opacity: 1; } }
 
-    /* Filters – compact chips */
     .filters {
       display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
@@ -138,18 +196,18 @@
     .filters::-webkit-scrollbar { display: none; }
     .chip {
       padding: 6px 13px; border-radius: 20px;
-      border: 1px solid var(--border); background: var(--card);
+      border: 1px solid var(--border); background: var(--chip-bg);
       font-size: .72rem; font-weight: 600; white-space: nowrap;
       cursor: pointer; color: var(--muted); flex-shrink: 0;
+      transition: all .15s;
     }
-    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .chip.active { background: var(--accent); color: var(--card); border-color: var(--accent); }
+    [data-theme="dark"] .chip.active { color: #121212; }
 
-    /* Empty */
     .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
     .empty .ico { font-size: 2.4rem; margin-bottom: 8px; }
     .empty p { font-size: .9rem; margin-bottom: 14px; }
 
-    /* Selected bar (create) */
     .sel-bar {
       display: flex; gap: 8px; overflow-x: auto; min-height: 82px;
       padding: 8px 0; -webkit-overflow-scrolling: touch;
@@ -164,34 +222,26 @@
     .selectable .item-card { cursor: pointer; border: 3px solid transparent; }
     .selectable .item-card.selected { border-color: var(--gold); }
 
-    /* ===== LOOKS CAROUSEL ===== */
-    .carousel-wrap {
-      position: relative;
-      overflow: hidden;
-      touch-action: pan-y;
-    }
+    .carousel-wrap { position: relative; overflow: hidden; touch-action: pan-y; }
     .carousel {
       display: flex;
       transition: transform .35s cubic-bezier(.25,.8,.25,1);
       will-change: transform;
     }
-    .carousel-slide {
-      min-width: 100%;
-      padding: 0 4px;
-      box-sizing: border-box;
-    }
+    .carousel-slide { min-width: 100%; padding: 0 4px; box-sizing: border-box; }
     .look-card {
       background: var(--card);
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
+      transition: background .25s;
     }
     .look-collage {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
       padding: 10px;
-      background: #faf9f7;
+      background: var(--bg);
     }
     .look-collage .li {
       border-radius: 12px; overflow: hidden; background: #eee;
@@ -215,20 +265,17 @@
     .carousel-nav {
       position: absolute; top: 45%; transform: translateY(-50%);
       width: 36px; height: 36px; border-radius: 50%; border: none;
-      background: rgba(255,255,255,.9); box-shadow: 0 2px 10px rgba(0,0,0,.12);
-      font-size: 1.1rem; cursor: pointer; z-index: 5;
+      background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,.12);
+      font-size: 1.1rem; cursor: pointer; z-index: 5; color: var(--text);
       display: flex; align-items: center; justify-content: center;
     }
     .carousel-nav.prev { left: 6px; }
     .carousel-nav.next { right: 6px; }
-    @media (max-width: 500px) {
-      .carousel-nav { display: none; } /* pure swipe on phone */
-    }
+    @media (max-width: 500px) { .carousel-nav { display: none; } }
 
-    /* Modal */
     .overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,.4);
+      background: rgba(0,0,0,.45);
       z-index: 200;
       display: none; align-items: flex-end; justify-content: center;
     }
@@ -241,6 +288,8 @@
       padding: 18px 16px calc(24px + var(--safe-bottom));
       overflow-y: auto;
       animation: up .28s ease;
+      color: var(--text);
+      transition: background .25s;
     }
     @keyframes up { from { transform: translateY(50px); opacity: 0; } to { transform: none; opacity: 1; } }
     .modal h2 { font-size: 1.1rem; margin-bottom: 14px; }
@@ -252,11 +301,11 @@
     .form-group input, .form-group select {
       width: 100%; padding: 11px 12px;
       border: 1px solid var(--border); border-radius: 12px;
-      font-size: .95rem; background: var(--bg);
+      font-size: .95rem; background: var(--input-bg); color: var(--text);
     }
     .preview {
       width: 140px; aspect-ratio: 1; margin: 0 auto 12px;
-      border-radius: 14px; overflow: hidden; background: #eee;
+      border-radius: 14px; overflow: hidden; background: var(--input-bg);
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); font-size: .8rem; text-align: center;
     }
@@ -264,49 +313,79 @@
     .style-row { display: flex; flex-wrap: wrap; gap: 8px; }
     .style-row label {
       font-size: .78rem; padding: 6px 10px; border-radius: 20px;
-      background: var(--bg); border: 1px solid var(--border);
+      background: var(--input-bg); border: 1px solid var(--border);
       cursor: pointer; display: flex; align-items: center; gap: 4px;
+      color: var(--text);
     }
-    .style-row input { accent-color: var(--accent); }
+    .style-row input { accent-color: var(--gold); }
 
-    /* Settings */
+    .photo-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+    .photo-btns .btn { flex: 1; font-size: .82rem; padding: 11px 8px; }
+
+    .settings-section { margin-bottom: 20px; }
+    .settings-section h3 {
+      font-size: .8rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
+    }
     .settings-list { display: flex; flex-direction: column; gap: 6px; }
-    .settings-list button {
+    .settings-list button, .theme-btn {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; border: 1px solid var(--border);
-      border-radius: 14px; background: var(--bg);
-      font-size: .95rem; font-weight: 500; cursor: pointer; color: var(--text);
+      padding: 13px 14px; border: 1px solid var(--border);
+      border-radius: 14px; background: var(--input-bg);
+      font-size: .92rem; font-weight: 500; cursor: pointer; color: var(--text);
+      width: 100%; text-align: left;
     }
-    .settings-list button.active { border-color: var(--gold); background: #faf6f0; }
-    .lang-flag { font-size: 1.2rem; margin-right: 8px; }
+    .settings-list button.active, .theme-btn.active {
+      border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--input-bg));
+    }
+    .lang-flag { font-size: 1.15rem; margin-right: 8px; }
+    .theme-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .theme-btn { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; }
+    .theme-btn .swatch {
+      width: 100%; height: 28px; border-radius: 8px; margin-bottom: 4px;
+    }
+    .theme-btn .name { font-size: .82rem; font-weight: 600; }
 
-    /* Toast */
+    .custom-style-row {
+      display: flex; gap: 8px; margin-top: 8px;
+    }
+    .custom-style-row input { flex: 1; }
+    .style-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .style-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 10px; border-radius: 16px;
+      background: var(--input-bg); border: 1px solid var(--border);
+      font-size: .78rem;
+    }
+    .style-tag button {
+      border: none; background: none; color: var(--danger);
+      font-size: .85rem; cursor: pointer; padding: 0 2px;
+    }
+
     .toast {
       position: fixed; bottom: calc(80px + var(--safe-bottom));
       left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: #fff;
+      background: var(--accent); color: var(--card);
       padding: 10px 22px; border-radius: 30px;
       font-size: .85rem; font-weight: 600; z-index: 300;
       opacity: 0; pointer-events: none; transition: opacity .25s;
       white-space: nowrap;
     }
+    [data-theme="dark"] .toast { color: #121212; }
     .toast.show { opacity: 1; }
 
-    /* FAB */
     .fab {
       position: fixed;
       bottom: calc(78px + var(--safe-bottom)); right: 16px;
       width: 54px; height: 54px; border-radius: 50%;
-      background: var(--accent); color: #fff; border: none;
+      background: var(--accent); color: var(--card); border: none;
       font-size: 1.7rem; box-shadow: 0 6px 20px rgba(0,0,0,.22);
       cursor: pointer; z-index: 60;
       display: flex; align-items: center; justify-content: center;
     }
-
-    .tag {
-      font-size: .65rem; padding: 2px 7px; border-radius: 8px;
-      background: #f0ebe3; color: #5c4a32; display: inline-block; margin-top: 3px;
-    }
+    [data-theme="dark"] .fab { color: #121212; }
 
     @media (min-width: 600px) {
       .overlay { align-items: center; }
@@ -322,7 +401,6 @@
   </header>
 
   <div class="container">
-    <!-- WARDROBE -->
     <section id="wardrobe" class="section active">
       <div class="filters" id="type-filters"></div>
       <div id="items-grid" class="grid"></div>
@@ -333,18 +411,16 @@
       </div>
     </section>
 
-    <!-- CREATE -->
     <section id="create" class="section">
       <div class="sel-bar" id="selected-bar"></div>
       <div style="display:flex;gap:8px;margin:8px 0 12px">
-        <input type="text" id="look-name" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg)" />
+        <input type="text" id="look-name" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--input-bg);color:var(--text)" />
         <button class="btn btn-primary" onclick="saveLook()" data-i18n="btn_save"></button>
       </div>
       <div class="filters" id="create-filters"></div>
       <div id="create-grid" class="grid selectable"></div>
     </section>
 
-    <!-- LOOKS – CAROUSEL -->
     <section id="looks" class="section">
       <div id="looks-empty" class="empty" style="display:none">
         <div class="ico">👗</div>
@@ -359,9 +435,8 @@
       </div>
     </section>
 
-    <!-- SUGGEST -->
     <section id="suggest" class="section">
-      <select id="suggest-style" onchange="generateSuggestions()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;background:var(--bg);font-size:.9rem"></select>
+      <select id="suggest-style" onchange="generateSuggestions()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;background:var(--input-bg);color:var(--text);font-size:.9rem"></select>
       <button class="btn btn-gold btn-block" onclick="generateSuggestions()" style="margin-bottom:14px" data-i18n="btn_generate"></button>
       <div id="suggestions-list"></div>
       <div id="suggest-empty" class="empty" style="display:none">
@@ -371,7 +446,6 @@
     </section>
   </div>
 
-  <!-- Bottom nav -->
   <nav class="bottom">
     <button class="nav-btn active" data-section="wardrobe" onclick="showSection('wardrobe')">
       <span class="ico">📦</span><span data-i18n="nav_wardrobe"></span>
@@ -394,8 +468,12 @@
     <div class="modal">
       <h2 id="modal-title" data-i18n="modal_add"></h2>
       <div class="preview" id="preview-box"><span data-i18n="tap_photo"></span></div>
-      <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)" />
-      <button class="btn btn-ghost btn-block" style="margin-bottom:12px" onclick="document.getElementById('photo-input').click()" data-i18n="btn_photo"></button>
+      <input type="file" id="photo-camera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)" />
+      <input type="file" id="photo-gallery" accept="image/*" style="display:none" onchange="handlePhoto(event)" />
+      <div class="photo-btns">
+        <button class="btn btn-ghost" onclick="document.getElementById('photo-camera').click()" data-i18n="btn_camera"></button>
+        <button class="btn btn-ghost" onclick="document.getElementById('photo-gallery').click()" data-i18n="btn_gallery"></button>
+      </div>
       <div class="form-group">
         <label data-i18n="label_name"></label>
         <input type="text" id="item-name" />
@@ -423,16 +501,33 @@
   <div class="overlay" id="settings-modal">
     <div class="modal">
       <h2 data-i18n="settings"></h2>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px" data-i18n="choose_lang"></p>
-      <div class="settings-list" id="lang-list"></div>
-      <button class="btn btn-ghost btn-block" style="margin-top:18px" onclick="closeSettings()" data-i18n="btn_close"></button>
+
+      <div class="settings-section">
+        <h3 data-i18n="choose_lang"></h3>
+        <div class="settings-list" id="lang-list"></div>
+      </div>
+
+      <div class="settings-section">
+        <h3 data-i18n="theme_title"></h3>
+        <div class="theme-grid" id="theme-list"></div>
+      </div>
+
+      <div class="settings-section">
+        <h3 data-i18n="custom_styles"></h3>
+        <div class="style-tags" id="custom-styles-list"></div>
+        <div class="custom-style-row">
+          <input type="text" id="new-style-input" placeholder="" style="padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--input-bg);color:var(--text);font-size:.9rem" />
+          <button class="btn btn-primary btn-sm" onclick="addCustomStyle()" data-i18n="btn_add_style"></button>
+        </div>
+      </div>
+
+      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeSettings()" data-i18n="btn_close"></button>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    /* ========== i18n – 7 languages ========== */
     const i18n = {
       de: {
         app_title: "Look Creator", nav_wardrobe: "Schrank", nav_create: "Erstellen", nav_looks: "Looks", nav_suggest: "Ideen",
@@ -440,16 +535,20 @@
         empty_looks: "Keine Looks. Erstelle einen!", btn_create: "Erstellen",
         empty_suggest: "Mehr Teile nötig (Top + Hose + Schuhe).",
         btn_generate: "Vorschläge", btn_save: "Speichern", btn_cancel: "Abbrechen", btn_close: "Schließen",
-        btn_photo: "📷 Foto", modal_add: "Teil hinzufügen", modal_edit: "Bearbeiten",
-        tap_photo: "Foto tippen", label_name: "Name", label_type: "Typ", label_color: "Farbe", label_style: "Stil",
+        btn_camera: "📷 Kamera", btn_gallery: "🖼️ Galerie",
+        modal_add: "Teil hinzufügen", modal_edit: "Bearbeiten",
+        tap_photo: "Foto wählen", label_name: "Name", label_type: "Typ", label_color: "Farbe", label_style: "Stil",
         toast_saved: "Gespeichert", toast_look: "Look gespeichert", toast_deleted: "Gelöscht",
-        toast_need: "Min. 2 Teile", toast_photo: "Foto nötig",
-        filter_all: "Alle", settings: "Einstellungen", choose_lang: "Sprache wählen",
+        toast_need: "Min. 2 Teile", toast_photo: "Foto nötig", toast_style_added: "Stil hinzugefügt",
+        filter_all: "Alle", settings: "Einstellungen", choose_lang: "Sprache",
+        theme_title: "Theme & Hintergrund", custom_styles: "Eigene Styles",
+        btn_add_style: "Hinzufügen",
         style_any: "Beliebig", style_classic: "Klassisch", style_modern: "Modern",
         style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sportlich",
         type_top: "Tops", type_bottom: "Hosen", type_dress: "Kleider", type_outerwear: "Jacken",
         type_shoes: "Schuhe", type_bag: "Taschen", type_accessory: "Accessoires", type_other: "Anderes",
         delete_confirm: "Löschen?", look_untitled: "Look", suggested: "Idee",
+        theme_light: "Hell", theme_dark: "Dunkel", theme_rose: "Rose", theme_ocean: "Ozean", theme_forest: "Wald",
         types: { top: "Top", bottom: "Hose/Rock", dress: "Kleid", outerwear: "Jacke", shoes: "Schuhe", bag: "Tasche", accessory: "Accessoire", other: "Anderes" },
         colors: { black: "Schwarz", white: "Weiß", beige: "Beige", gray: "Grau", brown: "Braun", blue: "Blau", red: "Rot", green: "Grün", pink: "Rosa", yellow: "Gelb", multicolor: "Bunt" }
       },
@@ -459,16 +558,20 @@
         empty_looks: "No looks. Create one!", btn_create: "Create",
         empty_suggest: "Need more items (top + bottom + shoes).",
         btn_generate: "Generate", btn_save: "Save", btn_cancel: "Cancel", btn_close: "Close",
-        btn_photo: "📷 Photo", modal_add: "Add item", modal_edit: "Edit",
-        tap_photo: "Tap for photo", label_name: "Name", label_type: "Type", label_color: "Color", label_style: "Style",
+        btn_camera: "📷 Camera", btn_gallery: "🖼️ Gallery",
+        modal_add: "Add item", modal_edit: "Edit",
+        tap_photo: "Choose photo", label_name: "Name", label_type: "Type", label_color: "Color", label_style: "Style",
         toast_saved: "Saved", toast_look: "Look saved", toast_deleted: "Deleted",
-        toast_need: "Min. 2 items", toast_photo: "Photo required",
-        filter_all: "All", settings: "Settings", choose_lang: "Choose language",
+        toast_need: "Min. 2 items", toast_photo: "Photo required", toast_style_added: "Style added",
+        filter_all: "All", settings: "Settings", choose_lang: "Language",
+        theme_title: "Theme & Background", custom_styles: "Custom styles",
+        btn_add_style: "Add",
         style_any: "Any", style_classic: "Classic", style_modern: "Modern",
         style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sporty",
         type_top: "Tops", type_bottom: "Bottoms", type_dress: "Dresses", type_outerwear: "Outerwear",
         type_shoes: "Shoes", type_bag: "Bags", type_accessory: "Accessories", type_other: "Other",
         delete_confirm: "Delete?", look_untitled: "Look", suggested: "Idea",
+        theme_light: "Light", theme_dark: "Dark", theme_rose: "Rose", theme_ocean: "Ocean", theme_forest: "Forest",
         types: { top: "Top", bottom: "Bottom", dress: "Dress", outerwear: "Jacket", shoes: "Shoes", bag: "Bag", accessory: "Accessory", other: "Other" },
         colors: { black: "Black", white: "White", beige: "Beige", gray: "Gray", brown: "Brown", blue: "Blue", red: "Red", green: "Green", pink: "Pink", yellow: "Yellow", multicolor: "Multi" }
       },
@@ -478,16 +581,20 @@
         empty_looks: "Нет образов. Создай!", btn_create: "Создать",
         empty_suggest: "Нужно больше вещей (верх + низ + обувь).",
         btn_generate: "Идеи", btn_save: "Сохранить", btn_cancel: "Отмена", btn_close: "Закрыть",
-        btn_photo: "📷 Фото", modal_add: "Добавить вещь", modal_edit: "Изменить",
-        tap_photo: "Нажми для фото", label_name: "Название", label_type: "Тип", label_color: "Цвет", label_style: "Стиль",
+        btn_camera: "📷 Камера", btn_gallery: "🖼️ Галерея",
+        modal_add: "Добавить вещь", modal_edit: "Изменить",
+        tap_photo: "Выбрать фото", label_name: "Название", label_type: "Тип", label_color: "Цвет", label_style: "Стиль",
         toast_saved: "Сохранено", toast_look: "Образ сохранён", toast_deleted: "Удалено",
-        toast_need: "Мин. 2 вещи", toast_photo: "Нужно фото",
-        filter_all: "Все", settings: "Настройки", choose_lang: "Выберите язык",
+        toast_need: "Мин. 2 вещи", toast_photo: "Нужно фото", toast_style_added: "Стиль добавлен",
+        filter_all: "Все", settings: "Настройки", choose_lang: "Язык",
+        theme_title: "Тема и фон", custom_styles: "Свои стили",
+        btn_add_style: "Добавить",
         style_any: "Любой", style_classic: "Классика", style_modern: "Модерн",
         style_elegant: "Элегант", style_casual: "Кэжуал", style_sporty: "Спорт",
         type_top: "Верх", type_bottom: "Низ", type_dress: "Платья", type_outerwear: "Верхняя",
         type_shoes: "Обувь", type_bag: "Сумки", type_accessory: "Аксессуары", type_other: "Другое",
         delete_confirm: "Удалить?", look_untitled: "Образ", suggested: "Идея",
+        theme_light: "Светлая", theme_dark: "Тёмная", theme_rose: "Роза", theme_ocean: "Океан", theme_forest: "Лес",
         types: { top: "Верх", bottom: "Низ", dress: "Платье", outerwear: "Куртка", shoes: "Обувь", bag: "Сумка", accessory: "Аксессуар", other: "Другое" },
         colors: { black: "Чёрный", white: "Белый", beige: "Бежевый", gray: "Серый", brown: "Коричневый", blue: "Синий", red: "Красный", green: "Зелёный", pink: "Розовый", yellow: "Жёлтый", multicolor: "Разный" }
       },
@@ -497,16 +604,20 @@
         empty_looks: "Немає образів. Створи!", btn_create: "Створити",
         empty_suggest: "Потрібно більше речей (верх + низ + взуття).",
         btn_generate: "Ідеї", btn_save: "Зберегти", btn_cancel: "Скасувати", btn_close: "Закрити",
-        btn_photo: "📷 Фото", modal_add: "Додати річ", modal_edit: "Змінити",
-        tap_photo: "Натисни для фото", label_name: "Назва", label_type: "Тип", label_color: "Колір", label_style: "Стиль",
+        btn_camera: "📷 Камера", btn_gallery: "🖼️ Галерея",
+        modal_add: "Додати річ", modal_edit: "Змінити",
+        tap_photo: "Обрати фото", label_name: "Назва", label_type: "Тип", label_color: "Колір", label_style: "Стиль",
         toast_saved: "Збережено", toast_look: "Образ збережено", toast_deleted: "Видалено",
-        toast_need: "Мін. 2 речі", toast_photo: "Потрібне фото",
-        filter_all: "Усі", settings: "Налаштування", choose_lang: "Оберіть мову",
+        toast_need: "Мін. 2 речі", toast_photo: "Потрібне фото", toast_style_added: "Стиль додано",
+        filter_all: "Усі", settings: "Налаштування", choose_lang: "Мова",
+        theme_title: "Тема і фон", custom_styles: "Власні стилі",
+        btn_add_style: "Додати",
         style_any: "Будь-який", style_classic: "Класика", style_modern: "Модерн",
         style_elegant: "Елегант", style_casual: "Кежуал", style_sporty: "Спорт",
         type_top: "Верх", type_bottom: "Низ", type_dress: "Сукні", type_outerwear: "Верхній",
         type_shoes: "Взуття", type_bag: "Сумки", type_accessory: "Аксесуари", type_other: "Інше",
         delete_confirm: "Видалити?", look_untitled: "Образ", suggested: "Ідея",
+        theme_light: "Світла", theme_dark: "Темна", theme_rose: "Троянда", theme_ocean: "Океан", theme_forest: "Ліс",
         types: { top: "Верх", bottom: "Низ", dress: "Сукня", outerwear: "Куртка", shoes: "Взуття", bag: "Сумка", accessory: "Аксесуар", other: "Інше" },
         colors: { black: "Чорний", white: "Білий", beige: "Бежевий", gray: "Сірий", brown: "Коричневий", blue: "Синій", red: "Червоний", green: "Зелений", pink: "Рожевий", yellow: "Жовтий", multicolor: "Різний" }
       },
@@ -516,16 +627,20 @@
         empty_looks: "Nessun look. Creane uno!", btn_create: "Crea",
         empty_suggest: "Servono più capi (top + pantaloni + scarpe).",
         btn_generate: "Idee", btn_save: "Salva", btn_cancel: "Annulla", btn_close: "Chiudi",
-        btn_photo: "📷 Foto", modal_add: "Aggiungi capo", modal_edit: "Modifica",
-        tap_photo: "Tocca per foto", label_name: "Nome", label_type: "Tipo", label_color: "Colore", label_style: "Stile",
+        btn_camera: "📷 Fotocamera", btn_gallery: "🖼️ Galleria",
+        modal_add: "Aggiungi capo", modal_edit: "Modifica",
+        tap_photo: "Scegli foto", label_name: "Nome", label_type: "Tipo", label_color: "Colore", label_style: "Stile",
         toast_saved: "Salvato", toast_look: "Look salvato", toast_deleted: "Eliminato",
-        toast_need: "Min. 2 pezzi", toast_photo: "Foto richiesta",
-        filter_all: "Tutti", settings: "Impostazioni", choose_lang: "Scegli lingua",
+        toast_need: "Min. 2 pezzi", toast_photo: "Foto richiesta", toast_style_added: "Stile aggiunto",
+        filter_all: "Tutti", settings: "Impostazioni", choose_lang: "Lingua",
+        theme_title: "Tema e sfondo", custom_styles: "Stili personalizzati",
+        btn_add_style: "Aggiungi",
         style_any: "Qualsiasi", style_classic: "Classico", style_modern: "Modern",
         style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sportivo",
         type_top: "Top", type_bottom: "Pantaloni", type_dress: "Abiti", type_outerwear: "Giacche",
         type_shoes: "Scarpe", type_bag: "Borse", type_accessory: "Accessori", type_other: "Altro",
         delete_confirm: "Eliminare?", look_untitled: "Look", suggested: "Idea",
+        theme_light: "Chiaro", theme_dark: "Scuro", theme_rose: "Rosa", theme_ocean: "Oceano", theme_forest: "Foresta",
         types: { top: "Top", bottom: "Pantalone", dress: "Abito", outerwear: "Giacca", shoes: "Scarpe", bag: "Borsa", accessory: "Accessorio", other: "Altro" },
         colors: { black: "Nero", white: "Bianco", beige: "Beige", gray: "Grigio", brown: "Marrone", blue: "Blu", red: "Rosso", green: "Verde", pink: "Rosa", yellow: "Giallo", multicolor: "Multicolore" }
       },
@@ -535,16 +650,20 @@
         empty_looks: "Sin looks. ¡Crea uno!", btn_create: "Crear",
         empty_suggest: "Necesitas más prendas (top + pantalón + zapatos).",
         btn_generate: "Ideas", btn_save: "Guardar", btn_cancel: "Cancelar", btn_close: "Cerrar",
-        btn_photo: "📷 Foto", modal_add: "Añadir prenda", modal_edit: "Editar",
-        tap_photo: "Toca para foto", label_name: "Nombre", label_type: "Tipo", label_color: "Color", label_style: "Estilo",
+        btn_camera: "📷 Cámara", btn_gallery: "🖼️ Galería",
+        modal_add: "Añadir prenda", modal_edit: "Editar",
+        tap_photo: "Elegir foto", label_name: "Nombre", label_type: "Tipo", label_color: "Color", label_style: "Estilo",
         toast_saved: "Guardado", toast_look: "Look guardado", toast_deleted: "Eliminado",
-        toast_need: "Mín. 2 prendas", toast_photo: "Foto necesaria",
-        filter_all: "Todos", settings: "Ajustes", choose_lang: "Elige idioma",
+        toast_need: "Mín. 2 prendas", toast_photo: "Foto necesaria", toast_style_added: "Estilo añadido",
+        filter_all: "Todos", settings: "Ajustes", choose_lang: "Idioma",
+        theme_title: "Tema y fondo", custom_styles: "Estilos propios",
+        btn_add_style: "Añadir",
         style_any: "Cualquiera", style_classic: "Clásico", style_modern: "Moderno",
         style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sport",
         type_top: "Tops", type_bottom: "Pantalones", type_dress: "Vestidos", type_outerwear: "Abrigos",
         type_shoes: "Zapatos", type_bag: "Bolsos", type_accessory: "Accesorios", type_other: "Otro",
         delete_confirm: "¿Borrar?", look_untitled: "Look", suggested: "Idea",
+        theme_light: "Claro", theme_dark: "Oscuro", theme_rose: "Rosa", theme_ocean: "Océano", theme_forest: "Bosque",
         types: { top: "Top", bottom: "Pantalón", dress: "Vestido", outerwear: "Chaqueta", shoes: "Zapatos", bag: "Bolso", accessory: "Accesorio", other: "Otro" },
         colors: { black: "Negro", white: "Blanco", beige: "Beige", gray: "Gris", brown: "Marrón", blue: "Azul", red: "Rojo", green: "Verde", pink: "Rosa", yellow: "Amarillo", multicolor: "Multicolor" }
       },
@@ -554,16 +673,20 @@
         empty_looks: "Aucun look. Crée-en un !", btn_create: "Créer",
         empty_suggest: "Il faut plus de pièces (haut + bas + chaussures).",
         btn_generate: "Idées", btn_save: "Enregistrer", btn_cancel: "Annuler", btn_close: "Fermer",
-        btn_photo: "📷 Photo", modal_add: "Ajouter un article", modal_edit: "Modifier",
-        tap_photo: "Appuie pour photo", label_name: "Nom", label_type: "Type", label_color: "Couleur", label_style: "Style",
+        btn_camera: "📷 Appareil", btn_gallery: "🖼️ Galerie",
+        modal_add: "Ajouter un article", modal_edit: "Modifier",
+        tap_photo: "Choisir photo", label_name: "Nom", label_type: "Type", label_color: "Couleur", label_style: "Style",
         toast_saved: "Enregistré", toast_look: "Look enregistré", toast_deleted: "Supprimé",
-        toast_need: "Min. 2 pièces", toast_photo: "Photo requise",
-        filter_all: "Tous", settings: "Réglages", choose_lang: "Choisir la langue",
+        toast_need: "Min. 2 pièces", toast_photo: "Photo requise", toast_style_added: "Style ajouté",
+        filter_all: "Tous", settings: "Réglages", choose_lang: "Langue",
+        theme_title: "Thème et fond", custom_styles: "Styles perso",
+        btn_add_style: "Ajouter",
         style_any: "Tous", style_classic: "Classique", style_modern: "Moderne",
         style_elegant: "Élégant", style_casual: "Casual", style_sporty: "Sport",
         type_top: "Hauts", type_bottom: "Bas", type_dress: "Robes", type_outerwear: "Manteaux",
         type_shoes: "Chaussures", type_bag: "Sacs", type_accessory: "Accessoires", type_other: "Autre",
         delete_confirm: "Supprimer ?", look_untitled: "Look", suggested: "Idée",
+        theme_light: "Clair", theme_dark: "Sombre", theme_rose: "Rose", theme_ocean: "Océan", theme_forest: "Forêt",
         types: { top: "Haut", bottom: "Bas", dress: "Robe", outerwear: "Veste", shoes: "Chaussures", bag: "Sac", accessory: "Accessoire", other: "Autre" },
         colors: { black: "Noir", white: "Blanc", beige: "Beige", gray: "Gris", brown: "Marron", blue: "Bleu", red: "Rouge", green: "Vert", pink: "Rose", yellow: "Jaune", multicolor: "Multicolore" }
       }
@@ -579,7 +702,19 @@
       { code: 'fr', flag: '🇫🇷', name: 'Français' }
     ];
 
+    const THEMES = [
+      { id: 'light',  swatch: 'linear-gradient(135deg,#f4f2ef,#fff)', key: 'theme_light' },
+      { id: 'dark',   swatch: 'linear-gradient(135deg,#121212,#2a2a2a)', key: 'theme_dark' },
+      { id: 'rose',   swatch: 'linear-gradient(135deg,#fdf2f4,#f0d0d8)', key: 'theme_rose' },
+      { id: 'ocean',  swatch: 'linear-gradient(135deg,#eef5f9,#b8d4e8)', key: 'theme_ocean' },
+      { id: 'forest', swatch: 'linear-gradient(135deg,#f0f4ef,#c8e0c8)', key: 'theme_forest' }
+    ];
+
+    const DEFAULT_STYLES = ['classic','modern','elegant','casual','sporty'];
+
     let currentLang = localStorage.getItem('lookLang') || 'de';
+    let currentTheme = localStorage.getItem('lookTheme') || 'light';
+    let customStyles = JSON.parse(localStorage.getItem('lookCustomStyles') || '[]');
     let items = JSON.parse(localStorage.getItem('lookItems') || '[]');
     let looks = JSON.parse(localStorage.getItem('lookLooks') || '[]');
     let editingId = null;
@@ -592,6 +727,7 @@
     function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key; }
     function tType(type) { return (i18n[currentLang].types || {})[type] || type; }
     function tColor(c) { return (i18n[currentLang].colors || {})[c] || c; }
+    function allStyles() { return [...DEFAULT_STYLES, ...customStyles]; }
 
     function setLang(lang) {
       currentLang = lang;
@@ -599,7 +735,16 @@
       document.documentElement.lang = lang;
       applyTranslations();
       renderAll();
-      closeSettings();
+    }
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('lookTheme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+      const meta = document.getElementById('meta-theme');
+      const colors = { light:'#1a1a1a', dark:'#121212', rose:'#9b2d4a', ocean:'#1a4a6e', forest:'#2d5a3d' };
+      if (meta) meta.content = colors[theme] || '#1a1a1a';
+      renderSettings();
     }
 
     function applyTranslations() {
@@ -609,38 +754,82 @@
       });
       document.getElementById('app-title').textContent = t('app_title');
       document.getElementById('look-name').placeholder = t('look_untitled');
+      document.getElementById('new-style-input').placeholder = t('custom_styles');
 
-      // type select
-      const typeOpts = [
-        ['top','Top / Blouse'], ['bottom','Pants / Skirt'], ['dress','Dress'],
-        ['outerwear','Jacket / Coat'], ['shoes','Shoes'], ['bag','Bag / Clutch'],
-        ['accessory','Accessory'], ['other','Other']
-      ];
-      document.getElementById('item-type').innerHTML = typeOpts.map(([v]) =>
+      const typeOpts = ['top','bottom','dress','outerwear','shoes','bag','accessory','other'];
+      document.getElementById('item-type').innerHTML = typeOpts.map(v =>
         `<option value="${v}">${tType(v)}</option>`).join('');
 
-      // color select
       const cols = Object.keys(i18n.en.colors);
       document.getElementById('item-color').innerHTML = cols.map(c =>
         `<option value="${c}">${tColor(c)}</option>`).join('');
 
-      // styles
-      document.getElementById('style-checks').innerHTML = ['classic','modern','elegant','casual','sporty'].map(s =>
-        `<label><input type="checkbox" value="${s}"> ${t('style_'+s)}</label>`).join('');
-
-      // suggest select
+      renderStyleChecks();
       const sug = document.getElementById('suggest-style');
       const cur = sug.value || 'any';
-      sug.innerHTML = ['any','classic','modern','elegant','casual','sporty'].map(s =>
-        `<option value="${s}">${t('style_'+s)}</option>`).join('');
+      const styleOpts = ['any', ...allStyles()];
+      sug.innerHTML = styleOpts.map(s => {
+        const label = s === 'any' ? t('style_any') : (DEFAULT_STYLES.includes(s) ? t('style_'+s) : s);
+        return `<option value="${s}">${label}</option>`;
+      }).join('');
       sug.value = cur;
+      renderSettings();
+    }
 
-      // lang list in settings
+    function renderStyleChecks() {
+      document.getElementById('style-checks').innerHTML = allStyles().map(s => {
+        const label = DEFAULT_STYLES.includes(s) ? t('style_'+s) : s;
+        return `<label><input type="checkbox" value="${s}"> ${label}</label>`;
+      }).join('');
+    }
+
+    function renderSettings() {
       document.getElementById('lang-list').innerHTML = LANGS.map(l =>
         `<button class="${currentLang===l.code?'active':''}" onclick="setLang('${l.code}')">
           <span><span class="lang-flag">${l.flag}</span>${l.name}</span>
           ${currentLang===l.code ? '✓' : ''}
         </button>`).join('');
+
+      document.getElementById('theme-list').innerHTML = THEMES.map(th =>
+        `<button class="theme-btn ${currentTheme===th.id?'active':''}" onclick="setTheme('${th.id}')">
+          <div class="swatch" style="background:${th.swatch}"></div>
+          <span class="name">${t(th.key)}</span>
+        </button>`).join('');
+
+      document.getElementById('custom-styles-list').innerHTML = customStyles.length
+        ? customStyles.map(s =>
+            `<span class="style-tag">${esc(s)} <button onclick="removeCustomStyle('${esc(s)}')">×</button></span>`
+          ).join('')
+        : `<span style="font-size:.8rem;color:var(--muted)">${t('custom_styles')}</span>`;
+    }
+
+    function addCustomStyle() {
+      const input = document.getElementById('new-style-input');
+      const val = input.value.trim();
+      if (!val) return;
+      if (allStyles().includes(val) || allStyles().map(s=>s.toLowerCase()).includes(val.toLowerCase())) {
+        input.value = '';
+        return;
+      }
+      customStyles.push(val);
+      localStorage.setItem('lookCustomStyles', JSON.stringify(customStyles));
+      input.value = '';
+      renderStyleChecks();
+      renderSettings();
+      applyTranslations();
+      toast(t('toast_style_added'));
+    }
+
+    function removeCustomStyle(name) {
+      customStyles = customStyles.filter(s => s !== name);
+      localStorage.setItem('lookCustomStyles', JSON.stringify(customStyles));
+      // remove from items
+      items = items.map(i => ({ ...i, styles: (i.styles || []).filter(st => st !== name) }));
+      saveData();
+      renderStyleChecks();
+      renderSettings();
+      applyTranslations();
+      toast(t('toast_deleted'));
     }
 
     function showSection(id) {
@@ -685,6 +874,7 @@
       document.getElementById('item-name').value = editItem ? editItem.name : '';
       document.getElementById('item-type').value = editItem ? editItem.type : 'top';
       document.getElementById('item-color').value = editItem ? editItem.color : 'black';
+      renderStyleChecks();
       document.querySelectorAll('#style-checks input').forEach(cb => {
         cb.checked = editItem ? (editItem.styles || []).includes(cb.value) : false;
       });
@@ -692,7 +882,8 @@
     }
     function closeAddModal() {
       document.getElementById('add-modal').classList.remove('open');
-      document.getElementById('photo-input').value = '';
+      document.getElementById('photo-camera').value = '';
+      document.getElementById('photo-gallery').value = '';
       currentPhotoData = null; editingId = null;
     }
 
@@ -777,7 +968,6 @@
       renderCreate(); toast(t('toast_look')); showSection('looks');
     }
 
-    /* ===== CAROUSEL ===== */
     function renderLooks() {
       const empty = document.getElementById('looks-empty');
       const wrap = document.getElementById('carousel-wrap');
@@ -803,7 +993,6 @@
 
       carouselIdx = Math.min(carouselIdx, looks.length - 1);
       updateCarousel();
-      // touch
       car.ontouchstart = e => { touchStartX = e.touches[0].clientX; };
       car.ontouchend = e => {
         const dx = e.changedTouches[0].clientX - touchStartX;
@@ -875,13 +1064,14 @@
       saveData(); toast(t('toast_look')); showSection('looks');
     }
 
-    function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+    function openSettings() { document.getElementById('settings-modal').classList.add('open'); renderSettings(); }
     function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
 
     function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
     function renderAll() { renderWardrobe(); renderCreate(); renderLooks(); }
 
     // init
+    document.documentElement.setAttribute('data-theme', currentTheme);
     applyTranslations();
     renderAll();
     document.getElementById('add-modal').addEventListener('click', e => { if (e.target.id === 'add-modal') closeAddModal(); });
