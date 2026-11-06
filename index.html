@@ -9,140 +9,70 @@
   <title>Look Creator</title>
   <style>
     :root, [data-theme="light"] {
-      --bg: #f4f2ef;
-      --card: #ffffff;
-      --accent: #1a1a1a;
-      --gold: #c9a87c;
-      --text: #111111;
-      --muted: #888888;
-      --border: #e6e2dc;
-      --danger: #c0392b;
-      --radius: 18px;
-      --shadow: 0 4px 24px rgba(0,0,0,.07);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --input-bg: #f4f2ef;
-      --chip-bg: #ffffff;
+      --bg: #f4f2ef; --card: #fff; --accent: #1a1a1a; --gold: #c9a87c;
+      --text: #111; --muted: #888; --border: #e6e2dc; --danger: #c0392b;
+      --radius: 18px; --shadow: 0 4px 24px rgba(0,0,0,.07);
+      --safe-bottom: env(safe-area-inset-bottom, 0px); --input-bg: #f4f2ef; --chip-bg: #fff;
     }
     [data-theme="dark"] {
-      --bg: #121212;
-      --card: #1e1e1e;
-      --accent: #f0f0f0;
-      --gold: #d4b48c;
-      --text: #f0f0f0;
-      --muted: #999999;
-      --border: #333333;
-      --danger: #e74c3c;
-      --shadow: 0 4px 24px rgba(0,0,0,.35);
-      --input-bg: #2a2a2a;
-      --chip-bg: #2a2a2a;
+      --bg: #121212; --card: #1e1e1e; --accent: #f0f0f0; --gold: #d4b48c;
+      --text: #f0f0f0; --muted: #999; --border: #333; --danger: #e74c3c;
+      --shadow: 0 4px 24px rgba(0,0,0,.35); --input-bg: #2a2a2a; --chip-bg: #2a2a2a;
     }
     [data-theme="rose"] {
-      --bg: #fdf2f4;
-      --card: #ffffff;
-      --accent: #9b2d4a;
-      --gold: #d4a0a8;
-      --text: #2d1a20;
-      --muted: #8a6a72;
-      --border: #f0d8de;
-      --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(155,45,74,.08);
-      --input-bg: #fdf2f4;
-      --chip-bg: #ffffff;
+      --bg: #fdf2f4; --card: #fff; --accent: #9b2d4a; --gold: #d4a0a8;
+      --text: #2d1a20; --muted: #8a6a72; --border: #f0d8de; --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(155,45,74,.08); --input-bg: #fdf2f4; --chip-bg: #fff;
     }
     [data-theme="ocean"] {
-      --bg: #eef5f9;
-      --card: #ffffff;
-      --accent: #1a4a6e;
-      --gold: #5b9bb8;
-      --text: #0f2a3d;
-      --muted: #5a7a8a;
-      --border: #d0e0ea;
-      --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(26,74,110,.08);
-      --input-bg: #eef5f9;
-      --chip-bg: #ffffff;
+      --bg: #eef5f9; --card: #fff; --accent: #1a4a6e; --gold: #5b9bb8;
+      --text: #0f2a3d; --muted: #5a7a8a; --border: #d0e0ea; --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(26,74,110,.08); --input-bg: #eef5f9; --chip-bg: #fff;
     }
     [data-theme="forest"] {
-      --bg: #f0f4ef;
-      --card: #ffffff;
-      --accent: #2d5a3d;
-      --gold: #8fbc8f;
-      --text: #1a2e1f;
-      --muted: #5a7a60;
-      --border: #d4e0d6;
-      --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(45,90,61,.08);
-      --input-bg: #f0f4ef;
-      --chip-bg: #ffffff;
+      --bg: #f0f4ef; --card: #fff; --accent: #2d5a3d; --gold: #8fbc8f;
+      --text: #1a2e1f; --muted: #5a7a60; --border: #d4e0d6; --danger: #c0392b;
+      --shadow: 0 4px 24px rgba(45,90,61,.08); --input-bg: #f0f4ef; --chip-bg: #fff;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.4;
-      overflow-x: hidden;
-      padding-bottom: calc(70px + var(--safe-bottom));
+      background: var(--bg); color: var(--text); line-height: 1.4;
+      overflow-x: hidden; padding-bottom: calc(70px + var(--safe-bottom));
       transition: background .25s, color .25s;
     }
-
     header {
-      background: var(--card);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
-      transition: background .25s;
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
     }
     header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
     .gear-btn {
-      width: 40px; height: 40px;
-      border: none; background: var(--bg);
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text);
+      width: 40px; height: 40px; border: none; background: var(--bg);
+      border-radius: 50%; font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--text);
     }
-
     nav.bottom {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--card);
-      display: flex;
-      padding: 6px 0 calc(6px + var(--safe-bottom));
-      box-shadow: 0 -4px 20px rgba(0,0,0,.06);
-      z-index: 100;
-      transition: background .25s;
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
+      display: flex; padding: 6px 0 calc(6px + var(--safe-bottom));
+      box-shadow: 0 -4px 20px rgba(0,0,0,.06); z-index: 100;
     }
     nav.bottom button {
-      flex: 1;
-      border: none; background: none;
-      padding: 6px 0;
+      flex: 1; border: none; background: none; padding: 6px 0;
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      font-size: 0.65rem; font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
+      font-size: .65rem; font-weight: 600; color: var(--muted); cursor: pointer;
     }
     nav.bottom button.active { color: var(--accent); }
     nav.bottom button .ico { font-size: 1.35rem; line-height: 1; }
-
     .container { max-width: 720px; margin: 0 auto; padding: 14px 14px 20px; }
     .section { display: none; }
     .section.active { display: block; animation: fade .2s ease; }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 12px 18px; border: none; border-radius: 14px;
-      font-size: .9rem; font-weight: 600; cursor: pointer;
-      transition: transform .12s;
+      font-size: .9rem; font-weight: 600; cursor: pointer; transition: transform .12s;
     }
     .btn:active { transform: scale(.97); }
     .btn-primary { background: var(--accent); color: var(--card); }
@@ -159,36 +89,26 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.12); cursor: pointer;
     }
     [data-theme="dark"] .btn-icon { background: rgba(40,40,40,.9); color: #eee; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 10px;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
     .item-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      position: relative;
-      transition: background .25s;
+      background: var(--card); border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); position: relative;
     }
-    .item-card img {
-      width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #eee;
-    }
+    .item-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #eee; }
     .item-card .info { padding: 8px 9px 10px; }
-    .item-card .name {
-      font-size: .78rem; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
+    .item-card .name { font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .item-card .meta { font-size: .68rem; color: var(--muted); margin-top: 1px; }
+    .item-card .color-dot {
+      position: absolute; bottom: 42px; left: 8px;
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
     .item-card .actions {
       position: absolute; top: 6px; right: 6px;
       display: flex; gap: 4px; opacity: 0; transition: opacity .15s;
     }
     .item-card:active .actions, .item-card:focus-within .actions { opacity: 1; }
     @media (hover: hover) { .item-card:hover .actions { opacity: 1; } }
-
     .filters {
       display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
@@ -199,15 +119,16 @@
       border: 1px solid var(--border); background: var(--chip-bg);
       font-size: .72rem; font-weight: 600; white-space: nowrap;
       cursor: pointer; color: var(--muted); flex-shrink: 0;
-      transition: all .15s;
     }
     .chip.active { background: var(--accent); color: var(--card); border-color: var(--accent); }
     [data-theme="dark"] .chip.active { color: #121212; }
-
+    .chip .cdot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin-right: 4px; vertical-align: middle; border: 1px solid rgba(0,0,0,.15);
+    }
     .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
     .empty .ico { font-size: 2.4rem; margin-bottom: 8px; }
     .empty p { font-size: .9rem; margin-bottom: 14px; }
-
     .sel-bar {
       display: flex; gap: 8px; overflow-x: auto; min-height: 82px;
       padding: 8px 0; -webkit-overflow-scrolling: touch;
@@ -221,45 +142,21 @@
     }
     .selectable .item-card { cursor: pointer; border: 3px solid transparent; }
     .selectable .item-card.selected { border-color: var(--gold); }
-
     .carousel-wrap { position: relative; overflow: hidden; touch-action: pan-y; }
-    .carousel {
-      display: flex;
-      transition: transform .35s cubic-bezier(.25,.8,.25,1);
-      will-change: transform;
-    }
-    .carousel-slide { min-width: 100%; padding: 0 4px; box-sizing: border-box; }
-    .look-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: background .25s;
-    }
+    .carousel { display: flex; transition: transform .35s cubic-bezier(.25,.8,.25,1); will-change: transform; }
+    .carousel-slide { min-width: 100%; padding: 0 4px; }
+    .look-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
     .look-collage {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      padding: 10px;
-      background: var(--bg);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; background: var(--bg);
     }
-    .look-collage .li {
-      border-radius: 12px; overflow: hidden; background: #eee;
-      aspect-ratio: 1;
-    }
+    .look-collage .li { border-radius: 12px; overflow: hidden; background: #eee; aspect-ratio: 1; }
     .look-collage .li.full { grid-column: 1 / -1; aspect-ratio: 16/10; }
     .look-collage .li img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .look-foot {
-      padding: 12px 14px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .look-foot { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
     .look-foot .title { font-weight: 600; font-size: .95rem; }
-    .carousel-dots {
-      display: flex; justify-content: center; gap: 6px; margin-top: 14px;
-    }
+    .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
     .carousel-dots span {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--border); transition: all .2s;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all .2s;
     }
     .carousel-dots span.on { background: var(--accent); width: 18px; border-radius: 4px; }
     .carousel-nav {
@@ -269,43 +166,29 @@
       font-size: 1.1rem; cursor: pointer; z-index: 5; color: var(--text);
       display: flex; align-items: center; justify-content: center;
     }
-    .carousel-nav.prev { left: 6px; }
-    .carousel-nav.next { right: 6px; }
+    .carousel-nav.prev { left: 6px; } .carousel-nav.next { right: 6px; }
     @media (max-width: 500px) { .carousel-nav { display: none; } }
-
     .overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.45);
-      z-index: 200;
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200;
       display: none; align-items: flex-end; justify-content: center;
     }
     .overlay.open { display: flex; }
     .modal {
-      background: var(--card);
-      width: 100%; max-width: 440px;
-      max-height: 92vh;
-      border-radius: 22px 22px 0 0;
-      padding: 18px 16px calc(24px + var(--safe-bottom));
-      overflow-y: auto;
-      animation: up .28s ease;
-      color: var(--text);
-      transition: background .25s;
+      background: var(--card); width: 100%; max-width: 440px; max-height: 92vh;
+      border-radius: 22px 22px 0 0; padding: 18px 16px calc(24px + var(--safe-bottom));
+      overflow-y: auto; animation: up .28s ease; color: var(--text);
     }
     @keyframes up { from { transform: translateY(50px); opacity: 0; } to { transform: none; opacity: 1; } }
     .modal h2 { font-size: 1.1rem; margin-bottom: 14px; }
     .form-group { margin-bottom: 12px; }
-    .form-group label {
-      display: block; font-size: .75rem; font-weight: 600;
-      margin-bottom: 4px; color: var(--muted);
-    }
+    .form-group label { display: block; font-size: .75rem; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
     .form-group input, .form-group select {
-      width: 100%; padding: 11px 12px;
-      border: 1px solid var(--border); border-radius: 12px;
-      font-size: .95rem; background: var(--input-bg); color: var(--text);
+      width: 100%; padding: 11px 12px; border: 1px solid var(--border);
+      border-radius: 12px; font-size: .95rem; background: var(--input-bg); color: var(--text);
     }
     .preview {
-      width: 140px; aspect-ratio: 1; margin: 0 auto 12px;
-      border-radius: 14px; overflow: hidden; background: var(--input-bg);
+      width: 140px; aspect-ratio: 1; margin: 0 auto 12px; border-radius: 14px;
+      overflow: hidden; background: var(--input-bg);
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); font-size: .8rem; text-align: center;
     }
@@ -314,14 +197,31 @@
     .style-row label {
       font-size: .78rem; padding: 6px 10px; border-radius: 20px;
       background: var(--input-bg); border: 1px solid var(--border);
-      cursor: pointer; display: flex; align-items: center; gap: 4px;
-      color: var(--text);
+      cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--text);
     }
     .style-row input { accent-color: var(--gold); }
-
     .photo-btns { display: flex; gap: 8px; margin-bottom: 12px; }
     .photo-btns .btn { flex: 1; font-size: .82rem; padding: 11px 8px; }
-
+    .batch-list { display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; }
+    .batch-card {
+      display: flex; gap: 12px; background: var(--input-bg); border-radius: 14px;
+      padding: 10px; border: 1px solid var(--border);
+    }
+    .batch-card img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+    .batch-card .fields { flex: 1; min-width: 0; }
+    .batch-card select, .batch-card input {
+      width: 100%; padding: 7px 8px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: .8rem; background: var(--card); color: var(--text);
+      margin-bottom: 5px;
+    }
+    .batch-card .color-row {
+      display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--muted);
+    }
+    .batch-card .cdot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); }
+    .batch-card .remove-btn {
+      border: none; background: none; color: var(--danger); font-size: 1.1rem;
+      cursor: pointer; padding: 4px; align-self: flex-start;
+    }
     .settings-section { margin-bottom: 20px; }
     .settings-section h3 {
       font-size: .8rem; font-weight: 700; color: var(--muted);
@@ -330,55 +230,37 @@
     .settings-list { display: flex; flex-direction: column; gap: 6px; }
     .settings-list button, .theme-btn {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 14px; border: 1px solid var(--border);
-      border-radius: 14px; background: var(--input-bg);
-      font-size: .92rem; font-weight: 500; cursor: pointer; color: var(--text);
-      width: 100%; text-align: left;
+      padding: 13px 14px; border: 1px solid var(--border); border-radius: 14px;
+      background: var(--input-bg); font-size: .92rem; font-weight: 500;
+      cursor: pointer; color: var(--text); width: 100%; text-align: left;
     }
     .settings-list button.active, .theme-btn.active {
       border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--input-bg));
     }
     .lang-flag { font-size: 1.15rem; margin-right: 8px; }
-    .theme-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
+    .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .theme-btn { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; }
-    .theme-btn .swatch {
-      width: 100%; height: 28px; border-radius: 8px; margin-bottom: 4px;
-    }
+    .theme-btn .swatch { width: 100%; height: 28px; border-radius: 8px; margin-bottom: 4px; }
     .theme-btn .name { font-size: .82rem; font-weight: 600; }
-
-    .custom-style-row {
-      display: flex; gap: 8px; margin-top: 8px;
-    }
+    .custom-style-row { display: flex; gap: 8px; margin-top: 8px; }
     .custom-style-row input { flex: 1; }
     .style-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .style-tag {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 5px 10px; border-radius: 16px;
-      background: var(--input-bg); border: 1px solid var(--border);
-      font-size: .78rem;
+      background: var(--input-bg); border: 1px solid var(--border); font-size: .78rem;
     }
-    .style-tag button {
-      border: none; background: none; color: var(--danger);
-      font-size: .85rem; cursor: pointer; padding: 0 2px;
-    }
-
+    .style-tag button { border: none; background: none; color: var(--danger); font-size: .85rem; cursor: pointer; }
     .toast {
-      position: fixed; bottom: calc(80px + var(--safe-bottom));
-      left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: var(--card);
-      padding: 10px 22px; border-radius: 30px;
-      font-size: .85rem; font-weight: 600; z-index: 300;
-      opacity: 0; pointer-events: none; transition: opacity .25s;
-      white-space: nowrap;
+      position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: var(--card); padding: 10px 22px; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; z-index: 300; opacity: 0; pointer-events: none;
+      transition: opacity .25s; white-space: nowrap;
     }
     [data-theme="dark"] .toast { color: #121212; }
     .toast.show { opacity: 1; }
-
     .fab {
-      position: fixed;
-      bottom: calc(78px + var(--safe-bottom)); right: 16px;
+      position: fixed; bottom: calc(78px + var(--safe-bottom)); right: 16px;
       width: 54px; height: 54px; border-radius: 50%;
       background: var(--accent); color: var(--card); border: none;
       font-size: 1.7rem; box-shadow: 0 6px 20px rgba(0,0,0,.22);
@@ -386,7 +268,6 @@
       display: flex; align-items: center; justify-content: center;
     }
     [data-theme="dark"] .fab { color: #121212; }
-
     @media (min-width: 600px) {
       .overlay { align-items: center; }
       .modal { border-radius: 22px; margin-bottom: 30px; }
@@ -397,12 +278,12 @@
 <body>
   <header>
     <h1 id="app-title">Look Creator</h1>
-    <button class="gear-btn" onclick="openSettings()" aria-label="Settings">⚙️</button>
+    <button class="gear-btn" onclick="openSettings()">⚙️</button>
   </header>
-
   <div class="container">
     <section id="wardrobe" class="section active">
       <div class="filters" id="type-filters"></div>
+      <div class="filters" id="color-filters" style="margin-top:-4px"></div>
       <div id="items-grid" class="grid"></div>
       <div id="wardrobe-empty" class="empty" style="display:none">
         <div class="ico">👕</div>
@@ -410,7 +291,6 @@
         <button class="btn btn-primary" onclick="openAddModal()" data-i18n="btn_add"></button>
       </div>
     </section>
-
     <section id="create" class="section">
       <div class="sel-bar" id="selected-bar"></div>
       <div style="display:flex;gap:8px;margin:8px 0 12px">
@@ -420,7 +300,6 @@
       <div class="filters" id="create-filters"></div>
       <div id="create-grid" class="grid selectable"></div>
     </section>
-
     <section id="looks" class="section">
       <div id="looks-empty" class="empty" style="display:none">
         <div class="ico">👗</div>
@@ -434,7 +313,6 @@
         <div class="carousel-dots" id="dots"></div>
       </div>
     </section>
-
     <section id="suggest" class="section">
       <select id="suggest-style" onchange="generateSuggestions()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;background:var(--input-bg);color:var(--text);font-size:.9rem"></select>
       <button class="btn btn-gold btn-block" onclick="generateSuggestions()" style="margin-bottom:14px" data-i18n="btn_generate"></button>
@@ -445,7 +323,6 @@
       </div>
     </section>
   </div>
-
   <nav class="bottom">
     <button class="nav-btn active" data-section="wardrobe" onclick="showSection('wardrobe')">
       <span class="ico">📦</span><span data-i18n="nav_wardrobe"></span>
@@ -460,469 +337,339 @@
       <span class="ico">💡</span><span data-i18n="nav_suggest"></span>
     </button>
   </nav>
-
   <button class="fab" onclick="openAddModal()">+</button>
 
-  <!-- ADD MODAL -->
   <div class="overlay" id="add-modal">
     <div class="modal">
       <h2 id="modal-title" data-i18n="modal_add"></h2>
       <div class="preview" id="preview-box"><span data-i18n="tap_photo"></span></div>
-      <input type="file" id="photo-camera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)" />
-      <input type="file" id="photo-gallery" accept="image/*" style="display:none" onchange="handlePhoto(event)" />
+      <input type="file" id="photo-camera" accept="image/*" capture="environment" style="display:none" onchange="handleSinglePhoto(event)" />
+      <input type="file" id="photo-gallery" accept="image/*" multiple style="display:none" onchange="handleMultiPhotos(event)" />
       <div class="photo-btns">
         <button class="btn btn-ghost" onclick="document.getElementById('photo-camera').click()" data-i18n="btn_camera"></button>
         <button class="btn btn-ghost" onclick="document.getElementById('photo-gallery').click()" data-i18n="btn_gallery"></button>
       </div>
-      <div class="form-group">
-        <label data-i18n="label_name"></label>
-        <input type="text" id="item-name" />
-      </div>
-      <div class="form-group">
-        <label data-i18n="label_type"></label>
-        <select id="item-type"></select>
-      </div>
-      <div class="form-group">
-        <label data-i18n="label_color"></label>
-        <select id="item-color"></select>
-      </div>
-      <div class="form-group">
-        <label data-i18n="label_style"></label>
-        <div class="style-row" id="style-checks"></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn btn-ghost" style="flex:1" onclick="closeAddModal()" data-i18n="btn_cancel"></button>
-        <button class="btn btn-primary" style="flex:1" onclick="saveItem()" data-i18n="btn_save"></button>
+      <div id="single-form">
+        <div class="form-group"><label data-i18n="label_name"></label><input type="text" id="item-name" /></div>
+        <div class="form-group"><label data-i18n="label_type"></label><select id="item-type"></select></div>
+        <div class="form-group"><label data-i18n="label_color"></label><select id="item-color"></select></div>
+        <div class="form-group"><label data-i18n="label_style"></label><div class="style-row" id="style-checks"></div></div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-ghost" style="flex:1" onclick="closeAddModal()" data-i18n="btn_cancel"></button>
+          <button class="btn btn-primary" style="flex:1" onclick="saveItem()" data-i18n="btn_save"></button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- SETTINGS MODAL -->
+  <div class="overlay" id="batch-modal">
+    <div class="modal">
+      <h2 data-i18n="batch_title"></h2>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px" data-i18n="batch_hint"></p>
+      <div class="batch-list" id="batch-list"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeBatchModal()" data-i18n="btn_cancel"></button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveBatch()" data-i18n="btn_save_all"></button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="settings-modal">
     <div class="modal">
       <h2 data-i18n="settings"></h2>
-
       <div class="settings-section">
         <h3 data-i18n="choose_lang"></h3>
         <div class="settings-list" id="lang-list"></div>
       </div>
-
       <div class="settings-section">
         <h3 data-i18n="theme_title"></h3>
         <div class="theme-grid" id="theme-list"></div>
       </div>
-
       <div class="settings-section">
         <h3 data-i18n="custom_styles"></h3>
         <div class="style-tags" id="custom-styles-list"></div>
         <div class="custom-style-row">
-          <input type="text" id="new-style-input" placeholder="" style="padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--input-bg);color:var(--text);font-size:.9rem" />
+          <input type="text" id="new-style-input" style="padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--input-bg);color:var(--text);font-size:.9rem" />
           <button class="btn btn-primary btn-sm" onclick="addCustomStyle()" data-i18n="btn_add_style"></button>
         </div>
       </div>
-
       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeSettings()" data-i18n="btn_close"></button>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
+  <canvas id="color-canvas" style="display:none"></canvas>
 
   <script>
     const i18n = {
-      de: {
-        app_title: "Look Creator", nav_wardrobe: "Schrank", nav_create: "Erstellen", nav_looks: "Looks", nav_suggest: "Ideen",
-        empty_wardrobe: "Noch keine Teile. Foto machen!", btn_add: "Hinzufügen",
-        empty_looks: "Keine Looks. Erstelle einen!", btn_create: "Erstellen",
-        empty_suggest: "Mehr Teile nötig (Top + Hose + Schuhe).",
-        btn_generate: "Vorschläge", btn_save: "Speichern", btn_cancel: "Abbrechen", btn_close: "Schließen",
-        btn_camera: "📷 Kamera", btn_gallery: "🖼️ Galerie",
-        modal_add: "Teil hinzufügen", modal_edit: "Bearbeiten",
-        tap_photo: "Foto wählen", label_name: "Name", label_type: "Typ", label_color: "Farbe", label_style: "Stil",
-        toast_saved: "Gespeichert", toast_look: "Look gespeichert", toast_deleted: "Gelöscht",
-        toast_need: "Min. 2 Teile", toast_photo: "Foto nötig", toast_style_added: "Stil hinzugefügt",
-        filter_all: "Alle", settings: "Einstellungen", choose_lang: "Sprache",
-        theme_title: "Theme & Hintergrund", custom_styles: "Eigene Styles",
-        btn_add_style: "Hinzufügen",
-        style_any: "Beliebig", style_classic: "Klassisch", style_modern: "Modern",
-        style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sportlich",
-        type_top: "Tops", type_bottom: "Hosen", type_dress: "Kleider", type_outerwear: "Jacken",
-        type_shoes: "Schuhe", type_bag: "Taschen", type_accessory: "Accessoires", type_other: "Anderes",
-        delete_confirm: "Löschen?", look_untitled: "Look", suggested: "Idee",
-        theme_light: "Hell", theme_dark: "Dunkel", theme_rose: "Rose", theme_ocean: "Ozean", theme_forest: "Wald",
-        types: { top: "Top", bottom: "Hose/Rock", dress: "Kleid", outerwear: "Jacke", shoes: "Schuhe", bag: "Tasche", accessory: "Accessoire", other: "Anderes" },
-        colors: { black: "Schwarz", white: "Weiß", beige: "Beige", gray: "Grau", brown: "Braun", blue: "Blau", red: "Rot", green: "Grün", pink: "Rosa", yellow: "Gelb", multicolor: "Bunt" }
-      },
-      en: {
-        app_title: "Look Creator", nav_wardrobe: "Wardrobe", nav_create: "Create", nav_looks: "Looks", nav_suggest: "Ideas",
-        empty_wardrobe: "No items yet. Take a photo!", btn_add: "Add",
-        empty_looks: "No looks. Create one!", btn_create: "Create",
-        empty_suggest: "Need more items (top + bottom + shoes).",
-        btn_generate: "Generate", btn_save: "Save", btn_cancel: "Cancel", btn_close: "Close",
-        btn_camera: "📷 Camera", btn_gallery: "🖼️ Gallery",
-        modal_add: "Add item", modal_edit: "Edit",
-        tap_photo: "Choose photo", label_name: "Name", label_type: "Type", label_color: "Color", label_style: "Style",
-        toast_saved: "Saved", toast_look: "Look saved", toast_deleted: "Deleted",
-        toast_need: "Min. 2 items", toast_photo: "Photo required", toast_style_added: "Style added",
-        filter_all: "All", settings: "Settings", choose_lang: "Language",
-        theme_title: "Theme & Background", custom_styles: "Custom styles",
-        btn_add_style: "Add",
-        style_any: "Any", style_classic: "Classic", style_modern: "Modern",
-        style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sporty",
-        type_top: "Tops", type_bottom: "Bottoms", type_dress: "Dresses", type_outerwear: "Outerwear",
-        type_shoes: "Shoes", type_bag: "Bags", type_accessory: "Accessories", type_other: "Other",
-        delete_confirm: "Delete?", look_untitled: "Look", suggested: "Idea",
-        theme_light: "Light", theme_dark: "Dark", theme_rose: "Rose", theme_ocean: "Ocean", theme_forest: "Forest",
-        types: { top: "Top", bottom: "Bottom", dress: "Dress", outerwear: "Jacket", shoes: "Shoes", bag: "Bag", accessory: "Accessory", other: "Other" },
-        colors: { black: "Black", white: "White", beige: "Beige", gray: "Gray", brown: "Brown", blue: "Blue", red: "Red", green: "Green", pink: "Pink", yellow: "Yellow", multicolor: "Multi" }
-      },
-      ru: {
-        app_title: "Look Creator", nav_wardrobe: "Шкаф", nav_create: "Создать", nav_looks: "Образы", nav_suggest: "Идеи",
-        empty_wardrobe: "Пока пусто. Сфотографируй вещи!", btn_add: "Добавить",
-        empty_looks: "Нет образов. Создай!", btn_create: "Создать",
-        empty_suggest: "Нужно больше вещей (верх + низ + обувь).",
-        btn_generate: "Идеи", btn_save: "Сохранить", btn_cancel: "Отмена", btn_close: "Закрыть",
-        btn_camera: "📷 Камера", btn_gallery: "🖼️ Галерея",
-        modal_add: "Добавить вещь", modal_edit: "Изменить",
-        tap_photo: "Выбрать фото", label_name: "Название", label_type: "Тип", label_color: "Цвет", label_style: "Стиль",
-        toast_saved: "Сохранено", toast_look: "Образ сохранён", toast_deleted: "Удалено",
-        toast_need: "Мин. 2 вещи", toast_photo: "Нужно фото", toast_style_added: "Стиль добавлен",
-        filter_all: "Все", settings: "Настройки", choose_lang: "Язык",
-        theme_title: "Тема и фон", custom_styles: "Свои стили",
-        btn_add_style: "Добавить",
-        style_any: "Любой", style_classic: "Классика", style_modern: "Модерн",
-        style_elegant: "Элегант", style_casual: "Кэжуал", style_sporty: "Спорт",
-        type_top: "Верх", type_bottom: "Низ", type_dress: "Платья", type_outerwear: "Верхняя",
-        type_shoes: "Обувь", type_bag: "Сумки", type_accessory: "Аксессуары", type_other: "Другое",
-        delete_confirm: "Удалить?", look_untitled: "Образ", suggested: "Идея",
-        theme_light: "Светлая", theme_dark: "Тёмная", theme_rose: "Роза", theme_ocean: "Океан", theme_forest: "Лес",
-        types: { top: "Верх", bottom: "Низ", dress: "Платье", outerwear: "Куртка", shoes: "Обувь", bag: "Сумка", accessory: "Аксессуар", other: "Другое" },
-        colors: { black: "Чёрный", white: "Белый", beige: "Бежевый", gray: "Серый", brown: "Коричневый", blue: "Синий", red: "Красный", green: "Зелёный", pink: "Розовый", yellow: "Жёлтый", multicolor: "Разный" }
-      },
-      uk: {
-        app_title: "Look Creator", nav_wardrobe: "Шафа", nav_create: "Створити", nav_looks: "Образи", nav_suggest: "Ідеї",
-        empty_wardrobe: "Поки порожньо. Зроби фото!", btn_add: "Додати",
-        empty_looks: "Немає образів. Створи!", btn_create: "Створити",
-        empty_suggest: "Потрібно більше речей (верх + низ + взуття).",
-        btn_generate: "Ідеї", btn_save: "Зберегти", btn_cancel: "Скасувати", btn_close: "Закрити",
-        btn_camera: "📷 Камера", btn_gallery: "🖼️ Галерея",
-        modal_add: "Додати річ", modal_edit: "Змінити",
-        tap_photo: "Обрати фото", label_name: "Назва", label_type: "Тип", label_color: "Колір", label_style: "Стиль",
-        toast_saved: "Збережено", toast_look: "Образ збережено", toast_deleted: "Видалено",
-        toast_need: "Мін. 2 речі", toast_photo: "Потрібне фото", toast_style_added: "Стиль додано",
-        filter_all: "Усі", settings: "Налаштування", choose_lang: "Мова",
-        theme_title: "Тема і фон", custom_styles: "Власні стилі",
-        btn_add_style: "Додати",
-        style_any: "Будь-який", style_classic: "Класика", style_modern: "Модерн",
-        style_elegant: "Елегант", style_casual: "Кежуал", style_sporty: "Спорт",
-        type_top: "Верх", type_bottom: "Низ", type_dress: "Сукні", type_outerwear: "Верхній",
-        type_shoes: "Взуття", type_bag: "Сумки", type_accessory: "Аксесуари", type_other: "Інше",
-        delete_confirm: "Видалити?", look_untitled: "Образ", suggested: "Ідея",
-        theme_light: "Світла", theme_dark: "Темна", theme_rose: "Троянда", theme_ocean: "Океан", theme_forest: "Ліс",
-        types: { top: "Верх", bottom: "Низ", dress: "Сукня", outerwear: "Куртка", shoes: "Взуття", bag: "Сумка", accessory: "Аксесуар", other: "Інше" },
-        colors: { black: "Чорний", white: "Білий", beige: "Бежевий", gray: "Сірий", brown: "Коричневий", blue: "Синій", red: "Червоний", green: "Зелений", pink: "Рожевий", yellow: "Жовтий", multicolor: "Різний" }
-      },
-      it: {
-        app_title: "Look Creator", nav_wardrobe: "Armadio", nav_create: "Crea", nav_looks: "Look", nav_suggest: "Idee",
-        empty_wardrobe: "Nessun capo. Scatta una foto!", btn_add: "Aggiungi",
-        empty_looks: "Nessun look. Creane uno!", btn_create: "Crea",
-        empty_suggest: "Servono più capi (top + pantaloni + scarpe).",
-        btn_generate: "Idee", btn_save: "Salva", btn_cancel: "Annulla", btn_close: "Chiudi",
-        btn_camera: "📷 Fotocamera", btn_gallery: "🖼️ Galleria",
-        modal_add: "Aggiungi capo", modal_edit: "Modifica",
-        tap_photo: "Scegli foto", label_name: "Nome", label_type: "Tipo", label_color: "Colore", label_style: "Stile",
-        toast_saved: "Salvato", toast_look: "Look salvato", toast_deleted: "Eliminato",
-        toast_need: "Min. 2 pezzi", toast_photo: "Foto richiesta", toast_style_added: "Stile aggiunto",
-        filter_all: "Tutti", settings: "Impostazioni", choose_lang: "Lingua",
-        theme_title: "Tema e sfondo", custom_styles: "Stili personalizzati",
-        btn_add_style: "Aggiungi",
-        style_any: "Qualsiasi", style_classic: "Classico", style_modern: "Modern",
-        style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sportivo",
-        type_top: "Top", type_bottom: "Pantaloni", type_dress: "Abiti", type_outerwear: "Giacche",
-        type_shoes: "Scarpe", type_bag: "Borse", type_accessory: "Accessori", type_other: "Altro",
-        delete_confirm: "Eliminare?", look_untitled: "Look", suggested: "Idea",
-        theme_light: "Chiaro", theme_dark: "Scuro", theme_rose: "Rosa", theme_ocean: "Oceano", theme_forest: "Foresta",
-        types: { top: "Top", bottom: "Pantalone", dress: "Abito", outerwear: "Giacca", shoes: "Scarpe", bag: "Borsa", accessory: "Accessorio", other: "Altro" },
-        colors: { black: "Nero", white: "Bianco", beige: "Beige", gray: "Grigio", brown: "Marrone", blue: "Blu", red: "Rosso", green: "Verde", pink: "Rosa", yellow: "Giallo", multicolor: "Multicolore" }
-      },
-      es: {
-        app_title: "Look Creator", nav_wardrobe: "Armario", nav_create: "Crear", nav_looks: "Looks", nav_suggest: "Ideas",
-        empty_wardrobe: "Sin prendas. ¡Haz una foto!", btn_add: "Añadir",
-        empty_looks: "Sin looks. ¡Crea uno!", btn_create: "Crear",
-        empty_suggest: "Necesitas más prendas (top + pantalón + zapatos).",
-        btn_generate: "Ideas", btn_save: "Guardar", btn_cancel: "Cancelar", btn_close: "Cerrar",
-        btn_camera: "📷 Cámara", btn_gallery: "🖼️ Galería",
-        modal_add: "Añadir prenda", modal_edit: "Editar",
-        tap_photo: "Elegir foto", label_name: "Nombre", label_type: "Tipo", label_color: "Color", label_style: "Estilo",
-        toast_saved: "Guardado", toast_look: "Look guardado", toast_deleted: "Eliminado",
-        toast_need: "Mín. 2 prendas", toast_photo: "Foto necesaria", toast_style_added: "Estilo añadido",
-        filter_all: "Todos", settings: "Ajustes", choose_lang: "Idioma",
-        theme_title: "Tema y fondo", custom_styles: "Estilos propios",
-        btn_add_style: "Añadir",
-        style_any: "Cualquiera", style_classic: "Clásico", style_modern: "Moderno",
-        style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sport",
-        type_top: "Tops", type_bottom: "Pantalones", type_dress: "Vestidos", type_outerwear: "Abrigos",
-        type_shoes: "Zapatos", type_bag: "Bolsos", type_accessory: "Accesorios", type_other: "Otro",
-        delete_confirm: "¿Borrar?", look_untitled: "Look", suggested: "Idea",
-        theme_light: "Claro", theme_dark: "Oscuro", theme_rose: "Rosa", theme_ocean: "Océano", theme_forest: "Bosque",
-        types: { top: "Top", bottom: "Pantalón", dress: "Vestido", outerwear: "Chaqueta", shoes: "Zapatos", bag: "Bolso", accessory: "Accesorio", other: "Otro" },
-        colors: { black: "Negro", white: "Blanco", beige: "Beige", gray: "Gris", brown: "Marrón", blue: "Azul", red: "Rojo", green: "Verde", pink: "Rosa", yellow: "Amarillo", multicolor: "Multicolor" }
-      },
-      fr: {
-        app_title: "Look Creator", nav_wardrobe: "Penderie", nav_create: "Créer", nav_looks: "Looks", nav_suggest: "Idées",
-        empty_wardrobe: "Rien encore. Prends une photo !", btn_add: "Ajouter",
-        empty_looks: "Aucun look. Crée-en un !", btn_create: "Créer",
-        empty_suggest: "Il faut plus de pièces (haut + bas + chaussures).",
-        btn_generate: "Idées", btn_save: "Enregistrer", btn_cancel: "Annuler", btn_close: "Fermer",
-        btn_camera: "📷 Appareil", btn_gallery: "🖼️ Galerie",
-        modal_add: "Ajouter un article", modal_edit: "Modifier",
-        tap_photo: "Choisir photo", label_name: "Nom", label_type: "Type", label_color: "Couleur", label_style: "Style",
-        toast_saved: "Enregistré", toast_look: "Look enregistré", toast_deleted: "Supprimé",
-        toast_need: "Min. 2 pièces", toast_photo: "Photo requise", toast_style_added: "Style ajouté",
-        filter_all: "Tous", settings: "Réglages", choose_lang: "Langue",
-        theme_title: "Thème et fond", custom_styles: "Styles perso",
-        btn_add_style: "Ajouter",
-        style_any: "Tous", style_classic: "Classique", style_modern: "Moderne",
-        style_elegant: "Élégant", style_casual: "Casual", style_sporty: "Sport",
-        type_top: "Hauts", type_bottom: "Bas", type_dress: "Robes", type_outerwear: "Manteaux",
-        type_shoes: "Chaussures", type_bag: "Sacs", type_accessory: "Accessoires", type_other: "Autre",
-        delete_confirm: "Supprimer ?", look_untitled: "Look", suggested: "Idée",
-        theme_light: "Clair", theme_dark: "Sombre", theme_rose: "Rose", theme_ocean: "Océan", theme_forest: "Forêt",
-        types: { top: "Haut", bottom: "Bas", dress: "Robe", outerwear: "Veste", shoes: "Chaussures", bag: "Sac", accessory: "Accessoire", other: "Autre" },
-        colors: { black: "Noir", white: "Blanc", beige: "Beige", gray: "Gris", brown: "Marron", blue: "Bleu", red: "Rouge", green: "Vert", pink: "Rose", yellow: "Jaune", multicolor: "Multicolore" }
-      }
+      de:{app_title:"Look Creator",nav_wardrobe:"Schrank",nav_create:"Erstellen",nav_looks:"Looks",nav_suggest:"Ideen",empty_wardrobe:"Noch keine Teile. Foto machen!",btn_add:"Hinzufügen",empty_looks:"Keine Looks. Erstelle einen!",btn_create:"Erstellen",empty_suggest:"Mehr Teile nötig (Top + Hose + Schuhe).",btn_generate:"Vorschläge",btn_save:"Speichern",btn_cancel:"Abbrechen",btn_close:"Schließen",btn_camera:"📷 Kamera",btn_gallery:"🖼️ Galerie",btn_save_all:"Alle speichern",modal_add:"Teil hinzufügen",modal_edit:"Bearbeiten",tap_photo:"Foto wählen",label_name:"Name",label_type:"Typ",label_color:"Farbe",label_style:"Stil",toast_saved:"Gespeichert",toast_look:"Look gespeichert",toast_deleted:"Gelöscht",toast_need:"Min. 2 Teile",toast_photo:"Foto nötig",toast_style_added:"Stil hinzugefügt",toast_batch:"Teile gespeichert",toast_analyzing:"Farben erkennen…",filter_all:"Alle",settings:"Einstellungen",choose_lang:"Sprache",theme_title:"Theme & Hintergrund",custom_styles:"Eigene Styles",btn_add_style:"Hinzufügen",batch_title:"Mehrere Teile",batch_hint:"Farbe wurde erkannt. Typ prüfen & speichern.",style_any:"Beliebig",style_classic:"Klassisch",style_modern:"Modern",style_elegant:"Elegant",style_casual:"Casual",style_sporty:"Sportlich",type_top:"Tops",type_bottom:"Hosen",type_dress:"Kleider",type_outerwear:"Jacken",type_shoes:"Schuhe",type_bag:"Taschen",type_accessory:"Accessoires",type_other:"Anderes",delete_confirm:"Löschen?",look_untitled:"Look",suggested:"Idee",theme_light:"Hell",theme_dark:"Dunkel",theme_rose:"Rose",theme_ocean:"Ozean",theme_forest:"Wald",types:{top:"Top",bottom:"Hose/Rock",dress:"Kleid",outerwear:"Jacke",shoes:"Schuhe",bag:"Tasche",accessory:"Accessoire",other:"Anderes"},colors:{black:"Schwarz",white:"Weiß",beige:"Beige",gray:"Grau",brown:"Braun",blue:"Blau",red:"Rot",green:"Grün",pink:"Rosa",yellow:"Gelb",multicolor:"Bunt"}},
+      en:{app_title:"Look Creator",nav_wardrobe:"Wardrobe",nav_create:"Create",nav_looks:"Looks",nav_suggest:"Ideas",empty_wardrobe:"No items yet. Take a photo!",btn_add:"Add",empty_looks:"No looks. Create one!",btn_create:"Create",empty_suggest:"Need more items (top + bottom + shoes).",btn_generate:"Generate",btn_save:"Save",btn_cancel:"Cancel",btn_close:"Close",btn_camera:"📷 Camera",btn_gallery:"🖼️ Gallery",btn_save_all:"Save all",modal_add:"Add item",modal_edit:"Edit",tap_photo:"Choose photo",label_name:"Name",label_type:"Type",label_color:"Color",label_style:"Style",toast_saved:"Saved",toast_look:"Look saved",toast_deleted:"Deleted",toast_need:"Min. 2 items",toast_photo:"Photo required",toast_style_added:"Style added",toast_batch:"Items saved",toast_analyzing:"Detecting colors…",filter_all:"All",settings:"Settings",choose_lang:"Language",theme_title:"Theme & Background",custom_styles:"Custom styles",btn_add_style:"Add",batch_title:"Multiple items",batch_hint:"Color detected. Check type & save.",style_any:"Any",style_classic:"Classic",style_modern:"Modern",style_elegant:"Elegant",style_casual:"Casual",style_sporty:"Sporty",type_top:"Tops",type_bottom:"Bottoms",type_dress:"Dresses",type_outerwear:"Outerwear",type_shoes:"Shoes",type_bag:"Bags",type_accessory:"Accessories",type_other:"Other",delete_confirm:"Delete?",look_untitled:"Look",suggested:"Idea",theme_light:"Light",theme_dark:"Dark",theme_rose:"Rose",theme_ocean:"Ocean",theme_forest:"Forest",types:{top:"Top",bottom:"Bottom",dress:"Dress",outerwear:"Jacket",shoes:"Shoes",bag:"Bag",accessory:"Accessory",other:"Other"},colors:{black:"Black",white:"White",beige:"Beige",gray:"Gray",brown:"Brown",blue:"Blue",red:"Red",green:"Green",pink:"Pink",yellow:"Yellow",multicolor:"Multi"}},
+      ru:{app_title:"Look Creator",nav_wardrobe:"Шкаф",nav_create:"Создать",nav_looks:"Образы",nav_suggest:"Идеи",empty_wardrobe:"Пока пусто. Сфотографируй вещи!",btn_add:"Добавить",empty_looks:"Нет образов. Создай!",btn_create:"Создать",empty_suggest:"Нужно больше вещей (верх + низ + обувь).",btn_generate:"Идеи",btn_save:"Сохранить",btn_cancel:"Отмена",btn_close:"Закрыть",btn_camera:"📷 Камера",btn_gallery:"🖼️ Галерея",btn_save_all:"Сохранить все",modal_add:"Добавить вещь",modal_edit:"Изменить",tap_photo:"Выбрать фото",label_name:"Название",label_type:"Тип",label_color:"Цвет",label_style:"Стиль",toast_saved:"Сохранено",toast_look:"Образ сохранён",toast_deleted:"Удалено",toast_need:"Мин. 2 вещи",toast_photo:"Нужно фото",toast_style_added:"Стиль добавлен",toast_batch:"Вещи сохранены",toast_analyzing:"Определение цвета…",filter_all:"Все",settings:"Настройки",choose_lang:"Язык",theme_title:"Тема и фон",custom_styles:"Свои стили",btn_add_style:"Добавить",batch_title:"Несколько вещей",batch_hint:"Цвет определён. Проверьте тип и сохраните.",style_any:"Любой",style_classic:"Классика",style_modern:"Модерн",style_elegant:"Элегант",style_casual:"Кэжуал",style_sporty:"Спорт",type_top:"Верх",type_bottom:"Низ",type_dress:"Платья",type_outerwear:"Верхняя",type_shoes:"Обувь",type_bag:"Сумки",type_accessory:"Аксессуары",type_other:"Другое",delete_confirm:"Удалить?",look_untitled:"Образ",suggested:"Идея",theme_light:"Светлая",theme_dark:"Тёмная",theme_rose:"Роза",theme_ocean:"Океан",theme_forest:"Лес",types:{top:"Верх",bottom:"Низ",dress:"Платье",outerwear:"Куртка",shoes:"Обувь",bag:"Сумка",accessory:"Аксессуар",other:"Другое"},colors:{black:"Чёрный",white:"Белый",beige:"Бежевый",gray:"Серый",brown:"Коричневый",blue:"Синий",red:"Красный",green:"Зелёный",pink:"Розовый",yellow:"Жёлтый",multicolor:"Разный"}},
+      uk:{app_title:"Look Creator",nav_wardrobe:"Шафа",nav_create:"Створити",nav_looks:"Образи",nav_suggest:"Ідеї",empty_wardrobe:"Поки порожньо. Зроби фото!",btn_add:"Додати",empty_looks:"Немає образів. Створи!",btn_create:"Створити",empty_suggest:"Потрібно більше речей (верх + низ + взуття).",btn_generate:"Ідеї",btn_save:"Зберегти",btn_cancel:"Скасувати",btn_close:"Закрити",btn_camera:"📷 Камера",btn_gallery:"🖼️ Галерея",btn_save_all:"Зберегти все",modal_add:"Додати річ",modal_edit:"Змінити",tap_photo:"Обрати фото",label_name:"Назва",label_type:"Тип",label_color:"Колір",label_style:"Стиль",toast_saved:"Збережено",toast_look:"Образ збережено",toast_deleted:"Видалено",toast_need:"Мін. 2 речі",toast_photo:"Потрібне фото",toast_style_added:"Стиль додано",toast_batch:"Речі збережено",toast_analyzing:"Визначення кольору…",filter_all:"Усі",settings:"Налаштування",choose_lang:"Мова",theme_title:"Тема і фон",custom_styles:"Власні стилі",btn_add_style:"Додати",batch_title:"Кілька речей",batch_hint:"Колір визначено. Перевірте тип і збережіть.",style_any:"Будь-який",style_classic:"Класика",style_modern:"Модерн",style_elegant:"Елегант",style_casual:"Кежуал",style_sporty:"Спорт",type_top:"Верх",type_bottom:"Низ",type_dress:"Сукні",type_outerwear:"Верхній",type_shoes:"Взуття",type_bag:"Сумки",type_accessory:"Аксесуари",type_other:"Інше",delete_confirm:"Видалити?",look_untitled:"Образ",suggested:"Ідея",theme_light:"Світла",theme_dark:"Темна",theme_rose:"Троянда",theme_ocean:"Океан",theme_forest:"Ліс",types:{top:"Верх",bottom:"Низ",dress:"Сукня",outerwear:"Куртка",shoes:"Взуття",bag:"Сумка",accessory:"Аксесуар",other:"Інше"},colors:{black:"Чорний",white:"Білий",beige:"Бежевий",gray:"Сірий",brown:"Коричневий",blue:"Синій",red:"Червоний",green:"Зелений",pink:"Рожевий",yellow:"Жовтий",multicolor:"Різний"}},
+      it:{app_title:"Look Creator",nav_wardrobe:"Armadio",nav_create:"Crea",nav_looks:"Look",nav_suggest:"Idee",empty_wardrobe:"Nessun capo. Scatta una foto!",btn_add:"Aggiungi",empty_looks:"Nessun look. Creane uno!",btn_create:"Crea",empty_suggest:"Servono più capi (top + pantaloni + scarpe).",btn_generate:"Idee",btn_save:"Salva",btn_cancel:"Annulla",btn_close:"Chiudi",btn_camera:"📷 Fotocamera",btn_gallery:"🖼️ Galleria",btn_save_all:"Salva tutti",modal_add:"Aggiungi capo",modal_edit:"Modifica",tap_photo:"Scegli foto",label_name:"Nome",label_type:"Tipo",label_color:"Colore",label_style:"Stile",toast_saved:"Salvato",toast_look:"Look salvato",toast_deleted:"Eliminato",toast_need:"Min. 2 pezzi",toast_photo:"Foto richiesta",toast_style_added:"Stile aggiunto",toast_batch:"Capi salvati",toast_analyzing:"Rilevamento colore…",filter_all:"Tutti",settings:"Impostazioni",choose_lang:"Lingua",theme_title:"Tema e sfondo",custom_styles:"Stili personalizzati",btn_add_style:"Aggiungi",batch_title:"Più capi",batch_hint:"Colore rilevato. Controlla tipo e salva.",style_any:"Qualsiasi",style_classic:"Classico",style_modern:"Modern",style_elegant:"Elegante",style_casual:"Casual",style_sporty:"Sportivo",type_top:"Top",type_bottom:"Pantaloni",type_dress:"Abiti",type_outerwear:"Giacche",type_shoes:"Scarpe",type_bag:"Borse",type_accessory:"Accessori",type_other:"Altro",delete_confirm:"Eliminare?",look_untitled:"Look",suggested:"Idea",theme_light:"Chiaro",theme_dark:"Scuro",theme_rose:"Rosa",theme_ocean:"Oceano",theme_forest:"Foresta",types:{top:"Top",bottom:"Pantalone",dress:"Abito",outerwear:"Giacca",shoes:"Scarpe",bag:"Borsa",accessory:"Accessorio",other:"Altro"},colors:{black:"Nero",white:"Bianco",beige:"Beige",gray:"Grigio",brown:"Marrone",blue:"Blu",red:"Rosso",green:"Verde",pink:"Rosa",yellow:"Giallo",multicolor:"Multicolore"}},
+      es:{app_title:"Look Creator",nav_wardrobe:"Armario",nav_create:"Crear",nav_looks:"Looks",nav_suggest:"Ideas",empty_wardrobe:"Sin prendas. ¡Haz una foto!",btn_add:"Añadir",empty_looks:"Sin looks. ¡Crea uno!",btn_create:"Crear",empty_suggest:"Necesitas más prendas (top + pantalón + zapatos).",btn_generate:"Ideas",btn_save:"Guardar",btn_cancel:"Cancelar",btn_close:"Cerrar",btn_camera:"📷 Cámara",btn_gallery:"🖼️ Galería",btn_save_all:"Guardar todo",modal_add:"Añadir prenda",modal_edit:"Editar",tap_photo:"Elegir foto",label_name:"Nombre",label_type:"Tipo",label_color:"Color",label_style:"Estilo",toast_saved:"Guardado",toast_look:"Look guardado",toast_deleted:"Eliminado",toast_need:"Mín. 2 prendas",toast_photo:"Foto necesaria",toast_style_added:"Estilo añadido",toast_batch:"Prendas guardadas",toast_analyzing:"Detectando color…",filter_all:"Todos",settings:"Ajustes",choose_lang:"Idioma",theme_title:"Tema y fondo",custom_styles:"Estilos propios",btn_add_style:"Añadir",batch_title:"Varias prendas",batch_hint:"Color detectado. Revisa tipo y guarda.",style_any:"Cualquiera",style_classic:"Clásico",style_modern:"Moderno",style_elegant:"Elegante",style_casual:"Casual",style_sporty:"Sport",type_top:"Tops",type_bottom:"Pantalones",type_dress:"Vestidos",type_outerwear:"Abrigos",type_shoes:"Zapatos",type_bag:"Bolsos",type_accessory:"Accesorios",type_other:"Otro",delete_confirm:"¿Borrar?",look_untitled:"Look",suggested:"Idea",theme_light:"Claro",theme_dark:"Oscuro",theme_rose:"Rosa",theme_ocean:"Océano",theme_forest:"Bosque",types:{top:"Top",bottom:"Pantalón",dress:"Vestido",outerwear:"Chaqueta",shoes:"Zapatos",bag:"Bolso",accessory:"Accesorio",other:"Otro"},colors:{black:"Negro",white:"Blanco",beige:"Beige",gray:"Gris",brown:"Marrón",blue:"Azul",red:"Rojo",green:"Verde",pink:"Rosa",yellow:"Amarillo",multicolor:"Multicolor"}},
+      fr:{app_title:"Look Creator",nav_wardrobe:"Penderie",nav_create:"Créer",nav_looks:"Looks",nav_suggest:"Idées",empty_wardrobe:"Rien encore. Prends une photo !",btn_add:"Ajouter",empty_looks:"Aucun look. Crée-en un !",btn_create:"Créer",empty_suggest:"Il faut plus de pièces (haut + bas + chaussures).",btn_generate:"Idées",btn_save:"Enregistrer",btn_cancel:"Annuler",btn_close:"Fermer",btn_camera:"📷 Appareil",btn_gallery:"🖼️ Galerie",btn_save_all:"Tout enregistrer",modal_add:"Ajouter un article",modal_edit:"Modifier",tap_photo:"Choisir photo",label_name:"Nom",label_type:"Type",label_color:"Couleur",label_style:"Style",toast_saved:"Enregistré",toast_look:"Look enregistré",toast_deleted:"Supprimé",toast_need:"Min. 2 pièces",toast_photo:"Photo requise",toast_style_added:"Style ajouté",toast_batch:"Articles enregistrés",toast_analyzing:"Détection couleur…",filter_all:"Tous",settings:"Réglages",choose_lang:"Langue",theme_title:"Thème et fond",custom_styles:"Styles perso",btn_add_style:"Ajouter",batch_title:"Plusieurs articles",batch_hint:"Couleur détectée. Vérifiez le type et enregistrez.",style_any:"Tous",style_classic:"Classique",style_modern:"Moderne",style_elegant:"Élégant",style_casual:"Casual",style_sporty:"Sport",type_top:"Hauts",type_bottom:"Bas",type_dress:"Robes",type_outerwear:"Manteaux",type_shoes:"Chaussures",type_bag:"Sacs",type_accessory:"Accessoires",type_other:"Autre",delete_confirm:"Supprimer ?",look_untitled:"Look",suggested:"Idée",theme_light:"Clair",theme_dark:"Sombre",theme_rose:"Rose",theme_ocean:"Océan",theme_forest:"Forêt",types:{top:"Haut",bottom:"Bas",dress:"Robe",outerwear:"Veste",shoes:"Chaussures",bag:"Sac",accessory:"Accessoire",other:"Autre"},colors:{black:"Noir",white:"Blanc",beige:"Beige",gray:"Gris",brown:"Marron",blue:"Bleu",red:"Rouge",green:"Vert",pink:"Rose",yellow:"Jaune",multicolor:"Multicolore"}}
     };
+    const LANGS=[{code:'de',flag:'🇩🇪',name:'Deutsch'},{code:'en',flag:'🇬🇧',name:'English'},{code:'ru',flag:'🇷🇺',name:'Русский'},{code:'uk',flag:'🇺🇦',name:'Українська'},{code:'it',flag:'🇮🇹',name:'Italiano'},{code:'es',flag:'🇪🇸',name:'Español'},{code:'fr',flag:'🇫🇷',name:'Français'}];
+    const THEMES=[{id:'light',swatch:'linear-gradient(135deg,#f4f2ef,#fff)',key:'theme_light'},{id:'dark',swatch:'linear-gradient(135deg,#121212,#2a2a2a)',key:'theme_dark'},{id:'rose',swatch:'linear-gradient(135deg,#fdf2f4,#f0d0d8)',key:'theme_rose'},{id:'ocean',swatch:'linear-gradient(135deg,#eef5f9,#b8d4e8)',key:'theme_ocean'},{id:'forest',swatch:'linear-gradient(135deg,#f0f4ef,#c8e0c8)',key:'theme_forest'}];
+    const DEFAULT_STYLES=['classic','modern','elegant','casual','sporty'];
+    const COLOR_HEX={black:'#222',white:'#f5f5f5',beige:'#d4c4a8',gray:'#888',brown:'#8B4513',blue:'#3a6ea5',red:'#c0392b',green:'#2d6a4f',pink:'#e8a0b0',yellow:'#e8c84a',multicolor:'#aaa'};
+    const NEUTRALS=['black','white','beige','gray','brown'];
+    const COLOR_FAMILIES={black:['black','gray','white','beige'],white:['white','beige','gray','black'],beige:['beige','white','brown','gray'],gray:['gray','black','white','beige'],brown:['brown','beige','black'],blue:['blue','white','beige','gray','black'],red:['red','black','white','beige'],green:['green','beige','white','brown'],pink:['pink','white','beige','gray'],yellow:['yellow','white','beige','brown'],multicolor:['black','white','beige','gray']};
 
-    const LANGS = [
-      { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
-      { code: 'en', flag: '🇬🇧', name: 'English' },
-      { code: 'ru', flag: '🇷🇺', name: 'Русский' },
-      { code: 'uk', flag: '🇺🇦', name: 'Українська' },
-      { code: 'it', flag: '🇮🇹', name: 'Italiano' },
-      { code: 'es', flag: '🇪🇸', name: 'Español' },
-      { code: 'fr', flag: '🇫🇷', name: 'Français' }
-    ];
+    let currentLang=localStorage.getItem('lookLang')||'de';
+    let currentTheme=localStorage.getItem('lookTheme')||'light';
+    let customStyles=JSON.parse(localStorage.getItem('lookCustomStyles')||'[]');
+    let items=JSON.parse(localStorage.getItem('lookItems')||'[]');
+    let looks=JSON.parse(localStorage.getItem('lookLooks')||'[]');
+    let editingId=null,selectedForLook=[],currentFilter='all',colorFilter='all';
+    let currentPhotoData=null,carouselIdx=0,touchStartX=0,batchItems=[];
 
-    const THEMES = [
-      { id: 'light',  swatch: 'linear-gradient(135deg,#f4f2ef,#fff)', key: 'theme_light' },
-      { id: 'dark',   swatch: 'linear-gradient(135deg,#121212,#2a2a2a)', key: 'theme_dark' },
-      { id: 'rose',   swatch: 'linear-gradient(135deg,#fdf2f4,#f0d0d8)', key: 'theme_rose' },
-      { id: 'ocean',  swatch: 'linear-gradient(135deg,#eef5f9,#b8d4e8)', key: 'theme_ocean' },
-      { id: 'forest', swatch: 'linear-gradient(135deg,#f0f4ef,#c8e0c8)', key: 'theme_forest' }
-    ];
+    function t(key){return (i18n[currentLang]&&i18n[currentLang][key])||i18n.en[key]||key;}
+    function tType(type){return (i18n[currentLang].types||{})[type]||type;}
+    function tColor(c){return (i18n[currentLang].colors||{})[c]||c;}
+    function allStyles(){return [...DEFAULT_STYLES,...customStyles];}
 
-    const DEFAULT_STYLES = ['classic','modern','elegant','casual','sporty'];
-
-    let currentLang = localStorage.getItem('lookLang') || 'de';
-    let currentTheme = localStorage.getItem('lookTheme') || 'light';
-    let customStyles = JSON.parse(localStorage.getItem('lookCustomStyles') || '[]');
-    let items = JSON.parse(localStorage.getItem('lookItems') || '[]');
-    let looks = JSON.parse(localStorage.getItem('lookLooks') || '[]');
-    let editingId = null;
-    let selectedForLook = [];
-    let currentFilter = 'all';
-    let currentPhotoData = null;
-    let carouselIdx = 0;
-    let touchStartX = 0;
-
-    function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key; }
-    function tType(type) { return (i18n[currentLang].types || {})[type] || type; }
-    function tColor(c) { return (i18n[currentLang].colors || {})[c] || c; }
-    function allStyles() { return [...DEFAULT_STYLES, ...customStyles]; }
-
-    function setLang(lang) {
-      currentLang = lang;
-      localStorage.setItem('lookLang', lang);
-      document.documentElement.lang = lang;
-      applyTranslations();
-      renderAll();
+    function detectDominantColor(dataUrl){
+      return new Promise(resolve=>{
+        const img=new Image();
+        img.onload=()=>{
+          const canvas=document.getElementById('color-canvas');
+          const size=50; canvas.width=size; canvas.height=size;
+          const ctx=canvas.getContext('2d');
+          ctx.drawImage(img,0,0,size,size);
+          const data=ctx.getImageData(0,0,size,size).data;
+          const buckets={};
+          for(let i=0;i<data.length;i+=16){
+            const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+            if(a<128||(r>245&&g>245&&b>245)) continue;
+            const key=`${Math.round(r/24)*24},${Math.round(g/24)*24},${Math.round(b/24)*24}`;
+            buckets[key]=(buckets[key]||0)+1;
+          }
+          let best=null,bestCount=0;
+          for(const [k,c] of Object.entries(buckets)){if(c>bestCount){bestCount=c;best=k;}}
+          if(!best){resolve('multicolor');return;}
+          const [r,g,b]=best.split(',').map(Number);
+          resolve(rgbToColorName(r,g,b));
+        };
+        img.onerror=()=>resolve('multicolor');
+        img.src=dataUrl;
+      });
+    }
+    function rgbToColorName(r,g,b){
+      const max=Math.max(r,g,b),min=Math.min(r,g,b);
+      const sat=max===0?0:(max-min)/max;
+      const light=(max+min)/2/255;
+      if(sat<0.12){if(light<0.18)return 'black';if(light>0.85)return 'white';return 'gray';}
+      let h=0;
+      if(max===min)h=0;
+      else if(max===r)h=((g-b)/(max-min))%6;
+      else if(max===g)h=(b-r)/(max-min)+2;
+      else h=(r-g)/(max-min)+4;
+      h=Math.round(h*60);if(h<0)h+=360;
+      if(light>0.75&&sat<0.35)return 'beige';
+      if(h<20||h>=340)return light>0.55?'pink':'red';
+      if(h<45)return light>0.5?'beige':'brown';
+      if(h<70)return 'yellow';
+      if(h<160)return 'green';
+      if(h<260)return 'blue';
+      if(h<320)return 'pink';
+      return 'red';
+    }
+    function guessType(dataUrl){
+      return new Promise(resolve=>{
+        const img=new Image();
+        img.onload=()=>{
+          const ratio=img.width/img.height;
+          if(ratio>1.4)resolve('bag');
+          else if(ratio<0.55)resolve('dress');
+          else if(ratio<0.75)resolve('bottom');
+          else resolve('top');
+        };
+        img.onerror=()=>resolve('top');
+        img.src=dataUrl;
+      });
     }
 
-    function setTheme(theme) {
-      currentTheme = theme;
-      localStorage.setItem('lookTheme', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-      const meta = document.getElementById('meta-theme');
-      const colors = { light:'#1a1a1a', dark:'#121212', rose:'#9b2d4a', ocean:'#1a4a6e', forest:'#2d5a3d' };
-      if (meta) meta.content = colors[theme] || '#1a1a1a';
+    function setLang(lang){currentLang=lang;localStorage.setItem('lookLang',lang);document.documentElement.lang=lang;applyTranslations();renderAll();}
+    function setTheme(theme){
+      currentTheme=theme;localStorage.setItem('lookTheme',theme);
+      document.documentElement.setAttribute('data-theme',theme);
+      const meta=document.getElementById('meta-theme');
+      const colors={light:'#1a1a1a',dark:'#121212',rose:'#9b2d4a',ocean:'#1a4a6e',forest:'#2d5a3d'};
+      if(meta)meta.content=colors[theme]||'#1a1a1a';
       renderSettings();
     }
-
-    function applyTranslations() {
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const k = el.getAttribute('data-i18n');
-        if (i18n[currentLang][k]) el.textContent = i18n[currentLang][k];
-      });
-      document.getElementById('app-title').textContent = t('app_title');
-      document.getElementById('look-name').placeholder = t('look_untitled');
-      document.getElementById('new-style-input').placeholder = t('custom_styles');
-
-      const typeOpts = ['top','bottom','dress','outerwear','shoes','bag','accessory','other'];
-      document.getElementById('item-type').innerHTML = typeOpts.map(v =>
-        `<option value="${v}">${tType(v)}</option>`).join('');
-
-      const cols = Object.keys(i18n.en.colors);
-      document.getElementById('item-color').innerHTML = cols.map(c =>
-        `<option value="${c}">${tColor(c)}</option>`).join('');
-
+    function applyTranslations(){
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(i18n[currentLang][k])el.textContent=i18n[currentLang][k];});
+      document.getElementById('app-title').textContent=t('app_title');
+      document.getElementById('look-name').placeholder=t('look_untitled');
+      document.getElementById('new-style-input').placeholder=t('custom_styles');
+      const typeOpts=['top','bottom','dress','outerwear','shoes','bag','accessory','other'];
+      document.getElementById('item-type').innerHTML=typeOpts.map(v=>`<option value="${v}">${tType(v)}</option>`).join('');
+      const cols=Object.keys(i18n.en.colors);
+      document.getElementById('item-color').innerHTML=cols.map(c=>`<option value="${c}">${tColor(c)}</option>`).join('');
       renderStyleChecks();
-      const sug = document.getElementById('suggest-style');
-      const cur = sug.value || 'any';
-      const styleOpts = ['any', ...allStyles()];
-      sug.innerHTML = styleOpts.map(s => {
-        const label = s === 'any' ? t('style_any') : (DEFAULT_STYLES.includes(s) ? t('style_'+s) : s);
+      const sug=document.getElementById('suggest-style');
+      const cur=sug.value||'any';
+      sug.innerHTML=['any',...allStyles()].map(s=>{
+        const label=s==='any'?t('style_any'):(DEFAULT_STYLES.includes(s)?t('style_'+s):s);
         return `<option value="${s}">${label}</option>`;
       }).join('');
-      sug.value = cur;
+      sug.value=cur;
       renderSettings();
     }
-
-    function renderStyleChecks() {
-      document.getElementById('style-checks').innerHTML = allStyles().map(s => {
-        const label = DEFAULT_STYLES.includes(s) ? t('style_'+s) : s;
+    function renderStyleChecks(){
+      document.getElementById('style-checks').innerHTML=allStyles().map(s=>{
+        const label=DEFAULT_STYLES.includes(s)?t('style_'+s):s;
         return `<label><input type="checkbox" value="${s}"> ${label}</label>`;
       }).join('');
     }
-
-    function renderSettings() {
-      document.getElementById('lang-list').innerHTML = LANGS.map(l =>
-        `<button class="${currentLang===l.code?'active':''}" onclick="setLang('${l.code}')">
-          <span><span class="lang-flag">${l.flag}</span>${l.name}</span>
-          ${currentLang===l.code ? '✓' : ''}
-        </button>`).join('');
-
-      document.getElementById('theme-list').innerHTML = THEMES.map(th =>
-        `<button class="theme-btn ${currentTheme===th.id?'active':''}" onclick="setTheme('${th.id}')">
-          <div class="swatch" style="background:${th.swatch}"></div>
-          <span class="name">${t(th.key)}</span>
-        </button>`).join('');
-
-      document.getElementById('custom-styles-list').innerHTML = customStyles.length
-        ? customStyles.map(s =>
-            `<span class="style-tag">${esc(s)} <button onclick="removeCustomStyle('${esc(s)}')">×</button></span>`
-          ).join('')
-        : `<span style="font-size:.8rem;color:var(--muted)">${t('custom_styles')}</span>`;
+    function renderSettings(){
+      document.getElementById('lang-list').innerHTML=LANGS.map(l=>
+        `<button class="${currentLang===l.code?'active':''}" onclick="setLang('${l.code}')"><span><span class="lang-flag">${l.flag}</span>${l.name}</span>${currentLang===l.code?'✓':''}</button>`).join('');
+      document.getElementById('theme-list').innerHTML=THEMES.map(th=>
+        `<button class="theme-btn ${currentTheme===th.id?'active':''}" onclick="setTheme('${th.id}')"><div class="swatch" style="background:${th.swatch}"></div><span class="name">${t(th.key)}</span></button>`).join('');
+      document.getElementById('custom-styles-list').innerHTML=customStyles.length
+        ?customStyles.map(s=>`<span class="style-tag">${esc(s)} <button onclick="removeCustomStyle('${esc(s)}')">×</button></span>`).join('')
+        :`<span style="font-size:.8rem;color:var(--muted)">${t('custom_styles')}</span>`;
     }
-
-    function addCustomStyle() {
-      const input = document.getElementById('new-style-input');
-      const val = input.value.trim();
-      if (!val) return;
-      if (allStyles().includes(val) || allStyles().map(s=>s.toLowerCase()).includes(val.toLowerCase())) {
-        input.value = '';
-        return;
-      }
-      customStyles.push(val);
-      localStorage.setItem('lookCustomStyles', JSON.stringify(customStyles));
-      input.value = '';
-      renderStyleChecks();
-      renderSettings();
-      applyTranslations();
-      toast(t('toast_style_added'));
+    function addCustomStyle(){
+      const input=document.getElementById('new-style-input');
+      const val=input.value.trim();
+      if(!val||allStyles().map(s=>s.toLowerCase()).includes(val.toLowerCase())){input.value='';return;}
+      customStyles.push(val);localStorage.setItem('lookCustomStyles',JSON.stringify(customStyles));
+      input.value='';renderStyleChecks();renderSettings();applyTranslations();toast(t('toast_style_added'));
     }
-
-    function removeCustomStyle(name) {
-      customStyles = customStyles.filter(s => s !== name);
-      localStorage.setItem('lookCustomStyles', JSON.stringify(customStyles));
-      // remove from items
-      items = items.map(i => ({ ...i, styles: (i.styles || []).filter(st => st !== name) }));
-      saveData();
-      renderStyleChecks();
-      renderSettings();
-      applyTranslations();
-      toast(t('toast_deleted'));
+    function removeCustomStyle(name){
+      customStyles=customStyles.filter(s=>s!==name);
+      localStorage.setItem('lookCustomStyles',JSON.stringify(customStyles));
+      items=items.map(i=>({...i,styles:(i.styles||[]).filter(st=>st!==name)}));
+      saveData();renderStyleChecks();renderSettings();applyTranslations();toast(t('toast_deleted'));
     }
-
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    function showSection(id){
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.section === id));
-      if (id === 'create') renderCreate();
-      if (id === 'looks') renderLooks();
-      if (id === 'suggest') generateSuggestions();
-      if (id === 'wardrobe') renderWardrobe();
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
+      if(id==='create')renderCreate();
+      if(id==='looks')renderLooks();
+      if(id==='suggest')generateSuggestions();
+      if(id==='wardrobe')renderWardrobe();
     }
+    function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
+    function saveData(){localStorage.setItem('lookItems',JSON.stringify(items));localStorage.setItem('lookLooks',JSON.stringify(looks));}
 
-    function toast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2000);
-    }
-
-    function saveData() {
-      localStorage.setItem('lookItems', JSON.stringify(items));
-      localStorage.setItem('lookLooks', JSON.stringify(looks));
-    }
-
-    function handlePhoto(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        currentPhotoData = ev.target.result;
-        document.getElementById('preview-box').innerHTML = `<img src="${currentPhotoData}">`;
+    function handleSinglePhoto(e){
+      const file=e.target.files[0];if(!file)return;
+      const reader=new FileReader();
+      reader.onload=async ev=>{
+        currentPhotoData=ev.target.result;
+        document.getElementById('preview-box').innerHTML=`<img src="${currentPhotoData}">`;
+        toast(t('toast_analyzing'));
+        const color=await detectDominantColor(currentPhotoData);
+        const type=await guessType(currentPhotoData);
+        document.getElementById('item-color').value=color;
+        document.getElementById('item-type').value=type;
       };
       reader.readAsDataURL(file);
     }
-
-    function openAddModal(editItem = null) {
-      editingId = editItem ? editItem.id : null;
-      document.getElementById('modal-title').textContent = editItem ? t('modal_edit') : t('modal_add');
-      currentPhotoData = editItem ? editItem.photo : null;
-      const box = document.getElementById('preview-box');
-      box.innerHTML = currentPhotoData ? `<img src="${currentPhotoData}">` : `<span>${t('tap_photo')}</span>`;
-      document.getElementById('item-name').value = editItem ? editItem.name : '';
-      document.getElementById('item-type').value = editItem ? editItem.type : 'top';
-      document.getElementById('item-color').value = editItem ? editItem.color : 'black';
-      renderStyleChecks();
-      document.querySelectorAll('#style-checks input').forEach(cb => {
-        cb.checked = editItem ? (editItem.styles || []).includes(cb.value) : false;
+    async function handleMultiPhotos(e){
+      const files=Array.from(e.target.files||[]);if(!files.length)return;
+      closeAddModal();toast(t('toast_analyzing'));
+      batchItems=[];
+      for(const file of files){
+        const dataUrl=await readFile(file);
+        const color=await detectDominantColor(dataUrl);
+        const type=await guessType(dataUrl);
+        batchItems.push({photo:dataUrl,name:'',type,color,styles:[]});
+      }
+      openBatchModal();
+    }
+    function readFile(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});}
+    function openBatchModal(){
+      const list=document.getElementById('batch-list');
+      const typeOpts=['top','bottom','dress','outerwear','shoes','bag','accessory','other'].map(v=>`<option value="${v}">${tType(v)}</option>`).join('');
+      const colorOpts=Object.keys(i18n.en.colors).map(c=>`<option value="${c}">${tColor(c)}</option>`).join('');
+      list.innerHTML=batchItems.map((it,idx)=>`
+        <div class="batch-card" data-idx="${idx}">
+          <img src="${it.photo}" />
+          <div class="fields">
+            <input type="text" placeholder="${t('label_name')}" value="${esc(it.name)}" onchange="batchItems[${idx}].name=this.value" />
+            <select onchange="batchItems[${idx}].type=this.value">${typeOpts}</select>
+            <select onchange="batchItems[${idx}].color=this.value">${colorOpts}</select>
+            <div class="color-row"><span class="cdot" style="background:${COLOR_HEX[it.color]||'#aaa'}"></span> ${tColor(it.color)}</div>
+          </div>
+          <button class="remove-btn" onclick="removeBatchItem(${idx})">×</button>
+        </div>`).join('');
+      list.querySelectorAll('.batch-card').forEach((card,idx)=>{
+        const selects=card.querySelectorAll('select');
+        if(selects[0])selects[0].value=batchItems[idx].type;
+        if(selects[1])selects[1].value=batchItems[idx].color;
       });
+      document.getElementById('batch-modal').classList.add('open');
+    }
+    function removeBatchItem(idx){batchItems.splice(idx,1);if(!batchItems.length)closeBatchModal();else openBatchModal();}
+    function closeBatchModal(){document.getElementById('batch-modal').classList.remove('open');batchItems=[];document.getElementById('photo-gallery').value='';}
+    function saveBatch(){
+      const count=batchItems.length;
+      batchItems.forEach(it=>{
+        items.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:it.name||t('look_untitled'),type:it.type,color:it.color,styles:it.styles||[],photo:it.photo,created:Date.now()});
+      });
+      saveData();closeBatchModal();renderWardrobe();toast(t('toast_batch')+` (${count})`);
+    }
+
+    function openAddModal(editItem=null){
+      editingId=editItem?editItem.id:null;
+      document.getElementById('modal-title').textContent=editItem?t('modal_edit'):t('modal_add');
+      currentPhotoData=editItem?editItem.photo:null;
+      const box=document.getElementById('preview-box');
+      box.innerHTML=currentPhotoData?`<img src="${currentPhotoData}">`:`<span>${t('tap_photo')}</span>`;
+      document.getElementById('item-name').value=editItem?editItem.name:'';
+      document.getElementById('item-type').value=editItem?editItem.type:'top';
+      document.getElementById('item-color').value=editItem?editItem.color:'black';
+      renderStyleChecks();
+      document.querySelectorAll('#style-checks input').forEach(cb=>{cb.checked=editItem?(editItem.styles||[]).includes(cb.value):false;});
+      document.getElementById('single-form').style.display='block';
       document.getElementById('add-modal').classList.add('open');
     }
-    function closeAddModal() {
-      document.getElementById('add-modal').classList.remove('open');
-      document.getElementById('photo-camera').value = '';
-      document.getElementById('photo-gallery').value = '';
-      currentPhotoData = null; editingId = null;
+    function closeAddModal(){document.getElementById('add-modal').classList.remove('open');document.getElementById('photo-camera').value='';document.getElementById('photo-gallery').value='';currentPhotoData=null;editingId=null;}
+    function saveItem(){
+      const name=document.getElementById('item-name').value.trim()||t('look_untitled');
+      const type=document.getElementById('item-type').value;
+      const color=document.getElementById('item-color').value;
+      const styles=Array.from(document.querySelectorAll('#style-checks input:checked')).map(c=>c.value);
+      if(!currentPhotoData&&!editingId){toast(t('toast_photo'));return;}
+      if(editingId){const idx=items.findIndex(i=>i.id===editingId);if(idx>=0)items[idx]={...items[idx],name,type,color,styles,photo:currentPhotoData||items[idx].photo};}
+      else items.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,type,color,styles,photo:currentPhotoData,created:Date.now()});
+      saveData();closeAddModal();renderWardrobe();toast(t('toast_saved'));
+    }
+    function deleteItem(id){
+      if(!confirm(t('delete_confirm')))return;
+      items=items.filter(i=>i.id!==id);
+      looks=looks.map(l=>({...l,itemIds:l.itemIds.filter(iid=>iid!==id)})).filter(l=>l.itemIds.length>0);
+      selectedForLook=selectedForLook.filter(sid=>sid!==id);
+      saveData();renderAll();toast(t('toast_deleted'));
     }
 
-    function saveItem() {
-      const name = document.getElementById('item-name').value.trim() || t('look_untitled');
-      const type = document.getElementById('item-type').value;
-      const color = document.getElementById('item-color').value;
-      const styles = Array.from(document.querySelectorAll('#style-checks input:checked')).map(c => c.value);
-      if (!currentPhotoData && !editingId) { toast(t('toast_photo')); return; }
-      if (editingId) {
-        const idx = items.findIndex(i => i.id === editingId);
-        if (idx >= 0) items[idx] = { ...items[idx], name, type, color, styles, photo: currentPhotoData || items[idx].photo };
-      } else {
-        items.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, type, color, styles, photo: currentPhotoData, created: Date.now() });
-      }
-      saveData(); closeAddModal(); renderWardrobe(); toast(t('toast_saved'));
-    }
-
-    function deleteItem(id) {
-      if (!confirm(t('delete_confirm'))) return;
-      items = items.filter(i => i.id !== id);
-      looks = looks.map(l => ({ ...l, itemIds: l.itemIds.filter(iid => iid !== id) })).filter(l => l.itemIds.length > 0);
-      selectedForLook = selectedForLook.filter(sid => sid !== id);
-      saveData(); renderAll(); toast(t('toast_deleted'));
-    }
-
-    function renderWardrobe() {
-      const grid = document.getElementById('items-grid');
-      const empty = document.getElementById('wardrobe-empty');
-      const types = ['all','top','bottom','dress','outerwear','shoes','bag','accessory','other'];
-      document.getElementById('type-filters').innerHTML = types.map(ty =>
-        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`
-      ).join('');
-      let filtered = currentFilter === 'all' ? items : items.filter(i => i.type === currentFilter);
-      if (!filtered.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-      empty.style.display = 'none';
-      grid.innerHTML = filtered.map(item => `
+    function renderWardrobe(){
+      const grid=document.getElementById('items-grid');
+      const empty=document.getElementById('wardrobe-empty');
+      const types=['all','top','bottom','dress','outerwear','shoes','bag','accessory','other'];
+      document.getElementById('type-filters').innerHTML=types.map(ty=>
+        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`).join('');
+      const usedColors=[...new Set(items.map(i=>i.color))];
+      document.getElementById('color-filters').innerHTML=
+        `<button class="chip ${colorFilter==='all'?'active':''}" onclick="setColorFilter('all')">${t('filter_all')}</button>`+
+        usedColors.map(c=>`<button class="chip ${colorFilter===c?'active':''}" onclick="setColorFilter('${c}')"><span class="cdot" style="background:${COLOR_HEX[c]||'#aaa'}"></span>${tColor(c)}</button>`).join('');
+      let filtered=items;
+      if(currentFilter!=='all')filtered=filtered.filter(i=>i.type===currentFilter);
+      if(colorFilter!=='all')filtered=filtered.filter(i=>i.color===colorFilter);
+      if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
+      empty.style.display='none';
+      grid.innerHTML=filtered.map(item=>`
         <div class="item-card">
           <img src="${item.photo}" alt="" loading="lazy" />
+          <span class="color-dot" style="background:${COLOR_HEX[item.color]||'#aaa'}"></span>
           <div class="actions">
             <button class="btn-icon" onclick="openAddModal(items.find(i=>i.id==='${item.id}'))">✏️</button>
             <button class="btn-icon" onclick="deleteItem('${item.id}')">🗑️</button>
@@ -933,149 +680,120 @@
           </div>
         </div>`).join('');
     }
-    function setFilter(ty) { currentFilter = ty; renderWardrobe(); }
+    function setFilter(ty){currentFilter=ty;renderWardrobe();}
+    function setColorFilter(c){colorFilter=c;renderWardrobe();}
 
-    function renderCreate() {
-      const bar = document.getElementById('selected-bar');
-      bar.innerHTML = selectedForLook.map(id => {
-        const item = items.find(i => i.id === id);
-        return item ? `<div class="sel-item"><img src="${item.photo}"><button onclick="toggleSelect('${id}')">×</button></div>` : '';
-      }).join('') || `<div style="color:var(--muted);font-size:.85rem;padding:18px 0">${t('empty_looks')}</div>`;
-
-      const types = ['all','top','bottom','dress','outerwear','shoes','bag','accessory'];
-      document.getElementById('create-filters').innerHTML = types.map(ty =>
-        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setCreateFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`
-      ).join('');
-
-      let filtered = currentFilter === 'all' ? items : items.filter(i => i.type === currentFilter);
-      document.getElementById('create-grid').innerHTML = filtered.map(item => `
+    function renderCreate(){
+      const bar=document.getElementById('selected-bar');
+      bar.innerHTML=selectedForLook.map(id=>{const item=items.find(i=>i.id===id);return item?`<div class="sel-item"><img src="${item.photo}"><button onclick="toggleSelect('${id}')">×</button></div>`:'';}).join('')||`<div style="color:var(--muted);font-size:.85rem;padding:18px 0">${t('empty_looks')}</div>`;
+      const types=['all','top','bottom','dress','outerwear','shoes','bag','accessory'];
+      document.getElementById('create-filters').innerHTML=types.map(ty=>
+        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setCreateFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`).join('');
+      let filtered=currentFilter==='all'?items:items.filter(i=>i.type===currentFilter);
+      document.getElementById('create-grid').innerHTML=filtered.map(item=>`
         <div class="item-card ${selectedForLook.includes(item.id)?'selected':''}" onclick="toggleSelect('${item.id}')">
           <img src="${item.photo}" alt="" />
           <div class="info"><div class="name">${esc(item.name)}</div><div class="meta">${tType(item.type)}</div></div>
         </div>`).join('');
     }
-    function setCreateFilter(ty) { currentFilter = ty; renderCreate(); }
-    function toggleSelect(id) {
-      const idx = selectedForLook.indexOf(id);
-      if (idx >= 0) selectedForLook.splice(idx, 1); else selectedForLook.push(id);
-      renderCreate();
-    }
-    function saveLook() {
-      if (selectedForLook.length < 2) { toast(t('toast_need')); return; }
-      const name = document.getElementById('look-name').value.trim() || t('look_untitled');
-      looks.unshift({ id: Date.now().toString(36), name, itemIds: [...selectedForLook], created: Date.now() });
-      saveData(); selectedForLook = []; document.getElementById('look-name').value = '';
-      renderCreate(); toast(t('toast_look')); showSection('looks');
+    function setCreateFilter(ty){currentFilter=ty;renderCreate();}
+    function toggleSelect(id){const idx=selectedForLook.indexOf(id);if(idx>=0)selectedForLook.splice(idx,1);else selectedForLook.push(id);renderCreate();}
+    function saveLook(){
+      if(selectedForLook.length<2){toast(t('toast_need'));return;}
+      const name=document.getElementById('look-name').value.trim()||t('look_untitled');
+      looks.unshift({id:Date.now().toString(36),name,itemIds:[...selectedForLook],created:Date.now()});
+      saveData();selectedForLook=[];document.getElementById('look-name').value='';
+      renderCreate();toast(t('toast_look'));showSection('looks');
     }
 
-    function renderLooks() {
-      const empty = document.getElementById('looks-empty');
-      const wrap = document.getElementById('carousel-wrap');
-      if (!looks.length) { empty.style.display = 'block'; wrap.style.display = 'none'; return; }
-      empty.style.display = 'none'; wrap.style.display = 'block';
-
-      const car = document.getElementById('carousel');
-      car.innerHTML = looks.map(look => {
-        const lookItems = look.itemIds.map(id => items.find(i => i.id === id)).filter(Boolean);
-        if (!lookItems.length) return '';
-        return `<div class="carousel-slide">
-          <div class="look-card">
-            <div class="look-collage">
-              ${lookItems.map((it, i) => `<div class="li ${lookItems.length===1 || (lookItems.length===3 && i===0) ? 'full' : ''}"><img src="${it.photo}"></div>`).join('')}
-            </div>
-            <div class="look-foot">
-              <span class="title">${esc(look.name)}</span>
-              <button class="btn btn-sm btn-danger" onclick="deleteLook('${look.id}')">🗑️</button>
-            </div>
-          </div>
-        </div>`;
+    function renderLooks(){
+      const empty=document.getElementById('looks-empty');
+      const wrap=document.getElementById('carousel-wrap');
+      if(!looks.length){empty.style.display='block';wrap.style.display='none';return;}
+      empty.style.display='none';wrap.style.display='block';
+      const car=document.getElementById('carousel');
+      car.innerHTML=looks.map(look=>{
+        const lookItems=look.itemIds.map(id=>items.find(i=>i.id===id)).filter(Boolean);
+        if(!lookItems.length)return '';
+        return `<div class="carousel-slide"><div class="look-card">
+          <div class="look-collage">${lookItems.map((it,i)=>`<div class="li ${lookItems.length===1||(lookItems.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}</div>
+          <div class="look-foot"><span class="title">${esc(look.name)}</span><button class="btn btn-sm btn-danger" onclick="deleteLook('${look.id}')">🗑️</button></div>
+        </div></div>`;
       }).join('');
+      carouselIdx=Math.min(carouselIdx,looks.length-1);updateCarousel();
+      car.ontouchstart=e=>{touchStartX=e.touches[0].clientX;};
+      car.ontouchend=e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>50)slide(dx<0?1:-1);};
+    }
+    function updateCarousel(){
+      document.getElementById('carousel').style.transform=`translateX(-${carouselIdx*100}%)`;
+      document.getElementById('dots').innerHTML=looks.map((_,i)=>`<span class="${i===carouselIdx?'on':''}" onclick="goTo(${i})"></span>`).join('');
+    }
+    function slide(dir){carouselIdx=Math.max(0,Math.min(looks.length-1,carouselIdx+dir));updateCarousel();}
+    function goTo(i){carouselIdx=i;updateCarousel();}
+    function deleteLook(id){if(!confirm(t('delete_confirm')))return;looks=looks.filter(l=>l.id!==id);saveData();renderLooks();toast(t('toast_deleted'));}
 
-      carouselIdx = Math.min(carouselIdx, looks.length - 1);
-      updateCarousel();
-      car.ontouchstart = e => { touchStartX = e.touches[0].clientX; };
-      car.ontouchend = e => {
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(dx) > 50) slide(dx < 0 ? 1 : -1);
-      };
+    function colorScore(c1,c2){
+      if(c1===c2)return 3;
+      if(NEUTRALS.includes(c1)||NEUTRALS.includes(c2))return 2;
+      const family=COLOR_FAMILIES[c1]||[];
+      if(family.includes(c2))return 2;
+      return 0;
     }
-    function updateCarousel() {
-      const car = document.getElementById('carousel');
-      car.style.transform = `translateX(-${carouselIdx * 100}%)`;
-      document.getElementById('dots').innerHTML = looks.map((_, i) =>
-        `<span class="${i===carouselIdx?'on':''}" onclick="goTo(${i})"></span>`).join('');
-    }
-    function slide(dir) {
-      carouselIdx = Math.max(0, Math.min(looks.length - 1, carouselIdx + dir));
-      updateCarousel();
-    }
-    function goTo(i) { carouselIdx = i; updateCarousel(); }
-    function deleteLook(id) {
-      if (!confirm(t('delete_confirm'))) return;
-      looks = looks.filter(l => l.id !== id);
-      saveData(); renderLooks(); toast(t('toast_deleted'));
-    }
-
-    function generateSuggestions() {
-      const style = document.getElementById('suggest-style').value;
-      const list = document.getElementById('suggestions-list');
-      const empty = document.getElementById('suggest-empty');
-      const tops = items.filter(i => i.type === 'top' || i.type === 'dress');
-      const bottoms = items.filter(i => i.type === 'bottom');
-      const shoes = items.filter(i => i.type === 'shoes');
-      if (!tops.length || (!bottoms.length && !items.some(i => i.type === 'dress')) || !shoes.length) {
-        list.innerHTML = ''; empty.style.display = 'block'; return;
-      }
-      empty.style.display = 'none';
-      function score(item) {
-        let s = Math.random();
-        if (style !== 'any' && item.styles && item.styles.includes(style)) s += 3;
+    function generateSuggestions(){
+      const style=document.getElementById('suggest-style').value;
+      const list=document.getElementById('suggestions-list');
+      const empty=document.getElementById('suggest-empty');
+      const tops=items.filter(i=>i.type==='top'||i.type==='dress');
+      const bottoms=items.filter(i=>i.type==='bottom');
+      const shoes=items.filter(i=>i.type==='shoes');
+      if(!tops.length||(!bottoms.length&&!items.some(i=>i.type==='dress'))||!shoes.length){list.innerHTML='';empty.style.display='block';return;}
+      empty.style.display='none';
+      function scoreItem(item,baseColor){
+        let s=Math.random()*0.5;
+        if(style!=='any'&&item.styles&&item.styles.includes(style))s+=2.5;
+        if(baseColor)s+=colorScore(baseColor,item.color);
         return s;
       }
-      const suggestions = [];
-      for (let n = 0; n < 4; n++) {
-        const top = tops.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,tops.length))];
-        const bottom = (top.type !== 'dress' && bottoms.length) ? bottoms.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,bottoms.length))] : null;
-        const shoe = shoes.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,shoes.length))];
-        const out = items.filter(i=>i.type==='outerwear')[Math.floor(Math.random()*items.filter(i=>i.type==='outerwear').length)] || null;
-        const bag = items.filter(i=>i.type==='bag')[Math.floor(Math.random()*items.filter(i=>i.type==='bag').length)] || null;
-        const ac = items.filter(i=>i.type==='accessory')[Math.floor(Math.random()*items.filter(i=>i.type==='accessory').length)] || null;
-        const combo = [top, bottom, shoe, out, bag, ac].filter(Boolean);
-        const key = combo.map(c=>c.id).sort().join('-');
-        if (suggestions.some(s => s.key === key)) continue;
-        suggestions.push({ key, items: combo });
+      const suggestions=[];
+      for(let n=0;n<12&&suggestions.length<5;n++){
+        const top=tops[Math.floor(Math.random()*tops.length)];
+        const baseColor=top.color;
+        let bottom=null;
+        if(top.type!=='dress'&&bottoms.length)bottom=[...bottoms].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0];
+        const shoe=[...shoes].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0];
+        const outers=items.filter(i=>i.type==='outerwear');
+        const bags=items.filter(i=>i.type==='bag');
+        const accs=items.filter(i=>i.type==='accessory');
+        const out=outers.length?[...outers].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
+        const bag=bags.length?[...bags].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
+        const ac=accs.length?[...accs].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
+        const combo=[top,bottom,shoe,out,bag,ac].filter(Boolean);
+        const key=combo.map(c=>c.id).sort().join('-');
+        if(suggestions.some(s=>s.key===key))continue;
+        suggestions.push({key,items:combo});
       }
-      list.innerHTML = suggestions.map((sug, idx) => `
+      list.innerHTML=suggestions.map((sug,idx)=>`
         <div class="look-card" style="margin-bottom:14px">
-          <div class="look-collage">
-            ${sug.items.map((it,i) => `<div class="li ${sug.items.length<=2||(sug.items.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}
-          </div>
-          <div class="look-foot">
-            <span class="title">${t('suggested')} ${idx+1}</span>
-            <button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button>
-          </div>
+          <div class="look-collage">${sug.items.map((it,i)=>`<div class="li ${sug.items.length<=2||(sug.items.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}</div>
+          <div class="look-foot"><span class="title">${t('suggested')} ${idx+1}</span><button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button></div>
         </div>`).join('');
-      window._lastSuggestions = suggestions;
+      window._lastSuggestions=suggestions;
     }
-    function saveSuggestion(idx) {
-      const sug = window._lastSuggestions[idx];
-      if (!sug) return;
-      looks.unshift({ id: Date.now().toString(36), name: `${t('suggested')} ${idx+1}`, itemIds: sug.items.map(i=>i.id), created: Date.now() });
-      saveData(); toast(t('toast_look')); showSection('looks');
+    function saveSuggestion(idx){
+      const sug=window._lastSuggestions[idx];if(!sug)return;
+      looks.unshift({id:Date.now().toString(36),name:`${t('suggested')} ${idx+1}`,itemIds:sug.items.map(i=>i.id),created:Date.now()});
+      saveData();toast(t('toast_look'));showSection('looks');
     }
+    function openSettings(){document.getElementById('settings-modal').classList.add('open');renderSettings();}
+    function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
+    function esc(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+    function renderAll(){renderWardrobe();renderCreate();renderLooks();}
 
-    function openSettings() { document.getElementById('settings-modal').classList.add('open'); renderSettings(); }
-    function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
-
-    function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-    function renderAll() { renderWardrobe(); renderCreate(); renderLooks(); }
-
-    // init
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    applyTranslations();
-    renderAll();
-    document.getElementById('add-modal').addEventListener('click', e => { if (e.target.id === 'add-modal') closeAddModal(); });
-    document.getElementById('settings-modal').addEventListener('click', e => { if (e.target.id === 'settings-modal') closeSettings(); });
+    document.documentElement.setAttribute('data-theme',currentTheme);
+    applyTranslations();renderAll();
+    document.getElementById('add-modal').addEventListener('click',e=>{if(e.target.id==='add-modal')closeAddModal();});
+    document.getElementById('batch-modal').addEventListener('click',e=>{if(e.target.id==='batch-modal')closeBatchModal();});
+    document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target.id==='settings-modal')closeSettings();});
   </script>
 </body>
 </html>
