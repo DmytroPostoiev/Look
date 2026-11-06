@@ -435,45 +435,111 @@
         const img=new Image();
         img.onload=()=>{
           const canvas=document.getElementById('color-canvas');
-          const size=50; canvas.width=size; canvas.height=size;
+          const size=80;
+          canvas.width=size; canvas.height=size;
           const ctx=canvas.getContext('2d');
           ctx.drawImage(img,0,0,size,size);
           const data=ctx.getImageData(0,0,size,size).data;
+          // Focus on center 60% (ignore white studio backgrounds at edges)
+          const margin=Math.floor(size*0.2);
           const buckets={};
-          for(let i=0;i<data.length;i+=16){
-            const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
-            if(a<128||(r>245&&g>245&&b>245)) continue;
-            const key=`${Math.round(r/24)*24},${Math.round(g/24)*24},${Math.round(b/24)*24}`;
-            buckets[key]=(buckets[key]||0)+1;
+          let total=0;
+          for(let y=margin;y<size-margin;y++){
+            for(let x=margin;x<size-margin;x++){
+              const i=(y*size+x)*4;
+              const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+              if(a<200) continue;
+              // Skip pure white / near-white backgrounds
+              if(r>240&&g>240&&b>240) continue;
+              // Skip pure black shadows (often not the garment)
+              if(r<12&&g<12&&b<12) continue;
+              // Quantize more finely
+              const key=`${Math.round(r/16)*16},${Math.round(g/16)*16},${Math.round(b/16)*16}`;
+              buckets[key]=(buckets[key]||0)+1;
+              total++;
+            }
           }
-          let best=null,bestCount=0;
-          for(const [k,c] of Object.entries(buckets)){if(c>bestCount){bestCount=c;best=k;}}
-          if(!best){resolve('multicolor');return;}
-          const [r,g,b]=best.split(',').map(Number);
-          resolve(rgbToColorName(r,g,b));
+          if(total<10){resolve('multicolor');return;}
+          // Get top 3 colors
+          const sorted=Object.entries(buckets).sort((a,b)=>b[1]-a[1]);
+          const top=sorted.slice(0,5).map(([k,c])=>{
+            const [r,g,b]=k.split(',').map(Number);
+            return {r,g,b,c, name:rgbToColorName(r,g,b)};
+          });
+          // If top colors disagree a lot → multicolor
+          const names=top.map(t=>t.name);
+          const unique=new Set(names);
+          if(unique.size>=4 && top[0].c/total<0.35){resolve('multicolor');return;}
+          // Prefer non-neutral if it has decent share
+          const nonNeutral=top.find(t=>!['black','white','gray'].includes(t.name) && t.c/total>0.12);
+          if(nonNeutral && top[0].name!==nonNeutral.name && top[0].c/total<0.45){
+            resolve(nonNeutral.name);return;
+          }
+          resolve(top[0].name);
         };
         img.onerror=()=>resolve('multicolor');
         img.src=dataUrl;
       });
     }
     function rgbToColorName(r,g,b){
+      // Convert to HSL for more accurate naming
+      r/=255;g/=255;b/=255;
       const max=Math.max(r,g,b),min=Math.min(r,g,b);
-      const sat=max===0?0:(max-min)/max;
-      const light=(max+min)/2/255;
-      if(sat<0.12){if(light<0.18)return 'black';if(light>0.85)return 'white';return 'gray';}
-      let h=0;
-      if(max===min)h=0;
-      else if(max===r)h=((g-b)/(max-min))%6;
-      else if(max===g)h=(b-r)/(max-min)+2;
-      else h=(r-g)/(max-min)+4;
-      h=Math.round(h*60);if(h<0)h+=360;
-      if(light>0.75&&sat<0.35)return 'beige';
-      if(h<20||h>=340)return light>0.55?'pink':'red';
-      if(h<45)return light>0.5?'beige':'brown';
-      if(h<70)return 'yellow';
-      if(h<160)return 'green';
-      if(h<260)return 'blue';
-      if(h<320)return 'pink';
+      let h=0,s=0,l=(max+min)/2;
+      if(max!==min){
+        const d=max-min;
+        s=l>0.5?d/(2-max-min):d/(max+min);
+        if(max===r)h=((g-b)/d+(g<b?6:0))/6;
+        else if(max===g)h=((b-r)/d+2)/6;
+        else h=((r-g)/d+4)/6;
+      }
+      h=Math.round(h*360);s=Math.round(s*100);l=Math.round(l*100);
+
+      // Neutrals first
+      if(s<12){
+        if(l<18)return 'black';
+        if(l>88)return 'white';
+        if(l>55)return 'gray';
+        return 'gray';
+      }
+      // Beige / cream (low sat, warm, light)
+      if(s<35 && l>55 && l<90 && (h<50||h>340))return 'beige';
+      if(s<28 && l>40 && l<70 && h>=20 && h<55)return 'beige';
+
+      // Black-ish dark colors
+      if(l<18)return 'black';
+      // White-ish
+      if(l>92)return 'white';
+
+      // Hue ranges (refined)
+      if(h<=12||h>=350){ // red
+        if(l>62&&s<55)return 'pink';
+        return 'red';
+      }
+      if(h<=25){ // red-orange → brown or red
+        if(l<40)return 'brown';
+        if(s<45&&l>50)return 'beige';
+        return 'red';
+      }
+      if(h<=42){ // orange / brown / beige
+        if(l<38)return 'brown';
+        if(s<50||l>58)return 'beige';
+        return 'brown';
+      }
+      if(h<=65){ // yellow / gold
+        if(l<35)return 'brown';
+        return 'yellow';
+      }
+      if(h<=165)return 'green'; // green
+      if(h<=255)return 'blue'; // blue / cyan
+      if(h<=295){ // purple → closer to blue or pink
+        if(l>55)return 'pink';
+        return 'blue';
+      }
+      if(h<=340){ // magenta / pink
+        if(l>45)return 'pink';
+        return 'red';
+      }
       return 'red';
     }
     function guessType(dataUrl){
@@ -481,9 +547,10 @@
         const img=new Image();
         img.onload=()=>{
           const ratio=img.width/img.height;
-          if(ratio>1.4)resolve('bag');
-          else if(ratio<0.55)resolve('dress');
-          else if(ratio<0.75)resolve('bottom');
+          if(ratio>1.35)resolve('bag');
+          else if(ratio<0.5)resolve('dress');
+          else if(ratio<0.72)resolve('bottom');
+          else if(ratio>1.05&&ratio<1.35)resolve('shoes');
           else resolve('top');
         };
         img.onerror=()=>resolve('top');
@@ -733,11 +800,24 @@
     function deleteLook(id){if(!confirm(t('delete_confirm')))return;looks=looks.filter(l=>l.id!==id);saveData();renderLooks();toast(t('toast_deleted'));}
 
     function colorScore(c1,c2){
-      if(c1===c2)return 3;
-      if(NEUTRALS.includes(c1)||NEUTRALS.includes(c2))return 2;
+      if(!c1||!c2)return 0;
+      if(c1===c2)return 4;
+      // Neutrals go with almost everything
+      if(NEUTRALS.includes(c1)&&NEUTRALS.includes(c2))return 3;
+      if(NEUTRALS.includes(c1)||NEUTRALS.includes(c2))return 2.5;
       const family=COLOR_FAMILIES[c1]||[];
-      if(family.includes(c2))return 2;
-      return 0;
+      if(family.includes(c2))return 3;
+      // Complementary-ish pairs that work
+      const pairs=[['blue','beige'],['blue','white'],['red','black'],['red','white'],['green','beige'],['pink','gray'],['yellow','black'],['yellow','beige']];
+      for(const [a,b] of pairs){
+        if((c1===a&&c2===b)||(c1===b&&c2===a))return 2.5;
+      }
+      // Same family warm/cool soft match
+      const warm=['red','pink','yellow','beige','brown'];
+      const cool=['blue','green','gray'];
+      if(warm.includes(c1)&&warm.includes(c2))return 1.5;
+      if(cool.includes(c1)&&cool.includes(c2))return 1.5;
+      return 0.2; // slight penalty for clash
     }
     function generateSuggestions(){
       const style=document.getElementById('suggest-style').value;
@@ -746,38 +826,110 @@
       const tops=items.filter(i=>i.type==='top'||i.type==='dress');
       const bottoms=items.filter(i=>i.type==='bottom');
       const shoes=items.filter(i=>i.type==='shoes');
-      if(!tops.length||(!bottoms.length&&!items.some(i=>i.type==='dress'))||!shoes.length){list.innerHTML='';empty.style.display='block';return;}
+      if(!tops.length||(!bottoms.length&&!items.some(i=>i.type==='dress'))||!shoes.length){
+        list.innerHTML='';empty.style.display='block';return;
+      }
       empty.style.display='none';
-      function scoreItem(item,baseColor){
-        let s=Math.random()*0.5;
-        if(style!=='any'&&item.styles&&item.styles.includes(style))s+=2.5;
-        if(baseColor)s+=colorScore(baseColor,item.color);
+
+      function scoreItem(item, baseColors, requiredStyle){
+        let s=Math.random()*0.8;
+        if(requiredStyle!=='any'&&item.styles&&item.styles.includes(requiredStyle))s+=3;
+        // Average color match against base pieces
+        if(baseColors&&baseColors.length){
+          const scores=baseColors.map(c=>colorScore(c,item.color));
+          s+=scores.reduce((a,b)=>a+b,0)/scores.length;
+        }
         return s;
       }
+
+      function pickBest(pool, baseColors, style, excludeIds){
+        const candidates=pool.filter(i=>!excludeIds.includes(i.id));
+        if(!candidates.length)return null;
+        return [...candidates].sort((a,b)=>scoreItem(b,baseColors,style)-scoreItem(a,baseColors,style))[0];
+      }
+
       const suggestions=[];
-      for(let n=0;n<12&&suggestions.length<5;n++){
-        const top=tops[Math.floor(Math.random()*tops.length)];
-        const baseColor=top.color;
+      const usedTops=new Set();
+      // Strategy 1: monochrome / same color looks
+      // Strategy 2: neutral base + accent
+      // Strategy 3: style-matched
+      // Strategy 4: random with color harmony
+      const strategies=['mono','neutral','style','harmony','harmony'];
+
+      for(let n=0;n<20&&suggestions.length<6;n++){
+        const strat=strategies[n%strategies.length];
+        // Prefer unused tops for variety
+        let topPool=tops.filter(t=>!usedTops.has(t.id));
+        if(!topPool.length)topPool=tops;
+        let top;
+        if(strat==='mono'){
+          // prefer tops that have matching bottoms in same color
+          top=topPool.find(t=>bottoms.some(b=>b.color===t.color))||topPool[Math.floor(Math.random()*topPool.length)];
+        } else if(strat==='neutral'){
+          const neutrals=topPool.filter(t=>NEUTRALS.includes(t.color));
+          top=neutrals.length?neutrals[Math.floor(Math.random()*neutrals.length)]:topPool[Math.floor(Math.random()*topPool.length)];
+        } else {
+          top=topPool[Math.floor(Math.random()*topPool.length)];
+        }
+        if(!top)continue;
+        usedTops.add(top.id);
+
+        const baseColors=[top.color];
         let bottom=null;
-        if(top.type!=='dress'&&bottoms.length)bottom=[...bottoms].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0];
-        const shoe=[...shoes].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0];
+        if(top.type!=='dress'&&bottoms.length){
+          if(strat==='mono'){
+            const same=bottoms.filter(b=>b.color===top.color);
+            bottom=same.length?same[Math.floor(Math.random()*same.length)]:pickBest(bottoms,baseColors,style,[]);
+          } else {
+            bottom=pickBest(bottoms,baseColors,style,[]);
+          }
+          if(bottom)baseColors.push(bottom.color);
+        }
+
+        const shoe=pickBest(shoes,baseColors,style,[]);
+        if(shoe)baseColors.push(shoe.color);
+
         const outers=items.filter(i=>i.type==='outerwear');
         const bags=items.filter(i=>i.type==='bag');
         const accs=items.filter(i=>i.type==='accessory');
-        const out=outers.length?[...outers].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
-        const bag=bags.length?[...bags].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
-        const ac=accs.length?[...accs].sort((a,b)=>scoreItem(b,baseColor)-scoreItem(a,baseColor))[0]:null;
+        // Only add outer/bag/acc if good color match (score > 1.5)
+        let out=null,bag=null,ac=null;
+        if(outers.length){
+          const cand=pickBest(outers,baseColors,style,[]);
+          if(cand&&scoreItem(cand,baseColors,style)>2)out=cand;
+        }
+        if(bags.length){
+          const cand=pickBest(bags,baseColors,style,[]);
+          if(cand&&scoreItem(cand,baseColors,style)>1.8)bag=cand;
+        }
+        if(accs.length){
+          const cand=pickBest(accs,baseColors,style,[]);
+          if(cand&&scoreItem(cand,baseColors,style)>1.5)ac=cand;
+        }
+
         const combo=[top,bottom,shoe,out,bag,ac].filter(Boolean);
+        if(combo.length<2)continue;
         const key=combo.map(c=>c.id).sort().join('-');
         if(suggestions.some(s=>s.key===key))continue;
-        suggestions.push({key,items:combo});
+        // Compute overall harmony score for sorting
+        let harmony=0;
+        for(let i=0;i<combo.length;i++){
+          for(let j=i+1;j<combo.length;j++){
+            harmony+=colorScore(combo[i].color,combo[j].color);
+          }
+        }
+        suggestions.push({key,items:combo,harmony});
       }
-      list.innerHTML=suggestions.map((sug,idx)=>`
+      // Sort by harmony score
+      suggestions.sort((a,b)=>b.harmony-a.harmony);
+      const final=suggestions.slice(0,5);
+
+      list.innerHTML=final.map((sug,idx)=>`
         <div class="look-card" style="margin-bottom:14px">
           <div class="look-collage">${sug.items.map((it,i)=>`<div class="li ${sug.items.length<=2||(sug.items.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}</div>
           <div class="look-foot"><span class="title">${t('suggested')} ${idx+1}</span><button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button></div>
         </div>`).join('');
-      window._lastSuggestions=suggestions;
+      window._lastSuggestions=final;
     }
     function saveSuggestion(idx){
       const sug=window._lastSuggestions[idx];if(!sug)return;
