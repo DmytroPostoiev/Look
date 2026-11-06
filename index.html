@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <title>Look Creator</title>
+  <style>
+    :root {
+      --bg: #f4f2ef;
+      --card: #fff;
+      --accent: #1a1a1a;
+      --gold: #c9a87c;
+      --text: #111;
+      --muted: #888;
+      --border: #e6e2dc;
+      --danger: #c0392b;
+      --radius: 18px;
+      --shadow: 0 4px 24px rgba(0,0,0,.07);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+      overflow-x: hidden;
+      padding-bottom: calc(70px + var(--safe-bottom));
+    }
+
+    /* Header */
+    header {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
+    .gear-btn {
+      width: 40px; height: 40px;
+      border: none; background: var(--bg);
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Bottom nav – minimal icons */
+    nav.bottom {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card);
+      display: flex;
+      padding: 6px 0 calc(6px + var(--safe-bottom));
+      box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+      z-index: 100;
+    }
+    nav.bottom button {
+      flex: 1;
+      border: none; background: none;
+      padding: 6px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 0.65rem; font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    nav.bottom button.active { color: var(--accent); }
+    nav.bottom button .ico { font-size: 1.35rem; line-height: 1; }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 14px 14px 20px; }
+    .section { display: none; }
+    .section.active { display: block; animation: fade .2s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 18px; border: none; border-radius: 14px;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      transition: transform .12s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-gold { background: var(--gold); color: #fff; }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: #fde8e8; color: var(--danger); }
+    .btn-sm { padding: 8px 12px; font-size: .8rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
+    .btn-icon {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,.92); font-size: .9rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12); cursor: pointer;
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .item-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .item-card img {
+      width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #eee;
+    }
+    .item-card .info { padding: 8px 9px 10px; }
+    .item-card .name {
+      font-size: .78rem; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .item-card .meta { font-size: .68rem; color: var(--muted); margin-top: 1px; }
+    .item-card .actions {
+      position: absolute; top: 6px; right: 6px;
+      display: flex; gap: 4px; opacity: 0; transition: opacity .15s;
+    }
+    .item-card:active .actions, .item-card:focus-within .actions { opacity: 1; }
+    @media (hover: hover) { .item-card:hover .actions { opacity: 1; } }
+
+    /* Filters – compact chips */
+    .filters {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip {
+      padding: 6px 13px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      font-size: .72rem; font-weight: 600; white-space: nowrap;
+      cursor: pointer; color: var(--muted); flex-shrink: 0;
+    }
+    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Empty */
+    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+    .empty .ico { font-size: 2.4rem; margin-bottom: 8px; }
+    .empty p { font-size: .9rem; margin-bottom: 14px; }
+
+    /* Selected bar (create) */
+    .sel-bar {
+      display: flex; gap: 8px; overflow-x: auto; min-height: 82px;
+      padding: 8px 0; -webkit-overflow-scrolling: touch;
+    }
+    .sel-item { width: 68px; flex-shrink: 0; position: relative; }
+    .sel-item img { width: 68px; height: 68px; object-fit: cover; border-radius: 12px; }
+    .sel-item button {
+      position: absolute; top: -5px; right: -5px;
+      width: 22px; height: 22px; border-radius: 50%; border: none;
+      background: var(--danger); color: #fff; font-size: .7rem; cursor: pointer;
+    }
+    .selectable .item-card { cursor: pointer; border: 3px solid transparent; }
+    .selectable .item-card.selected { border-color: var(--gold); }
+
+    /* ===== LOOKS CAROUSEL ===== */
+    .carousel-wrap {
+      position: relative;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .carousel {
+      display: flex;
+      transition: transform .35s cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
+    }
+    .carousel-slide {
+      min-width: 100%;
+      padding: 0 4px;
+      box-sizing: border-box;
+    }
+    .look-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .look-collage {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 10px;
+      background: #faf9f7;
+    }
+    .look-collage .li {
+      border-radius: 12px; overflow: hidden; background: #eee;
+      aspect-ratio: 1;
+    }
+    .look-collage .li.full { grid-column: 1 / -1; aspect-ratio: 16/10; }
+    .look-collage .li img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .look-foot {
+      padding: 12px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .look-foot .title { font-weight: 600; font-size: .95rem; }
+    .carousel-dots {
+      display: flex; justify-content: center; gap: 6px; margin-top: 14px;
+    }
+    .carousel-dots span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border); transition: all .2s;
+    }
+    .carousel-dots span.on { background: var(--accent); width: 18px; border-radius: 4px; }
+    .carousel-nav {
+      position: absolute; top: 45%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,.9); box-shadow: 0 2px 10px rgba(0,0,0,.12);
+      font-size: 1.1rem; cursor: pointer; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .carousel-nav.prev { left: 6px; }
+    .carousel-nav.next { right: 6px; }
+    @media (max-width: 500px) {
+      .carousel-nav { display: none; } /* pure swipe on phone */
+    }
+
+    /* Modal */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 200;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      width: 100%; max-width: 440px;
+      max-height: 92vh;
+      border-radius: 22px 22px 0 0;
+      padding: 18px 16px calc(24px + var(--safe-bottom));
+      overflow-y: auto;
+      animation: up .28s ease;
+    }
+    @keyframes up { from { transform: translateY(50px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label {
+      display: block; font-size: .75rem; font-weight: 600;
+      margin-bottom: 4px; color: var(--muted);
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 11px 12px;
+      border: 1px solid var(--border); border-radius: 12px;
+      font-size: .95rem; background: var(--bg);
+    }
+    .preview {
+      width: 140px; aspect-ratio: 1; margin: 0 auto 12px;
+      border-radius: 14px; overflow: hidden; background: #eee;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .8rem; text-align: center;
+    }
+    .preview img { width: 100%; height: 100%; object-fit: cover; }
+    .style-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .style-row label {
+      font-size: .78rem; padding: 6px 10px; border-radius: 20px;
+      background: var(--bg); border: 1px solid var(--border);
+      cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .style-row input { accent-color: var(--accent); }
+
+    /* Settings */
+    .settings-list { display: flex; flex-direction: column; gap: 6px; }
+    .settings-list button {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border: 1px solid var(--border);
+      border-radius: 14px; background: var(--bg);
+      font-size: .95rem; font-weight: 500; cursor: pointer; color: var(--text);
+    }
+    .settings-list button.active { border-color: var(--gold); background: #faf6f0; }
+    .lang-flag { font-size: 1.2rem; margin-right: 8px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: calc(80px + var(--safe-bottom));
+      left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      padding: 10px 22px; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; z-index: 300;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: calc(78px + var(--safe-bottom)); right: 16px;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--accent); color: #fff; border: none;
+      font-size: 1.7rem; box-shadow: 0 6px 20px rgba(0,0,0,.22);
+      cursor: pointer; z-index: 60;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tag {
+      font-size: .65rem; padding: 2px 7px; border-radius: 8px;
+      background: #f0ebe3; color: #5c4a32; display: inline-block; margin-top: 3px;
+    }
+
+    @media (min-width: 600px) {
+      .overlay { align-items: center; }
+      .modal { border-radius: 22px; margin-bottom: 30px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="app-title">Look Creator</h1>
+    <button class="gear-btn" onclick="openSettings()" aria-label="Settings">⚙️</button>
+  </header>
+
+  <div class="container">
+    <!-- WARDROBE -->
+    <section id="wardrobe" class="section active">
+      <div class="filters" id="type-filters"></div>
+      <div id="items-grid" class="grid"></div>
+      <div id="wardrobe-empty" class="empty" style="display:none">
+        <div class="ico">👕</div>
+        <p data-i18n="empty_wardrobe"></p>
+        <button class="btn btn-primary" onclick="openAddModal()" data-i18n="btn_add"></button>
+      </div>
+    </section>
+
+    <!-- CREATE -->
+    <section id="create" class="section">
+      <div class="sel-bar" id="selected-bar"></div>
+      <div style="display:flex;gap:8px;margin:8px 0 12px">
+        <input type="text" id="look-name" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg)" />
+        <button class="btn btn-primary" onclick="saveLook()" data-i18n="btn_save"></button>
+      </div>
+      <div class="filters" id="create-filters"></div>
+      <div id="create-grid" class="grid selectable"></div>
+    </section>
+
+    <!-- LOOKS – CAROUSEL -->
+    <section id="looks" class="section">
+      <div id="looks-empty" class="empty" style="display:none">
+        <div class="ico">👗</div>
+        <p data-i18n="empty_looks"></p>
+        <button class="btn btn-primary" onclick="showSection('create')" data-i18n="btn_create"></button>
+      </div>
+      <div id="carousel-wrap" class="carousel-wrap" style="display:none">
+        <button class="carousel-nav prev" onclick="slide(-1)">‹</button>
+        <button class="carousel-nav next" onclick="slide(1)">›</button>
+        <div class="carousel" id="carousel"></div>
+        <div class="carousel-dots" id="dots"></div>
+      </div>
+    </section>
+
+    <!-- SUGGEST -->
+    <section id="suggest" class="section">
+      <select id="suggest-style" onchange="generateSuggestions()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;background:var(--bg);font-size:.9rem"></select>
+      <button class="btn btn-gold btn-block" onclick="generateSuggestions()" style="margin-bottom:14px" data-i18n="btn_generate"></button>
+      <div id="suggestions-list"></div>
+      <div id="suggest-empty" class="empty" style="display:none">
+        <div class="ico">💡</div>
+        <p data-i18n="empty_suggest"></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom">
+    <button class="nav-btn active" data-section="wardrobe" onclick="showSection('wardrobe')">
+      <span class="ico">📦</span><span data-i18n="nav_wardrobe"></span>
+    </button>
+    <button class="nav-btn" data-section="create" onclick="showSection('create')">
+      <span class="ico">✨</span><span data-i18n="nav_create"></span>
+    </button>
+    <button class="nav-btn" data-section="looks" onclick="showSection('looks')">
+      <span class="ico">👗</span><span data-i18n="nav_looks"></span>
+    </button>
+    <button class="nav-btn" data-section="suggest" onclick="showSection('suggest')">
+      <span class="ico">💡</span><span data-i18n="nav_suggest"></span>
+    </button>
+  </nav>
+
+  <button class="fab" onclick="openAddModal()">+</button>
+
+  <!-- ADD MODAL -->
+  <div class="overlay" id="add-modal">
+    <div class="modal">
+      <h2 id="modal-title" data-i18n="modal_add"></h2>
+      <div class="preview" id="preview-box"><span data-i18n="tap_photo"></span></div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)" />
+      <button class="btn btn-ghost btn-block" style="margin-bottom:12px" onclick="document.getElementById('photo-input').click()" data-i18n="btn_photo"></button>
+      <div class="form-group">
+        <label data-i18n="label_name"></label>
+        <input type="text" id="item-name" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_type"></label>
+        <select id="item-type"></select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_color"></label>
+        <select id="item-color"></select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_style"></label>
+        <div class="style-row" id="style-checks"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeAddModal()" data-i18n="btn_cancel"></button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveItem()" data-i18n="btn_save"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="overlay" id="settings-modal">
+    <div class="modal">
+      <h2 data-i18n="settings"></h2>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px" data-i18n="choose_lang"></p>
+      <div class="settings-list" id="lang-list"></div>
+      <button class="btn btn-ghost btn-block" style="margin-top:18px" onclick="closeSettings()" data-i18n="btn_close"></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ========== i18n – 7 languages ========== */
+    const i18n = {
+      de: {
+        app_title: "Look Creator", nav_wardrobe: "Schrank", nav_create: "Erstellen", nav_looks: "Looks", nav_suggest: "Ideen",
+        empty_wardrobe: "Noch keine Teile. Foto machen!", btn_add: "Hinzufügen",
+        empty_looks: "Keine Looks. Erstelle einen!", btn_create: "Erstellen",
+        empty_suggest: "Mehr Teile nötig (Top + Hose + Schuhe).",
+        btn_generate: "Vorschläge", btn_save: "Speichern", btn_cancel: "Abbrechen", btn_close: "Schließen",
+        btn_photo: "📷 Foto", modal_add: "Teil hinzufügen", modal_edit: "Bearbeiten",
+        tap_photo: "Foto tippen", label_name: "Name", label_type: "Typ", label_color: "Farbe", label_style: "Stil",
+        toast_saved: "Gespeichert", toast_look: "Look gespeichert", toast_deleted: "Gelöscht",
+        toast_need: "Min. 2 Teile", toast_photo: "Foto nötig",
+        filter_all: "Alle", settings: "Einstellungen", choose_lang: "Sprache wählen",
+        style_any: "Beliebig", style_classic: "Klassisch", style_modern: "Modern",
+        style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sportlich",
+        type_top: "Tops", type_bottom: "Hosen", type_dress: "Kleider", type_outerwear: "Jacken",
+        type_shoes: "Schuhe", type_bag: "Taschen", type_accessory: "Accessoires", type_other: "Anderes",
+        delete_confirm: "Löschen?", look_untitled: "Look", suggested: "Idee",
+        types: { top: "Top", bottom: "Hose/Rock", dress: "Kleid", outerwear: "Jacke", shoes: "Schuhe", bag: "Tasche", accessory: "Accessoire", other: "Anderes" },
+        colors: { black: "Schwarz", white: "Weiß", beige: "Beige", gray: "Grau", brown: "Braun", blue: "Blau", red: "Rot", green: "Grün", pink: "Rosa", yellow: "Gelb", multicolor: "Bunt" }
+      },
+      en: {
+        app_title: "Look Creator", nav_wardrobe: "Wardrobe", nav_create: "Create", nav_looks: "Looks", nav_suggest: "Ideas",
+        empty_wardrobe: "No items yet. Take a photo!", btn_add: "Add",
+        empty_looks: "No looks. Create one!", btn_create: "Create",
+        empty_suggest: "Need more items (top + bottom + shoes).",
+        btn_generate: "Generate", btn_save: "Save", btn_cancel: "Cancel", btn_close: "Close",
+        btn_photo: "📷 Photo", modal_add: "Add item", modal_edit: "Edit",
+        tap_photo: "Tap for photo", label_name: "Name", label_type: "Type", label_color: "Color", label_style: "Style",
+        toast_saved: "Saved", toast_look: "Look saved", toast_deleted: "Deleted",
+        toast_need: "Min. 2 items", toast_photo: "Photo required",
+        filter_all: "All", settings: "Settings", choose_lang: "Choose language",
+        style_any: "Any", style_classic: "Classic", style_modern: "Modern",
+        style_elegant: "Elegant", style_casual: "Casual", style_sporty: "Sporty",
+        type_top: "Tops", type_bottom: "Bottoms", type_dress: "Dresses", type_outerwear: "Outerwear",
+        type_shoes: "Shoes", type_bag: "Bags", type_accessory: "Accessories", type_other: "Other",
+        delete_confirm: "Delete?", look_untitled: "Look", suggested: "Idea",
+        types: { top: "Top", bottom: "Bottom", dress: "Dress", outerwear: "Jacket", shoes: "Shoes", bag: "Bag", accessory: "Accessory", other: "Other" },
+        colors: { black: "Black", white: "White", beige: "Beige", gray: "Gray", brown: "Brown", blue: "Blue", red: "Red", green: "Green", pink: "Pink", yellow: "Yellow", multicolor: "Multi" }
+      },
+      ru: {
+        app_title: "Look Creator", nav_wardrobe: "Шкаф", nav_create: "Создать", nav_looks: "Образы", nav_suggest: "Идеи",
+        empty_wardrobe: "Пока пусто. Сфотографируй вещи!", btn_add: "Добавить",
+        empty_looks: "Нет образов. Создай!", btn_create: "Создать",
+        empty_suggest: "Нужно больше вещей (верх + низ + обувь).",
+        btn_generate: "Идеи", btn_save: "Сохранить", btn_cancel: "Отмена", btn_close: "Закрыть",
+        btn_photo: "📷 Фото", modal_add: "Добавить вещь", modal_edit: "Изменить",
+        tap_photo: "Нажми для фото", label_name: "Название", label_type: "Тип", label_color: "Цвет", label_style: "Стиль",
+        toast_saved: "Сохранено", toast_look: "Образ сохранён", toast_deleted: "Удалено",
+        toast_need: "Мин. 2 вещи", toast_photo: "Нужно фото",
+        filter_all: "Все", settings: "Настройки", choose_lang: "Выберите язык",
+        style_any: "Любой", style_classic: "Классика", style_modern: "Модерн",
+        style_elegant: "Элегант", style_casual: "Кэжуал", style_sporty: "Спорт",
+        type_top: "Верх", type_bottom: "Низ", type_dress: "Платья", type_outerwear: "Верхняя",
+        type_shoes: "Обувь", type_bag: "Сумки", type_accessory: "Аксессуары", type_other: "Другое",
+        delete_confirm: "Удалить?", look_untitled: "Образ", suggested: "Идея",
+        types: { top: "Верх", bottom: "Низ", dress: "Платье", outerwear: "Куртка", shoes: "Обувь", bag: "Сумка", accessory: "Аксессуар", other: "Другое" },
+        colors: { black: "Чёрный", white: "Белый", beige: "Бежевый", gray: "Серый", brown: "Коричневый", blue: "Синий", red: "Красный", green: "Зелёный", pink: "Розовый", yellow: "Жёлтый", multicolor: "Разный" }
+      },
+      uk: {
+        app_title: "Look Creator", nav_wardrobe: "Шафа", nav_create: "Створити", nav_looks: "Образи", nav_suggest: "Ідеї",
+        empty_wardrobe: "Поки порожньо. Зроби фото!", btn_add: "Додати",
+        empty_looks: "Немає образів. Створи!", btn_create: "Створити",
+        empty_suggest: "Потрібно більше речей (верх + низ + взуття).",
+        btn_generate: "Ідеї", btn_save: "Зберегти", btn_cancel: "Скасувати", btn_close: "Закрити",
+        btn_photo: "📷 Фото", modal_add: "Додати річ", modal_edit: "Змінити",
+        tap_photo: "Натисни для фото", label_name: "Назва", label_type: "Тип", label_color: "Колір", label_style: "Стиль",
+        toast_saved: "Збережено", toast_look: "Образ збережено", toast_deleted: "Видалено",
+        toast_need: "Мін. 2 речі", toast_photo: "Потрібне фото",
+        filter_all: "Усі", settings: "Налаштування", choose_lang: "Оберіть мову",
+        style_any: "Будь-який", style_classic: "Класика", style_modern: "Модерн",
+        style_elegant: "Елегант", style_casual: "Кежуал", style_sporty: "Спорт",
+        type_top: "Верх", type_bottom: "Низ", type_dress: "Сукні", type_outerwear: "Верхній",
+        type_shoes: "Взуття", type_bag: "Сумки", type_accessory: "Аксесуари", type_other: "Інше",
+        delete_confirm: "Видалити?", look_untitled: "Образ", suggested: "Ідея",
+        types: { top: "Верх", bottom: "Низ", dress: "Сукня", outerwear: "Куртка", shoes: "Взуття", bag: "Сумка", accessory: "Аксесуар", other: "Інше" },
+        colors: { black: "Чорний", white: "Білий", beige: "Бежевий", gray: "Сірий", brown: "Коричневий", blue: "Синій", red: "Червоний", green: "Зелений", pink: "Рожевий", yellow: "Жовтий", multicolor: "Різний" }
+      },
+      it: {
+        app_title: "Look Creator", nav_wardrobe: "Armadio", nav_create: "Crea", nav_looks: "Look", nav_suggest: "Idee",
+        empty_wardrobe: "Nessun capo. Scatta una foto!", btn_add: "Aggiungi",
+        empty_looks: "Nessun look. Creane uno!", btn_create: "Crea",
+        empty_suggest: "Servono più capi (top + pantaloni + scarpe).",
+        btn_generate: "Idee", btn_save: "Salva", btn_cancel: "Annulla", btn_close: "Chiudi",
+        btn_photo: "📷 Foto", modal_add: "Aggiungi capo", modal_edit: "Modifica",
+        tap_photo: "Tocca per foto", label_name: "Nome", label_type: "Tipo", label_color: "Colore", label_style: "Stile",
+        toast_saved: "Salvato", toast_look: "Look salvato", toast_deleted: "Eliminato",
+        toast_need: "Min. 2 pezzi", toast_photo: "Foto richiesta",
+        filter_all: "Tutti", settings: "Impostazioni", choose_lang: "Scegli lingua",
+        style_any: "Qualsiasi", style_classic: "Classico", style_modern: "Modern",
+        style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sportivo",
+        type_top: "Top", type_bottom: "Pantaloni", type_dress: "Abiti", type_outerwear: "Giacche",
+        type_shoes: "Scarpe", type_bag: "Borse", type_accessory: "Accessori", type_other: "Altro",
+        delete_confirm: "Eliminare?", look_untitled: "Look", suggested: "Idea",
+        types: { top: "Top", bottom: "Pantalone", dress: "Abito", outerwear: "Giacca", shoes: "Scarpe", bag: "Borsa", accessory: "Accessorio", other: "Altro" },
+        colors: { black: "Nero", white: "Bianco", beige: "Beige", gray: "Grigio", brown: "Marrone", blue: "Blu", red: "Rosso", green: "Verde", pink: "Rosa", yellow: "Giallo", multicolor: "Multicolore" }
+      },
+      es: {
+        app_title: "Look Creator", nav_wardrobe: "Armario", nav_create: "Crear", nav_looks: "Looks", nav_suggest: "Ideas",
+        empty_wardrobe: "Sin prendas. ¡Haz una foto!", btn_add: "Añadir",
+        empty_looks: "Sin looks. ¡Crea uno!", btn_create: "Crear",
+        empty_suggest: "Necesitas más prendas (top + pantalón + zapatos).",
+        btn_generate: "Ideas", btn_save: "Guardar", btn_cancel: "Cancelar", btn_close: "Cerrar",
+        btn_photo: "📷 Foto", modal_add: "Añadir prenda", modal_edit: "Editar",
+        tap_photo: "Toca para foto", label_name: "Nombre", label_type: "Tipo", label_color: "Color", label_style: "Estilo",
+        toast_saved: "Guardado", toast_look: "Look guardado", toast_deleted: "Eliminado",
+        toast_need: "Mín. 2 prendas", toast_photo: "Foto necesaria",
+        filter_all: "Todos", settings: "Ajustes", choose_lang: "Elige idioma",
+        style_any: "Cualquiera", style_classic: "Clásico", style_modern: "Moderno",
+        style_elegant: "Elegante", style_casual: "Casual", style_sporty: "Sport",
+        type_top: "Tops", type_bottom: "Pantalones", type_dress: "Vestidos", type_outerwear: "Abrigos",
+        type_shoes: "Zapatos", type_bag: "Bolsos", type_accessory: "Accesorios", type_other: "Otro",
+        delete_confirm: "¿Borrar?", look_untitled: "Look", suggested: "Idea",
+        types: { top: "Top", bottom: "Pantalón", dress: "Vestido", outerwear: "Chaqueta", shoes: "Zapatos", bag: "Bolso", accessory: "Accesorio", other: "Otro" },
+        colors: { black: "Negro", white: "Blanco", beige: "Beige", gray: "Gris", brown: "Marrón", blue: "Azul", red: "Rojo", green: "Verde", pink: "Rosa", yellow: "Amarillo", multicolor: "Multicolor" }
+      },
+      fr: {
+        app_title: "Look Creator", nav_wardrobe: "Penderie", nav_create: "Créer", nav_looks: "Looks", nav_suggest: "Idées",
+        empty_wardrobe: "Rien encore. Prends une photo !", btn_add: "Ajouter",
+        empty_looks: "Aucun look. Crée-en un !", btn_create: "Créer",
+        empty_suggest: "Il faut plus de pièces (haut + bas + chaussures).",
+        btn_generate: "Idées", btn_save: "Enregistrer", btn_cancel: "Annuler", btn_close: "Fermer",
+        btn_photo: "📷 Photo", modal_add: "Ajouter un article", modal_edit: "Modifier",
+        tap_photo: "Appuie pour photo", label_name: "Nom", label_type: "Type", label_color: "Couleur", label_style: "Style",
+        toast_saved: "Enregistré", toast_look: "Look enregistré", toast_deleted: "Supprimé",
+        toast_need: "Min. 2 pièces", toast_photo: "Photo requise",
+        filter_all: "Tous", settings: "Réglages", choose_lang: "Choisir la langue",
+        style_any: "Tous", style_classic: "Classique", style_modern: "Moderne",
+        style_elegant: "Élégant", style_casual: "Casual", style_sporty: "Sport",
+        type_top: "Hauts", type_bottom: "Bas", type_dress: "Robes", type_outerwear: "Manteaux",
+        type_shoes: "Chaussures", type_bag: "Sacs", type_accessory: "Accessoires", type_other: "Autre",
+        delete_confirm: "Supprimer ?", look_untitled: "Look", suggested: "Idée",
+        types: { top: "Haut", bottom: "Bas", dress: "Robe", outerwear: "Veste", shoes: "Chaussures", bag: "Sac", accessory: "Accessoire", other: "Autre" },
+        colors: { black: "Noir", white: "Blanc", beige: "Beige", gray: "Gris", brown: "Marron", blue: "Bleu", red: "Rouge", green: "Vert", pink: "Rose", yellow: "Jaune", multicolor: "Multicolore" }
+      }
+    };
+
+    const LANGS = [
+      { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
+      { code: 'en', flag: '🇬🇧', name: 'English' },
+      { code: 'ru', flag: '🇷🇺', name: 'Русский' },
+      { code: 'uk', flag: '🇺🇦', name: 'Українська' },
+      { code: 'it', flag: '🇮🇹', name: 'Italiano' },
+      { code: 'es', flag: '🇪🇸', name: 'Español' },
+      { code: 'fr', flag: '🇫🇷', name: 'Français' }
+    ];
+
+    let currentLang = localStorage.getItem('lookLang') || 'de';
+    let items = JSON.parse(localStorage.getItem('lookItems') || '[]');
+    let looks = JSON.parse(localStorage.getItem('lookLooks') || '[]');
+    let editingId = null;
+    let selectedForLook = [];
+    let currentFilter = 'all';
+    let currentPhotoData = null;
+    let carouselIdx = 0;
+    let touchStartX = 0;
+
+    function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key; }
+    function tType(type) { return (i18n[currentLang].types || {})[type] || type; }
+    function tColor(c) { return (i18n[currentLang].colors || {})[c] || c; }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lookLang', lang);
+      document.documentElement.lang = lang;
+      applyTranslations();
+      renderAll();
+      closeSettings();
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (i18n[currentLang][k]) el.textContent = i18n[currentLang][k];
+      });
+      document.getElementById('app-title').textContent = t('app_title');
+      document.getElementById('look-name').placeholder = t('look_untitled');
+
+      // type select
+      const typeOpts = [
+        ['top','Top / Blouse'], ['bottom','Pants / Skirt'], ['dress','Dress'],
+        ['outerwear','Jacket / Coat'], ['shoes','Shoes'], ['bag','Bag / Clutch'],
+        ['accessory','Accessory'], ['other','Other']
+      ];
+      document.getElementById('item-type').innerHTML = typeOpts.map(([v]) =>
+        `<option value="${v}">${tType(v)}</option>`).join('');
+
+      // color select
+      const cols = Object.keys(i18n.en.colors);
+      document.getElementById('item-color').innerHTML = cols.map(c =>
+        `<option value="${c}">${tColor(c)}</option>`).join('');
+
+      // styles
+      document.getElementById('style-checks').innerHTML = ['classic','modern','elegant','casual','sporty'].map(s =>
+        `<label><input type="checkbox" value="${s}"> ${t('style_'+s)}</label>`).join('');
+
+      // suggest select
+      const sug = document.getElementById('suggest-style');
+      const cur = sug.value || 'any';
+      sug.innerHTML = ['any','classic','modern','elegant','casual','sporty'].map(s =>
+        `<option value="${s}">${t('style_'+s)}</option>`).join('');
+      sug.value = cur;
+
+      // lang list in settings
+      document.getElementById('lang-list').innerHTML = LANGS.map(l =>
+        `<button class="${currentLang===l.code?'active':''}" onclick="setLang('${l.code}')">
+          <span><span class="lang-flag">${l.flag}</span>${l.name}</span>
+          ${currentLang===l.code ? '✓' : ''}
+        </button>`).join('');
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+      if (id === 'create') renderCreate();
+      if (id === 'looks') renderLooks();
+      if (id === 'suggest') generateSuggestions();
+      if (id === 'wardrobe') renderWardrobe();
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function saveData() {
+      localStorage.setItem('lookItems', JSON.stringify(items));
+      localStorage.setItem('lookLooks', JSON.stringify(looks));
+    }
+
+    function handlePhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        currentPhotoData = ev.target.result;
+        document.getElementById('preview-box').innerHTML = `<img src="${currentPhotoData}">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function openAddModal(editItem = null) {
+      editingId = editItem ? editItem.id : null;
+      document.getElementById('modal-title').textContent = editItem ? t('modal_edit') : t('modal_add');
+      currentPhotoData = editItem ? editItem.photo : null;
+      const box = document.getElementById('preview-box');
+      box.innerHTML = currentPhotoData ? `<img src="${currentPhotoData}">` : `<span>${t('tap_photo')}</span>`;
+      document.getElementById('item-name').value = editItem ? editItem.name : '';
+      document.getElementById('item-type').value = editItem ? editItem.type : 'top';
+      document.getElementById('item-color').value = editItem ? editItem.color : 'black';
+      document.querySelectorAll('#style-checks input').forEach(cb => {
+        cb.checked = editItem ? (editItem.styles || []).includes(cb.value) : false;
+      });
+      document.getElementById('add-modal').classList.add('open');
+    }
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('open');
+      document.getElementById('photo-input').value = '';
+      currentPhotoData = null; editingId = null;
+    }
+
+    function saveItem() {
+      const name = document.getElementById('item-name').value.trim() || t('look_untitled');
+      const type = document.getElementById('item-type').value;
+      const color = document.getElementById('item-color').value;
+      const styles = Array.from(document.querySelectorAll('#style-checks input:checked')).map(c => c.value);
+      if (!currentPhotoData && !editingId) { toast(t('toast_photo')); return; }
+      if (editingId) {
+        const idx = items.findIndex(i => i.id === editingId);
+        if (idx >= 0) items[idx] = { ...items[idx], name, type, color, styles, photo: currentPhotoData || items[idx].photo };
+      } else {
+        items.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, type, color, styles, photo: currentPhotoData, created: Date.now() });
+      }
+      saveData(); closeAddModal(); renderWardrobe(); toast(t('toast_saved'));
+    }
+
+    function deleteItem(id) {
+      if (!confirm(t('delete_confirm'))) return;
+      items = items.filter(i => i.id !== id);
+      looks = looks.map(l => ({ ...l, itemIds: l.itemIds.filter(iid => iid !== id) })).filter(l => l.itemIds.length > 0);
+      selectedForLook = selectedForLook.filter(sid => sid !== id);
+      saveData(); renderAll(); toast(t('toast_deleted'));
+    }
+
+    function renderWardrobe() {
+      const grid = document.getElementById('items-grid');
+      const empty = document.getElementById('wardrobe-empty');
+      const types = ['all','top','bottom','dress','outerwear','shoes','bag','accessory','other'];
+      document.getElementById('type-filters').innerHTML = types.map(ty =>
+        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`
+      ).join('');
+      let filtered = currentFilter === 'all' ? items : items.filter(i => i.type === currentFilter);
+      if (!filtered.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      grid.innerHTML = filtered.map(item => `
+        <div class="item-card">
+          <img src="${item.photo}" alt="" loading="lazy" />
+          <div class="actions">
+            <button class="btn-icon" onclick="openAddModal(items.find(i=>i.id==='${item.id}'))">✏️</button>
+            <button class="btn-icon" onclick="deleteItem('${item.id}')">🗑️</button>
+          </div>
+          <div class="info">
+            <div class="name">${esc(item.name)}</div>
+            <div class="meta">${tType(item.type)} · ${tColor(item.color)}</div>
+          </div>
+        </div>`).join('');
+    }
+    function setFilter(ty) { currentFilter = ty; renderWardrobe(); }
+
+    function renderCreate() {
+      const bar = document.getElementById('selected-bar');
+      bar.innerHTML = selectedForLook.map(id => {
+        const item = items.find(i => i.id === id);
+        return item ? `<div class="sel-item"><img src="${item.photo}"><button onclick="toggleSelect('${id}')">×</button></div>` : '';
+      }).join('') || `<div style="color:var(--muted);font-size:.85rem;padding:18px 0">${t('empty_looks')}</div>`;
+
+      const types = ['all','top','bottom','dress','outerwear','shoes','bag','accessory'];
+      document.getElementById('create-filters').innerHTML = types.map(ty =>
+        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setCreateFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`
+      ).join('');
+
+      let filtered = currentFilter === 'all' ? items : items.filter(i => i.type === currentFilter);
+      document.getElementById('create-grid').innerHTML = filtered.map(item => `
+        <div class="item-card ${selectedForLook.includes(item.id)?'selected':''}" onclick="toggleSelect('${item.id}')">
+          <img src="${item.photo}" alt="" />
+          <div class="info"><div class="name">${esc(item.name)}</div><div class="meta">${tType(item.type)}</div></div>
+        </div>`).join('');
+    }
+    function setCreateFilter(ty) { currentFilter = ty; renderCreate(); }
+    function toggleSelect(id) {
+      const idx = selectedForLook.indexOf(id);
+      if (idx >= 0) selectedForLook.splice(idx, 1); else selectedForLook.push(id);
+      renderCreate();
+    }
+    function saveLook() {
+      if (selectedForLook.length < 2) { toast(t('toast_need')); return; }
+      const name = document.getElementById('look-name').value.trim() || t('look_untitled');
+      looks.unshift({ id: Date.now().toString(36), name, itemIds: [...selectedForLook], created: Date.now() });
+      saveData(); selectedForLook = []; document.getElementById('look-name').value = '';
+      renderCreate(); toast(t('toast_look')); showSection('looks');
+    }
+
+    /* ===== CAROUSEL ===== */
+    function renderLooks() {
+      const empty = document.getElementById('looks-empty');
+      const wrap = document.getElementById('carousel-wrap');
+      if (!looks.length) { empty.style.display = 'block'; wrap.style.display = 'none'; return; }
+      empty.style.display = 'none'; wrap.style.display = 'block';
+
+      const car = document.getElementById('carousel');
+      car.innerHTML = looks.map(look => {
+        const lookItems = look.itemIds.map(id => items.find(i => i.id === id)).filter(Boolean);
+        if (!lookItems.length) return '';
+        return `<div class="carousel-slide">
+          <div class="look-card">
+            <div class="look-collage">
+              ${lookItems.map((it, i) => `<div class="li ${lookItems.length===1 || (lookItems.length===3 && i===0) ? 'full' : ''}"><img src="${it.photo}"></div>`).join('')}
+            </div>
+            <div class="look-foot">
+              <span class="title">${esc(look.name)}</span>
+              <button class="btn btn-sm btn-danger" onclick="deleteLook('${look.id}')">🗑️</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      carouselIdx = Math.min(carouselIdx, looks.length - 1);
+      updateCarousel();
+      // touch
+      car.ontouchstart = e => { touchStartX = e.touches[0].clientX; };
+      car.ontouchend = e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 50) slide(dx < 0 ? 1 : -1);
+      };
+    }
+    function updateCarousel() {
+      const car = document.getElementById('carousel');
+      car.style.transform = `translateX(-${carouselIdx * 100}%)`;
+      document.getElementById('dots').innerHTML = looks.map((_, i) =>
+        `<span class="${i===carouselIdx?'on':''}" onclick="goTo(${i})"></span>`).join('');
+    }
+    function slide(dir) {
+      carouselIdx = Math.max(0, Math.min(looks.length - 1, carouselIdx + dir));
+      updateCarousel();
+    }
+    function goTo(i) { carouselIdx = i; updateCarousel(); }
+    function deleteLook(id) {
+      if (!confirm(t('delete_confirm'))) return;
+      looks = looks.filter(l => l.id !== id);
+      saveData(); renderLooks(); toast(t('toast_deleted'));
+    }
+
+    function generateSuggestions() {
+      const style = document.getElementById('suggest-style').value;
+      const list = document.getElementById('suggestions-list');
+      const empty = document.getElementById('suggest-empty');
+      const tops = items.filter(i => i.type === 'top' || i.type === 'dress');
+      const bottoms = items.filter(i => i.type === 'bottom');
+      const shoes = items.filter(i => i.type === 'shoes');
+      if (!tops.length || (!bottoms.length && !items.some(i => i.type === 'dress')) || !shoes.length) {
+        list.innerHTML = ''; empty.style.display = 'block'; return;
+      }
+      empty.style.display = 'none';
+      function score(item) {
+        let s = Math.random();
+        if (style !== 'any' && item.styles && item.styles.includes(style)) s += 3;
+        return s;
+      }
+      const suggestions = [];
+      for (let n = 0; n < 4; n++) {
+        const top = tops.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,tops.length))];
+        const bottom = (top.type !== 'dress' && bottoms.length) ? bottoms.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,bottoms.length))] : null;
+        const shoe = shoes.sort((a,b)=>score(b)-score(a))[Math.floor(Math.random()*Math.min(3,shoes.length))];
+        const out = items.filter(i=>i.type==='outerwear')[Math.floor(Math.random()*items.filter(i=>i.type==='outerwear').length)] || null;
+        const bag = items.filter(i=>i.type==='bag')[Math.floor(Math.random()*items.filter(i=>i.type==='bag').length)] || null;
+        const ac = items.filter(i=>i.type==='accessory')[Math.floor(Math.random()*items.filter(i=>i.type==='accessory').length)] || null;
+        const combo = [top, bottom, shoe, out, bag, ac].filter(Boolean);
+        const key = combo.map(c=>c.id).sort().join('-');
+        if (suggestions.some(s => s.key === key)) continue;
+        suggestions.push({ key, items: combo });
+      }
+      list.innerHTML = suggestions.map((sug, idx) => `
+        <div class="look-card" style="margin-bottom:14px">
+          <div class="look-collage">
+            ${sug.items.map((it,i) => `<div class="li ${sug.items.length<=2||(sug.items.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}
+          </div>
+          <div class="look-foot">
+            <span class="title">${t('suggested')} ${idx+1}</span>
+            <button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button>
+          </div>
+        </div>`).join('');
+      window._lastSuggestions = suggestions;
+    }
+    function saveSuggestion(idx) {
+      const sug = window._lastSuggestions[idx];
+      if (!sug) return;
+      looks.unshift({ id: Date.now().toString(36), name: `${t('suggested')} ${idx+1}`, itemIds: sug.items.map(i=>i.id), created: Date.now() });
+      saveData(); toast(t('toast_look')); showSection('looks');
+    }
+
+    function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+    function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+
+    function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function renderAll() { renderWardrobe(); renderCreate(); renderLooks(); }
+
+    // init
+    applyTranslations();
+    renderAll();
+    document.getElementById('add-modal').addEventListener('click', e => { if (e.target.id === 'add-modal') closeAddModal(); });
+    document.getElementById('settings-modal').addEventListener('click', e => { if (e.target.id === 'settings-modal') closeSettings(); });
+  </script>
+</body>
+</html>
