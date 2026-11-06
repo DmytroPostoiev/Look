@@ -34,7 +34,8 @@
       --text: #1a2e1f; --muted: #5a7a60; --border: #d4e0d6; --danger: #c0392b;
       --shadow: 0 4px 24px rgba(45,90,61,.08); --input-bg: #f0f4ef; --chip-bg: #fff;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    img { -webkit-user-drag: none; user-select: none; }
     html, body { height: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
@@ -99,16 +100,11 @@
     .item-card .name { font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .item-card .meta { font-size: .68rem; color: var(--muted); margin-top: 1px; }
     .item-card .color-dot {
-      position: absolute; bottom: 42px; left: 8px;
+      position: absolute; top: 8px; left: 8px;
       width: 14px; height: 14px; border-radius: 50%;
       border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2);
     }
-    .item-card .actions {
-      position: absolute; top: 6px; right: 6px;
-      display: flex; gap: 4px; opacity: 0; transition: opacity .15s;
-    }
-    .item-card:active .actions, .item-card:focus-within .actions { opacity: 1; }
-    @media (hover: hover) { .item-card:hover .actions { opacity: 1; } }
+    .item-card.pressing { transform: scale(0.96); opacity: 0.85; transition: transform .15s, opacity .15s; }
     .filters {
       display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
@@ -147,13 +143,33 @@
     .carousel-slide { min-width: 100%; padding: 0 4px; }
     .look-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
     .look-collage {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; background: var(--bg);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px;
+      background: #fff; min-height: 70vh;
     }
-    .look-collage .li { border-radius: 12px; overflow: hidden; background: #eee; aspect-ratio: 1; }
-    .look-collage .li.full { grid-column: 1 / -1; aspect-ratio: 16/10; }
-    .look-collage .li img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .look-foot { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
-    .look-foot .title { font-weight: 600; font-size: .95rem; }
+    [data-theme="dark"] .look-collage { background: #1a1a1a; }
+    .look-collage .li { border-radius: 14px; overflow: hidden; background: #f0f0f0; }
+    .look-collage .li img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fafafa; }
+    [data-theme="dark"] .look-collage .li img { background: #222; }
+    /* Dynamic layouts for set view */
+    .look-collage.n1 { grid-template-columns: 1fr; }
+    .look-collage.n1 .li { min-height: 60vh; }
+    .look-collage.n2 { grid-template-columns: 1fr 1fr; }
+    .look-collage.n2 .li { min-height: 50vh; }
+    .look-collage.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1.2fr 1fr; }
+    .look-collage.n3 .li:first-child { grid-column: 1 / -1; min-height: 35vh; }
+    .look-collage.n3 .li { min-height: 28vh; }
+    .look-collage.n4 { grid-template-columns: 1fr 1fr; }
+    .look-collage.n4 .li { min-height: 32vh; }
+    .look-collage.n5, .look-collage.n6 {
+      grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+    }
+    .look-collage.n5 .li, .look-collage.n6 .li { min-height: 28vh; }
+    .look-collage.n5 .li:first-child { grid-column: 1 / -1; min-height: 32vh; }
+    .look-foot {
+      padding: 14px 16px; display: flex; justify-content: center; align-items: center;
+      font-weight: 600; font-size: 1rem;
+    }
+    .look-card.pressing { transform: scale(0.98); opacity: 0.9; }
     .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
     .carousel-dots span {
       width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all .2s;
@@ -547,15 +563,57 @@
         const img=new Image();
         img.onload=()=>{
           const ratio=img.width/img.height;
-          if(ratio>1.35)resolve('bag');
-          else if(ratio<0.5)resolve('dress');
-          else if(ratio<0.72)resolve('bottom');
-          else if(ratio>1.05&&ratio<1.35)resolve('shoes');
+          // Also sample brightness distribution for shoes vs bags
+          const canvas=document.getElementById('color-canvas');
+          const s=40; canvas.width=s; canvas.height=s;
+          const ctx=canvas.getContext('2d');
+          ctx.drawImage(img,0,0,s,s);
+          const d=ctx.getImageData(0,0,s,s).data;
+          let brightEdge=0, darkCenter=0, edgeCount=0, centerCount=0;
+          for(let y=0;y<s;y++){
+            for(let x=0;x<s;x++){
+              const i=(y*s+x)*4;
+              const lum=(d[i]+d[i+1]+d[i+2])/3;
+              const isEdge=x<4||x>s-5||y<4||y>s-5;
+              if(isEdge){ edgeCount++; if(lum>200) brightEdge++; }
+              else { centerCount++; if(lum<80) darkCenter++; }
+            }
+          }
+          // Heuristics by aspect ratio + composition
+          if(ratio>1.5) resolve('bag');
+          else if(ratio>1.15 && ratio<=1.5) resolve('shoes'); // often wider
+          else if(ratio<0.48) resolve('dress');
+          else if(ratio<0.68) resolve('bottom');
+          else if(ratio>=0.68 && ratio<=0.95) resolve('top');
+          else if(ratio>0.95 && ratio<=1.15){
+            // square-ish: could be accessory, shoes, or folded top
+            if(brightEdge/edgeCount>0.4) resolve('accessory');
+            else resolve('top');
+          }
           else resolve('top');
         };
         img.onerror=()=>resolve('top');
         img.src=dataUrl;
       });
+    }
+    function suggestName(type, color){
+      const colorName=tColor(color);
+      const typeName=tType(type);
+      // e.g. "Schwarzes Top", "Black Top"
+      if(currentLang==='de'){
+        const adj={black:'Schwarzes',white:'Weißes',beige:'Beiges',gray:'Graues',brown:'Braunes',blue:'Blaues',red:'Rotes',green:'Grünes',pink:'Rosa',yellow:'Gelbes',multicolor:'Buntes'};
+        // grammatical gender rough
+        const fem=['Hose/Rock','Tasche','Jacke'];
+        const isFem=fem.some(f=>typeName.includes(f.split('/')[0]));
+        const a=adj[color]||colorName;
+        if(isFem){
+          const femAdj={black:'Schwarze',white:'Weiße',beige:'Beige',gray:'Graue',brown:'Braune',blue:'Blaue',red:'Rote',green:'Grüne',pink:'Rosa',yellow:'Gelbe',multicolor:'Bunte'};
+          return `${femAdj[color]||colorName} ${typeName}`;
+        }
+        return `${a} ${typeName}`;
+      }
+      // EN and others: "Black Top"
+      return `${colorName} ${typeName}`;
     }
 
     function setLang(lang){currentLang=lang;localStorage.setItem('lookLang',lang);document.documentElement.lang=lang;applyTranslations();renderAll();}
@@ -637,6 +695,8 @@
         const type=await guessType(currentPhotoData);
         document.getElementById('item-color').value=color;
         document.getElementById('item-type').value=type;
+        const nameField=document.getElementById('item-name');
+        if(!nameField.value.trim()) nameField.value=suggestName(type,color);
       };
       reader.readAsDataURL(file);
     }
@@ -648,7 +708,8 @@
         const dataUrl=await readFile(file);
         const color=await detectDominantColor(dataUrl);
         const type=await guessType(dataUrl);
-        batchItems.push({photo:dataUrl,name:'',type,color,styles:[]});
+        const name=suggestName(type,color);
+        batchItems.push({photo:dataUrl,name,type,color,styles:[]});
       }
       openBatchModal();
     }
@@ -718,6 +779,77 @@
       saveData();renderAll();toast(t('toast_deleted'));
     }
 
+    /* Long-press: edit or delete */
+    let pressTimer=null, pressTarget=null, pressType=null, pressId=null, pressMoved=false;
+    function startPress(e, type, id){
+      if(e.button&&e.button!==0)return;
+      pressMoved=false; pressType=type; pressId=id;
+      const el=e.currentTarget;
+      pressTarget=el;
+      el.classList.add('pressing');
+      pressTimer=setTimeout(()=>{
+        pressTimer=null;
+        el.classList.remove('pressing');
+        // Haptic if available
+        if(navigator.vibrate) navigator.vibrate(30);
+        showItemMenu(type, id);
+      }, 550);
+    }
+    function endPress(e){
+      if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; }
+      if(pressTarget){ pressTarget.classList.remove('pressing'); pressTarget=null; }
+    }
+    function cancelPress(){
+      if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; }
+      if(pressTarget){ pressTarget.classList.remove('pressing'); pressTarget=null; }
+    }
+    function showItemMenu(type, id){
+      if(type==='item'){
+        const item=items.find(i=>i.id===id);
+        if(!item)return;
+        const choice=confirm(t('edit_or_delete')+'\n\nOK = '+t('modal_edit')+'\nCancel = '+t('delete_confirm'));
+        // confirm only has OK/Cancel - use a better approach with two-step
+        openItemActionSheet(id);
+      } else if(type==='look'){
+        openLookActionSheet(id);
+      }
+    }
+    function openItemActionSheet(id){
+      const item=items.find(i=>i.id===id);
+      if(!item)return;
+      // Simple action sheet via prompt-style buttons in a mini modal
+      const existing=document.getElementById('action-sheet');
+      if(existing) existing.remove();
+      const sheet=document.createElement('div');
+      sheet.id='action-sheet';
+      sheet.className='overlay open';
+      sheet.innerHTML=`<div class="modal" style="padding-bottom:30px">
+        <h2 style="margin-bottom:8px">${esc(item.name)}</h2>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">${tType(item.type)} · ${tColor(item.color)}</p>
+        <button class="btn btn-primary btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();openAddModal(items.find(i=>i.id==='${id}'))">${t('modal_edit')}</button>
+        <button class="btn btn-danger btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();deleteItem('${id}')">${t('delete_confirm')}</button>
+        <button class="btn btn-ghost btn-block" onclick="document.getElementById('action-sheet').remove()">${t('btn_cancel')}</button>
+      </div>`;
+      sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.remove();});
+      document.body.appendChild(sheet);
+    }
+    function openLookActionSheet(id){
+      const look=looks.find(l=>l.id===id);
+      if(!look)return;
+      const existing=document.getElementById('action-sheet');
+      if(existing) existing.remove();
+      const sheet=document.createElement('div');
+      sheet.id='action-sheet';
+      sheet.className='overlay open';
+      sheet.innerHTML=`<div class="modal" style="padding-bottom:30px">
+        <h2 style="margin-bottom:14px">${esc(look.name)}</h2>
+        <button class="btn btn-danger btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();deleteLook('${id}')">${t('delete_confirm')}</button>
+        <button class="btn btn-ghost btn-block" onclick="document.getElementById('action-sheet').remove()">${t('btn_cancel')}</button>
+      </div>`;
+      sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.remove();});
+      document.body.appendChild(sheet);
+    }
+
     function renderWardrobe(){
       const grid=document.getElementById('items-grid');
       const empty=document.getElementById('wardrobe-empty');
@@ -734,13 +866,13 @@
       if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
       empty.style.display='none';
       grid.innerHTML=filtered.map(item=>`
-        <div class="item-card">
-          <img src="${item.photo}" alt="" loading="lazy" />
+        <div class="item-card" data-id="${item.id}"
+          onpointerdown="startPress(event,'item','${item.id}')"
+          onpointerup="endPress(event)"
+          onpointerleave="cancelPress()"
+          onpointercancel="cancelPress()">
+          <img src="${item.photo}" alt="" loading="lazy" draggable="false" />
           <span class="color-dot" style="background:${COLOR_HEX[item.color]||'#aaa'}"></span>
-          <div class="actions">
-            <button class="btn-icon" onclick="openAddModal(items.find(i=>i.id==='${item.id}'))">✏️</button>
-            <button class="btn-icon" onclick="deleteItem('${item.id}')">🗑️</button>
-          </div>
           <div class="info">
             <div class="name">${esc(item.name)}</div>
             <div class="meta">${tType(item.type)} · ${tColor(item.color)}</div>
@@ -782,10 +914,19 @@
       car.innerHTML=looks.map(look=>{
         const lookItems=look.itemIds.map(id=>items.find(i=>i.id===id)).filter(Boolean);
         if(!lookItems.length)return '';
-        return `<div class="carousel-slide"><div class="look-card">
-          <div class="look-collage">${lookItems.map((it,i)=>`<div class="li ${lookItems.length===1||(lookItems.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}</div>
-          <div class="look-foot"><span class="title">${esc(look.name)}</span><button class="btn btn-sm btn-danger" onclick="deleteLook('${look.id}')">🗑️</button></div>
-        </div></div>`;
+        const n=Math.min(lookItems.length,6);
+        return `<div class="carousel-slide">
+          <div class="look-card" data-id="${look.id}"
+            onpointerdown="startPress(event,'look','${look.id}')"
+            onpointerup="endPress(event)"
+            onpointerleave="cancelPress()"
+            onpointercancel="cancelPress()">
+            <div class="look-collage n${n}">
+              ${lookItems.map(it=>`<div class="li"><img src="${it.photo}" draggable="false"></div>`).join('')}
+            </div>
+            <div class="look-foot">${esc(look.name)}</div>
+          </div>
+        </div>`;
       }).join('');
       carouselIdx=Math.min(carouselIdx,looks.length-1);updateCarousel();
       car.ontouchstart=e=>{touchStartX=e.touches[0].clientX;};
@@ -926,7 +1067,7 @@
 
       list.innerHTML=final.map((sug,idx)=>`
         <div class="look-card" style="margin-bottom:14px">
-          <div class="look-collage">${sug.items.map((it,i)=>`<div class="li ${sug.items.length<=2||(sug.items.length===3&&i===0)?'full':''}"><img src="${it.photo}"></div>`).join('')}</div>
+          <div class="look-collage n${Math.min(sug.items.length,6)}">${sug.items.map(it=>`<div class="li"><img src="${it.photo}"></div>`).join('')}</div>
           <div class="look-foot"><span class="title">${t('suggested')} ${idx+1}</span><button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button></div>
         </div>`).join('');
       window._lastSuggestions=final;
