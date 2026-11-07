@@ -1,1092 +1,1000 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#1a1a1a" id="meta-theme" />
-  <title>Look Creator</title>
-  <style>
-    :root, [data-theme="light"] {
-      --bg: #f4f2ef; --card: #fff; --accent: #1a1a1a; --gold: #c9a87c;
-      --text: #111; --muted: #888; --border: #e6e2dc; --danger: #c0392b;
-      --radius: 18px; --shadow: 0 4px 24px rgba(0,0,0,.07);
-      --safe-bottom: env(safe-area-inset-bottom, 0px); --input-bg: #f4f2ef; --chip-bg: #fff;
-    }
-    [data-theme="dark"] {
-      --bg: #121212; --card: #1e1e1e; --accent: #f0f0f0; --gold: #d4b48c;
-      --text: #f0f0f0; --muted: #999; --border: #333; --danger: #e74c3c;
-      --shadow: 0 4px 24px rgba(0,0,0,.35); --input-bg: #2a2a2a; --chip-bg: #2a2a2a;
-    }
-    [data-theme="rose"] {
-      --bg: #fdf2f4; --card: #fff; --accent: #9b2d4a; --gold: #d4a0a8;
-      --text: #2d1a20; --muted: #8a6a72; --border: #f0d8de; --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(155,45,74,.08); --input-bg: #fdf2f4; --chip-bg: #fff;
-    }
-    [data-theme="ocean"] {
-      --bg: #eef5f9; --card: #fff; --accent: #1a4a6e; --gold: #5b9bb8;
-      --text: #0f2a3d; --muted: #5a7a8a; --border: #d0e0ea; --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(26,74,110,.08); --input-bg: #eef5f9; --chip-bg: #fff;
-    }
-    [data-theme="forest"] {
-      --bg: #f0f4ef; --card: #fff; --accent: #2d5a3d; --gold: #8fbc8f;
-      --text: #1a2e1f; --muted: #5a7a60; --border: #d4e0d6; --danger: #c0392b;
-      --shadow: 0 4px 24px rgba(45,90,61,.08); --input-bg: #f0f4ef; --chip-bg: #fff;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
-    img { -webkit-user-drag: none; user-select: none; }
-    html, body { height: 100%; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg); color: var(--text); line-height: 1.4;
-      overflow-x: hidden; padding-bottom: calc(70px + var(--safe-bottom));
-      transition: background .25s, color .25s;
-    }
-    header {
-      background: var(--card); padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
-    }
-    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
-    .gear-btn {
-      width: 40px; height: 40px; border: none; background: var(--bg);
-      border-radius: 50%; font-size: 1.2rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; color: var(--text);
-    }
-    nav.bottom {
-      position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
-      display: flex; padding: 6px 0 calc(6px + var(--safe-bottom));
-      box-shadow: 0 -4px 20px rgba(0,0,0,.06); z-index: 100;
-    }
-    nav.bottom button {
-      flex: 1; border: none; background: none; padding: 6px 0;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      font-size: .65rem; font-weight: 600; color: var(--muted); cursor: pointer;
-    }
-    nav.bottom button.active { color: var(--accent); }
-    nav.bottom button .ico { font-size: 1.35rem; line-height: 1; }
-    .container { max-width: 720px; margin: 0 auto; padding: 14px 14px 20px; }
-    .section { display: none; }
-    .section.active { display: block; animation: fade .2s ease; }
-    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 12px 18px; border: none; border-radius: 14px;
-      font-size: .9rem; font-weight: 600; cursor: pointer; transition: transform .12s;
-    }
-    .btn:active { transform: scale(.97); }
-    .btn-primary { background: var(--accent); color: var(--card); }
-    [data-theme="dark"] .btn-primary { color: #121212; }
-    .btn-gold { background: var(--gold); color: #fff; }
-    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: #fde8e8; color: var(--danger); }
-    [data-theme="dark"] .btn-danger { background: #3a2020; }
-    .btn-sm { padding: 8px 12px; font-size: .8rem; border-radius: 10px; }
-    .btn-block { width: 100%; }
-    .btn-icon {
-      width: 36px; height: 36px; border-radius: 50%; border: none;
-      background: rgba(255,255,255,.92); font-size: .9rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.12); cursor: pointer;
-    }
-    [data-theme="dark"] .btn-icon { background: rgba(40,40,40,.9); color: #eee; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-    .item-card {
-      background: var(--card); border-radius: var(--radius); overflow: hidden;
-      box-shadow: var(--shadow); position: relative;
-    }
-    .item-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #eee; }
-    .item-card .info { padding: 8px 9px 10px; }
-    .item-card .name { font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-card .meta { font-size: .68rem; color: var(--muted); margin-top: 1px; }
-    .item-card .color-dot {
-      position: absolute; top: 8px; left: 8px;
-      width: 14px; height: 14px; border-radius: 50%;
-      border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2);
-    }
-    .item-card.pressing { transform: scale(0.96); opacity: 0.85; transition: transform .15s, opacity .15s; }
-    .filters {
-      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-    }
-    .filters::-webkit-scrollbar { display: none; }
-    .chip {
-      padding: 6px 13px; border-radius: 20px;
-      border: 1px solid var(--border); background: var(--chip-bg);
-      font-size: .72rem; font-weight: 600; white-space: nowrap;
-      cursor: pointer; color: var(--muted); flex-shrink: 0;
-    }
-    .chip.active { background: var(--accent); color: var(--card); border-color: var(--accent); }
-    [data-theme="dark"] .chip.active { color: #121212; }
-    .chip .cdot {
-      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-      margin-right: 4px; vertical-align: middle; border: 1px solid rgba(0,0,0,.15);
-    }
-    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
-    .empty .ico { font-size: 2.4rem; margin-bottom: 8px; }
-    .empty p { font-size: .9rem; margin-bottom: 14px; }
-    .sel-bar {
-      display: flex; gap: 8px; overflow-x: auto; min-height: 82px;
-      padding: 8px 0; -webkit-overflow-scrolling: touch;
-    }
-    .sel-item { width: 68px; flex-shrink: 0; position: relative; }
-    .sel-item img { width: 68px; height: 68px; object-fit: cover; border-radius: 12px; }
-    .sel-item button {
-      position: absolute; top: -5px; right: -5px;
-      width: 22px; height: 22px; border-radius: 50%; border: none;
-      background: var(--danger); color: #fff; font-size: .7rem; cursor: pointer;
-    }
-    .selectable .item-card { cursor: pointer; border: 3px solid transparent; }
-    .selectable .item-card.selected { border-color: var(--gold); }
-    .carousel-wrap { position: relative; overflow: hidden; touch-action: pan-y; }
-    .carousel { display: flex; transition: transform .35s cubic-bezier(.25,.8,.25,1); will-change: transform; }
-    .carousel-slide { min-width: 100%; padding: 0 4px; }
-    .look-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .look-collage {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px;
-      background: #fff; min-height: 70vh;
-    }
-    [data-theme="dark"] .look-collage { background: #1a1a1a; }
-    .look-collage .li { border-radius: 14px; overflow: hidden; background: #f0f0f0; }
-    .look-collage .li img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fafafa; }
-    [data-theme="dark"] .look-collage .li img { background: #222; }
-    /* Dynamic layouts for set view */
-    .look-collage.n1 { grid-template-columns: 1fr; }
-    .look-collage.n1 .li { min-height: 60vh; }
-    .look-collage.n2 { grid-template-columns: 1fr 1fr; }
-    .look-collage.n2 .li { min-height: 50vh; }
-    .look-collage.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1.2fr 1fr; }
-    .look-collage.n3 .li:first-child { grid-column: 1 / -1; min-height: 35vh; }
-    .look-collage.n3 .li { min-height: 28vh; }
-    .look-collage.n4 { grid-template-columns: 1fr 1fr; }
-    .look-collage.n4 .li { min-height: 32vh; }
-    .look-collage.n5, .look-collage.n6 {
-      grid-template-columns: 1fr 1fr 1fr; gap: 6px;
-    }
-    .look-collage.n5 .li, .look-collage.n6 .li { min-height: 28vh; }
-    .look-collage.n5 .li:first-child { grid-column: 1 / -1; min-height: 32vh; }
-    .look-foot {
-      padding: 14px 16px; display: flex; justify-content: center; align-items: center;
-      font-weight: 600; font-size: 1rem;
-    }
-    .look-card.pressing { transform: scale(0.98); opacity: 0.9; }
-    .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
-    .carousel-dots span {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all .2s;
-    }
-    .carousel-dots span.on { background: var(--accent); width: 18px; border-radius: 4px; }
-    .carousel-nav {
-      position: absolute; top: 45%; transform: translateY(-50%);
-      width: 36px; height: 36px; border-radius: 50%; border: none;
-      background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,.12);
-      font-size: 1.1rem; cursor: pointer; z-index: 5; color: var(--text);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .carousel-nav.prev { left: 6px; } .carousel-nav.next { right: 6px; }
-    @media (max-width: 500px) { .carousel-nav { display: none; } }
-    .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200;
-      display: none; align-items: flex-end; justify-content: center;
-    }
-    .overlay.open { display: flex; }
-    .modal {
-      background: var(--card); width: 100%; max-width: 440px; max-height: 92vh;
-      border-radius: 22px 22px 0 0; padding: 18px 16px calc(24px + var(--safe-bottom));
-      overflow-y: auto; animation: up .28s ease; color: var(--text);
-    }
-    @keyframes up { from { transform: translateY(50px); opacity: 0; } to { transform: none; opacity: 1; } }
-    .modal h2 { font-size: 1.1rem; margin-bottom: 14px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: .75rem; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
-    .form-group input, .form-group select {
-      width: 100%; padding: 11px 12px; border: 1px solid var(--border);
-      border-radius: 12px; font-size: .95rem; background: var(--input-bg); color: var(--text);
-    }
-    .preview {
-      width: 140px; aspect-ratio: 1; margin: 0 auto 12px; border-radius: 14px;
-      overflow: hidden; background: var(--input-bg);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-size: .8rem; text-align: center;
-    }
-    .preview img { width: 100%; height: 100%; object-fit: cover; }
-    .style-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .style-row label {
-      font-size: .78rem; padding: 6px 10px; border-radius: 20px;
-      background: var(--input-bg); border: 1px solid var(--border);
-      cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--text);
-    }
-    .style-row input { accent-color: var(--gold); }
-    .photo-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .photo-btns .btn { flex: 1; font-size: .82rem; padding: 11px 8px; }
-    .batch-list { display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; }
-    .batch-card {
-      display: flex; gap: 12px; background: var(--input-bg); border-radius: 14px;
-      padding: 10px; border: 1px solid var(--border);
-    }
-    .batch-card img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
-    .batch-card .fields { flex: 1; min-width: 0; }
-    .batch-card select, .batch-card input {
-      width: 100%; padding: 7px 8px; border: 1px solid var(--border);
-      border-radius: 8px; font-size: .8rem; background: var(--card); color: var(--text);
-      margin-bottom: 5px;
-    }
-    .batch-card .color-row {
-      display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--muted);
-    }
-    .batch-card .cdot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); }
-    .batch-card .remove-btn {
-      border: none; background: none; color: var(--danger); font-size: 1.1rem;
-      cursor: pointer; padding: 4px; align-self: flex-start;
-    }
-    .settings-section { margin-bottom: 20px; }
-    .settings-section h3 {
-      font-size: .8rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
-    }
-    .settings-list { display: flex; flex-direction: column; gap: 6px; }
-    .settings-list button, .theme-btn {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 14px; border: 1px solid var(--border); border-radius: 14px;
-      background: var(--input-bg); font-size: .92rem; font-weight: 500;
-      cursor: pointer; color: var(--text); width: 100%; text-align: left;
-    }
-    .settings-list button.active, .theme-btn.active {
-      border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--input-bg));
-    }
-    .lang-flag { font-size: 1.15rem; margin-right: 8px; }
-    .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .theme-btn { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; }
-    .theme-btn .swatch { width: 100%; height: 28px; border-radius: 8px; margin-bottom: 4px; }
-    .theme-btn .name { font-size: .82rem; font-weight: 600; }
-    .custom-style-row { display: flex; gap: 8px; margin-top: 8px; }
-    .custom-style-row input { flex: 1; }
-    .style-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .style-tag {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 5px 10px; border-radius: 16px;
-      background: var(--input-bg); border: 1px solid var(--border); font-size: .78rem;
-    }
-    .style-tag button { border: none; background: none; color: var(--danger); font-size: .85rem; cursor: pointer; }
-    .toast {
-      position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: var(--card); padding: 10px 22px; border-radius: 30px;
-      font-size: .85rem; font-weight: 600; z-index: 300; opacity: 0; pointer-events: none;
-      transition: opacity .25s; white-space: nowrap;
-    }
-    [data-theme="dark"] .toast { color: #121212; }
-    .toast.show { opacity: 1; }
-    .fab {
-      position: fixed; bottom: calc(78px + var(--safe-bottom)); right: 16px;
-      width: 54px; height: 54px; border-radius: 50%;
-      background: var(--accent); color: var(--card); border: none;
-      font-size: 1.7rem; box-shadow: 0 6px 20px rgba(0,0,0,.22);
-      cursor: pointer; z-index: 60;
-      display: flex; align-items: center; justify-content: center;
-    }
-    [data-theme="dark"] .fab { color: #121212; }
-    @media (min-width: 600px) {
-      .overlay { align-items: center; }
-      .modal { border-radius: 22px; margin-bottom: 30px; }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#120b1f">
+<title>Outfit Builder</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%; overflow: hidden; overscroll-behavior: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff; background: #120b1f;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse at 20% 10%, #6d28d9 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, #db2777 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 90%, #0891b2 0%, transparent 50%),
+      linear-gradient(165deg, #120b1f 0%, #0a0614 100%);
+  }
+  .app {
+    height: 100vh; height: 100dvh;
+    display: flex; flex-direction: column;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .sets-wrapper {
+    flex: 1 1 auto;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+  }
+  .sets-wrapper::-webkit-scrollbar { display: none; }
+
+  .set-page {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    padding: 0.3rem 0.55rem 0.1rem;
+    gap: 0.2rem;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .set-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.15rem 0.2rem 0.25rem;
+  }
+  .set-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .set-theme {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+  }
+
+  .slots-container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .slot {
+    position: relative;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 13px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .slot.active {
+    border-color: #4ade80;
+    background: rgba(74,222,128,0.12);
+  }
+  .slot img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  .slot .placeholder {
+    color: rgba(255,255,255,0.28);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 0.25rem;
+  }
+  .slot .label {
+    position: absolute; top: 4px; left: 6px;
+    font-size: 0.55rem; font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    background: rgba(0,0,0,0.5);
+    padding: 0.08rem 0.3rem;
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .slot-arrows {
+    position: absolute; bottom: 4px; left: 0; right: 0;
+    display: none; justify-content: space-between;
+    padding: 0 5px;
+    pointer-events: none;
+  }
+  .slot.active .slot-arrows { display: flex; }
+  .slot-arrows button {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: auto;
+  }
+
+  .slot.flex-1 { flex: 1 1 0; }
+  .slot.flex-2 { flex: 2 1 0; }
+  .slot.thin   { flex: 0 0 8.5%; min-height: 34px; max-height: 48px; }
+
+  .row {
+    display: flex;
+    gap: 0.22rem;
+    min-height: 0;
+  }
+  .row.flex-1 { flex: 1 1 0; }
+  .row.flex-2 { flex: 2 1 0; }
+  .row.flex-3 { flex: 3 1 0; }
+
+  .set-dots {
+    flex: 0 0 auto;
+    display: flex; justify-content: center; gap: 6px;
+    padding: 0.1rem 0 0.05rem;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+  }
+  .dot.active { background: #4ade80; }
+
+  .closet {
+    flex: 0 0 auto;
+    margin: 0.08rem 0.45rem 0.22rem;
+    background: rgba(255,255,255,0.07);
+    border-radius: 15px;
+    padding: 0.32rem;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .closet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.22rem; padding: 0 0.08rem;
+  }
+  .closet-title {
+    font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.5);
+  }
+  .closet-actions {
+    display: flex; gap: 0.25rem;
+  }
+  .closet-actions button {
+    height: 27px; padding: 0 0.5rem;
+    border-radius: 8px; font-size: 0.65rem; font-weight: 600;
+    border: none; background: rgba(255,255,255,0.12); color: #fff;
+  }
+  .closet-actions button.green { background: #4ade80; color: #062; }
+  .closet-actions button.blue  { background: #60a5fa; color: #fff; }
+  .closet-actions button.purple { background: #a78bfa; color: #fff; }
+
+  .cat-tabs {
+    display: flex; gap: 0.2rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    margin-bottom: 0.22rem;
+  }
+  .cat-tabs::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    background: transparent; border: none;
+  }
+  .cat-tab.active {
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+  }
+  .items-row {
+    display: flex; gap: 0.25rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    min-height: 48px;
+  }
+  .items-row::-webkit-scrollbar { display: none; }
+  .thumb {
+    flex: 0 0 auto; width: 46px; height: 46px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
+  .thumb .del {
+    position: absolute; top: 1px; right: 1px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: rgba(0,0,0,0.75); color: #fff;
+    border: none; font-size: 0.48rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .add-thumb {
+    flex: 0 0 auto; width: 46px; height: 46px;
+    border-radius: 10px;
+    border: 1.5px dashed rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.04);
+    color: #4ade80; font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Modals */
+  .modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: none; flex-direction: column;
+    background: rgba(8,5,18,0.97);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .modal.open { display: flex; }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.65rem 1rem;
+  }
+  .modal-header h3 { font-size: 1.02rem; font-weight: 600; }
+  .modal-header button {
+    height: 36px; padding: 0 0.85rem; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.1); color: #fff; font-weight: 600;
+  }
+  .batch-info {
+    text-align: center; font-size: 0.78rem; color: #4ade80;
+    font-weight: 600; padding: 0.15rem 0;
+  }
+  .preview-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 0.5rem 1.1rem; overflow: hidden; min-height: 0;
+  }
+  .preview-area img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; border-radius: 13px;
+  }
+  .hint {
+    text-align: center; font-size: 0.75rem;
+    color: rgba(255,255,255,0.5); padding: 0.25rem 1rem 0.4rem;
+  }
+  .cat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem; padding: 0 0.9rem 0.5rem;
+  }
+  .cat-grid button {
+    padding: 0.65rem 0.15rem; border-radius: 12px;
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; font-size: 0.75rem; font-weight: 600;
+  }
+  .cat-grid button.selected {
+    background: #4ade80; color: #062; border-color: transparent;
+  }
+  .modal-bottom {
+    padding: 0.4rem 1rem 1rem;
+  }
+  .modal-bottom button {
+    width: 100%; height: 52px; border-radius: 13px; border: none;
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    color: #04210f; font-size: 1.05rem; font-weight: 700;
+  }
+
+  /* Theme / New Set Modal */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem 1rem;
+  }
+  .theme-card {
+    padding: 1.1rem 0.7rem;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .theme-card:active { transform: scale(0.97); }
+  .theme-card .emoji { font-size: 1.6rem; display: block; margin-bottom: 0.35rem; }
+  .theme-card.classic { border-color: #d4a373; }
+  .theme-card.sport   { border-color: #4ade80; }
+  .theme-card.elegant { border-color: #c084fc; }
+  .theme-card.casual  { border-color: #60a5fa; }
+  .theme-card.color   { border-color: #f472b6; }
+  .theme-card.empty   { border-color: rgba(255,255,255,0.25); }
+
+  .parts-list {
+    flex: 1; overflow-y: auto; padding: 0.4rem 1rem;
+  }
+  .part-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.8rem 0.85rem;
+    margin-bottom: 0.35rem;
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+  }
+  .part-item.on {
+    border-color: #4ade80;
+    background: rgba(74,222,128,0.12);
+  }
+  .part-item span { font-size: 0.92rem; font-weight: 600; }
+  .part-item .toggle {
+    width: 46px; height: 27px; border-radius: 14px;
+    background: rgba(255,255,255,0.15);
+    position: relative; border: none;
+  }
+  .part-item.on .toggle { background: #4ade80; }
+  .part-item .toggle::after {
+    content: '';
+    position: absolute; top: 3px; left: 3px;
+    width: 21px; height: 21px; border-radius: 50%;
+    background: #fff; transition: transform 0.15s;
+  }
+  .part-item.on .toggle::after { transform: translateX(19px); }
+</style>
 </head>
 <body>
-  <header>
-    <h1 id="app-title">Look Creator</h1>
-    <button class="gear-btn" onclick="openSettings()">⚙️</button>
-  </header>
-  <div class="container">
-    <section id="wardrobe" class="section active">
-      <div class="filters" id="type-filters"></div>
-      <div class="filters" id="color-filters" style="margin-top:-4px"></div>
-      <div id="items-grid" class="grid"></div>
-      <div id="wardrobe-empty" class="empty" style="display:none">
-        <div class="ico">👕</div>
-        <p data-i18n="empty_wardrobe"></p>
-        <button class="btn btn-primary" onclick="openAddModal()" data-i18n="btn_add"></button>
-      </div>
-    </section>
-    <section id="create" class="section">
-      <div class="sel-bar" id="selected-bar"></div>
-      <div style="display:flex;gap:8px;margin:8px 0 12px">
-        <input type="text" id="look-name" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--input-bg);color:var(--text)" />
-        <button class="btn btn-primary" onclick="saveLook()" data-i18n="btn_save"></button>
-      </div>
-      <div class="filters" id="create-filters"></div>
-      <div id="create-grid" class="grid selectable"></div>
-    </section>
-    <section id="looks" class="section">
-      <div id="looks-empty" class="empty" style="display:none">
-        <div class="ico">👗</div>
-        <p data-i18n="empty_looks"></p>
-        <button class="btn btn-primary" onclick="showSection('create')" data-i18n="btn_create"></button>
-      </div>
-      <div id="carousel-wrap" class="carousel-wrap" style="display:none">
-        <button class="carousel-nav prev" onclick="slide(-1)">‹</button>
-        <button class="carousel-nav next" onclick="slide(1)">›</button>
-        <div class="carousel" id="carousel"></div>
-        <div class="carousel-dots" id="dots"></div>
-      </div>
-    </section>
-    <section id="suggest" class="section">
-      <select id="suggest-style" onchange="generateSuggestions()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;background:var(--input-bg);color:var(--text);font-size:.9rem"></select>
-      <button class="btn btn-gold btn-block" onclick="generateSuggestions()" style="margin-bottom:14px" data-i18n="btn_generate"></button>
-      <div id="suggestions-list"></div>
-      <div id="suggest-empty" class="empty" style="display:none">
-        <div class="ico">💡</div>
-        <p data-i18n="empty_suggest"></p>
-      </div>
-    </section>
-  </div>
-  <nav class="bottom">
-    <button class="nav-btn active" data-section="wardrobe" onclick="showSection('wardrobe')">
-      <span class="ico">📦</span><span data-i18n="nav_wardrobe"></span>
-    </button>
-    <button class="nav-btn" data-section="create" onclick="showSection('create')">
-      <span class="ico">✨</span><span data-i18n="nav_create"></span>
-    </button>
-    <button class="nav-btn" data-section="looks" onclick="showSection('looks')">
-      <span class="ico">👗</span><span data-i18n="nav_looks"></span>
-    </button>
-    <button class="nav-btn" data-section="suggest" onclick="showSection('suggest')">
-      <span class="ico">💡</span><span data-i18n="nav_suggest"></span>
-    </button>
-  </nav>
-  <button class="fab" onclick="openAddModal()">+</button>
+<input type="file" id="fileInput" accept="image/*" multiple style="display:none">
 
-  <div class="overlay" id="add-modal">
-    <div class="modal">
-      <h2 id="modal-title" data-i18n="modal_add"></h2>
-      <div class="preview" id="preview-box"><span data-i18n="tap_photo"></span></div>
-      <input type="file" id="photo-camera" accept="image/*" capture="environment" style="display:none" onchange="handleSinglePhoto(event)" />
-      <input type="file" id="photo-gallery" accept="image/*" multiple style="display:none" onchange="handleMultiPhotos(event)" />
-      <div class="photo-btns">
-        <button class="btn btn-ghost" onclick="document.getElementById('photo-camera').click()" data-i18n="btn_camera"></button>
-        <button class="btn btn-ghost" onclick="document.getElementById('photo-gallery').click()" data-i18n="btn_gallery"></button>
-      </div>
-      <div id="single-form">
-        <div class="form-group"><label data-i18n="label_name"></label><input type="text" id="item-name" /></div>
-        <div class="form-group"><label data-i18n="label_type"></label><select id="item-type"></select></div>
-        <div class="form-group"><label data-i18n="label_color"></label><select id="item-color"></select></div>
-        <div class="form-group"><label data-i18n="label_style"></label><div class="style-row" id="style-checks"></div></div>
-        <div style="display:flex;gap:10px;margin-top:16px">
-          <button class="btn btn-ghost" style="flex:1" onclick="closeAddModal()" data-i18n="btn_cancel"></button>
-          <button class="btn btn-primary" style="flex:1" onclick="saveItem()" data-i18n="btn_save"></button>
-        </div>
+<div class="app">
+  <div class="sets-wrapper" id="setsWrapper"></div>
+  <div class="set-dots" id="setDots"></div>
+
+  <div class="closet">
+    <div class="closet-header">
+      <div class="closet-title">KLEIDERSCHRANK</div>
+      <div class="closet-actions">
+        <button id="btn-parts" class="blue">Teile</button>
+        <button id="btn-new-set" class="purple">+ Set</button>
+        <button id="btn-add" class="green">+ Foto</button>
       </div>
     </div>
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="items-row" id="closetRow"></div>
   </div>
+</div>
 
-  <div class="overlay" id="batch-modal">
-    <div class="modal">
-      <h2 data-i18n="batch_title"></h2>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px" data-i18n="batch_hint"></p>
-      <div class="batch-list" id="batch-list"></div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn btn-ghost" style="flex:1" onclick="closeBatchModal()" data-i18n="btn_cancel"></button>
-        <button class="btn btn-primary" style="flex:1" onclick="saveBatch()" data-i18n="btn_save_all"></button>
-      </div>
-    </div>
+<!-- Add Modal -->
+<div class="modal" id="modal">
+  <div class="modal-header">
+    <button id="btn-cancel">Abbrechen</button>
+    <h3>Kategorie wählen</h3>
+    <div style="width:80px"></div>
   </div>
+  <div class="batch-info" id="batchInfo" style="display:none"></div>
+  <div class="preview-area"><img id="previewImg" alt=""></div>
+  <div class="hint">Was ist das für ein Kleidungsstück?</div>
+  <div class="cat-grid" id="catGrid"></div>
+  <div class="modal-bottom"><button id="btn-save">Speichern</button></div>
+</div>
 
-  <div class="overlay" id="settings-modal">
-    <div class="modal">
-      <h2 data-i18n="settings"></h2>
-      <div class="settings-section">
-        <h3 data-i18n="choose_lang"></h3>
-        <div class="settings-list" id="lang-list"></div>
-      </div>
-      <div class="settings-section">
-        <h3 data-i18n="theme_title"></h3>
-        <div class="theme-grid" id="theme-list"></div>
-      </div>
-      <div class="settings-section">
-        <h3 data-i18n="custom_styles"></h3>
-        <div class="style-tags" id="custom-styles-list"></div>
-        <div class="custom-style-row">
-          <input type="text" id="new-style-input" style="padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--input-bg);color:var(--text);font-size:.9rem" />
-          <button class="btn btn-primary btn-sm" onclick="addCustomStyle()" data-i18n="btn_add_style"></button>
-        </div>
-      </div>
-      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeSettings()" data-i18n="btn_close"></button>
-    </div>
+<!-- Neues Set Modal -->
+<div class="modal" id="newSetModal">
+  <div class="modal-header">
+    <button id="btn-newset-cancel">Abbrechen</button>
+    <h3>Neues Outfit-Set</h3>
+    <div style="width:80px"></div>
   </div>
+  <div class="hint">Wähle einen Stil – das Set wird danach gespeichert</div>
+  <div class="theme-grid" id="themeGrid"></div>
+</div>
 
-  <div class="toast" id="toast"></div>
-  <canvas id="color-canvas" style="display:none"></canvas>
+<!-- Teile Modal -->
+<div class="modal" id="partsModal">
+  <div class="modal-header">
+    <button id="btn-parts-cancel">Fertig</button>
+    <h3>Teile für dieses Set</h3>
+    <div style="width:70px"></div>
+  </div>
+  <div class="hint">Welche Kleidungsstücke sollen in diesem Outfit sichtbar sein?</div>
+  <div class="parts-list" id="partsList"></div>
+</div>
 
-  <script>
-    const i18n = {
-      de:{app_title:"Look Creator",nav_wardrobe:"Schrank",nav_create:"Erstellen",nav_looks:"Looks",nav_suggest:"Ideen",empty_wardrobe:"Noch keine Teile. Foto machen!",btn_add:"Hinzufügen",empty_looks:"Keine Looks. Erstelle einen!",btn_create:"Erstellen",empty_suggest:"Mehr Teile nötig (Top + Hose + Schuhe).",btn_generate:"Vorschläge",btn_save:"Speichern",btn_cancel:"Abbrechen",btn_close:"Schließen",btn_camera:"📷 Kamera",btn_gallery:"🖼️ Galerie",btn_save_all:"Alle speichern",modal_add:"Teil hinzufügen",modal_edit:"Bearbeiten",tap_photo:"Foto wählen",label_name:"Name",label_type:"Typ",label_color:"Farbe",label_style:"Stil",toast_saved:"Gespeichert",toast_look:"Look gespeichert",toast_deleted:"Gelöscht",toast_need:"Min. 2 Teile",toast_photo:"Foto nötig",toast_style_added:"Stil hinzugefügt",toast_batch:"Teile gespeichert",toast_analyzing:"Farben erkennen…",filter_all:"Alle",settings:"Einstellungen",choose_lang:"Sprache",theme_title:"Theme & Hintergrund",custom_styles:"Eigene Styles",btn_add_style:"Hinzufügen",batch_title:"Mehrere Teile",batch_hint:"Farbe wurde erkannt. Typ prüfen & speichern.",style_any:"Beliebig",style_classic:"Klassisch",style_modern:"Modern",style_elegant:"Elegant",style_casual:"Casual",style_sporty:"Sportlich",type_top:"Tops",type_bottom:"Hosen",type_dress:"Kleider",type_outerwear:"Jacken",type_shoes:"Schuhe",type_bag:"Taschen",type_accessory:"Accessoires",type_other:"Anderes",delete_confirm:"Löschen?",look_untitled:"Look",suggested:"Idee",theme_light:"Hell",theme_dark:"Dunkel",theme_rose:"Rose",theme_ocean:"Ozean",theme_forest:"Wald",types:{top:"Top",bottom:"Hose/Rock",dress:"Kleid",outerwear:"Jacke",shoes:"Schuhe",bag:"Tasche",accessory:"Accessoire",other:"Anderes"},colors:{black:"Schwarz",white:"Weiß",beige:"Beige",gray:"Grau",brown:"Braun",blue:"Blau",red:"Rot",green:"Grün",pink:"Rosa",yellow:"Gelb",multicolor:"Bunt"}},
-      en:{app_title:"Look Creator",nav_wardrobe:"Wardrobe",nav_create:"Create",nav_looks:"Looks",nav_suggest:"Ideas",empty_wardrobe:"No items yet. Take a photo!",btn_add:"Add",empty_looks:"No looks. Create one!",btn_create:"Create",empty_suggest:"Need more items (top + bottom + shoes).",btn_generate:"Generate",btn_save:"Save",btn_cancel:"Cancel",btn_close:"Close",btn_camera:"📷 Camera",btn_gallery:"🖼️ Gallery",btn_save_all:"Save all",modal_add:"Add item",modal_edit:"Edit",tap_photo:"Choose photo",label_name:"Name",label_type:"Type",label_color:"Color",label_style:"Style",toast_saved:"Saved",toast_look:"Look saved",toast_deleted:"Deleted",toast_need:"Min. 2 items",toast_photo:"Photo required",toast_style_added:"Style added",toast_batch:"Items saved",toast_analyzing:"Detecting colors…",filter_all:"All",settings:"Settings",choose_lang:"Language",theme_title:"Theme & Background",custom_styles:"Custom styles",btn_add_style:"Add",batch_title:"Multiple items",batch_hint:"Color detected. Check type & save.",style_any:"Any",style_classic:"Classic",style_modern:"Modern",style_elegant:"Elegant",style_casual:"Casual",style_sporty:"Sporty",type_top:"Tops",type_bottom:"Bottoms",type_dress:"Dresses",type_outerwear:"Outerwear",type_shoes:"Shoes",type_bag:"Bags",type_accessory:"Accessories",type_other:"Other",delete_confirm:"Delete?",look_untitled:"Look",suggested:"Idea",theme_light:"Light",theme_dark:"Dark",theme_rose:"Rose",theme_ocean:"Ocean",theme_forest:"Forest",types:{top:"Top",bottom:"Bottom",dress:"Dress",outerwear:"Jacket",shoes:"Shoes",bag:"Bag",accessory:"Accessory",other:"Other"},colors:{black:"Black",white:"White",beige:"Beige",gray:"Gray",brown:"Brown",blue:"Blue",red:"Red",green:"Green",pink:"Pink",yellow:"Yellow",multicolor:"Multi"}},
-      ru:{app_title:"Look Creator",nav_wardrobe:"Шкаф",nav_create:"Создать",nav_looks:"Образы",nav_suggest:"Идеи",empty_wardrobe:"Пока пусто. Сфотографируй вещи!",btn_add:"Добавить",empty_looks:"Нет образов. Создай!",btn_create:"Создать",empty_suggest:"Нужно больше вещей (верх + низ + обувь).",btn_generate:"Идеи",btn_save:"Сохранить",btn_cancel:"Отмена",btn_close:"Закрыть",btn_camera:"📷 Камера",btn_gallery:"🖼️ Галерея",btn_save_all:"Сохранить все",modal_add:"Добавить вещь",modal_edit:"Изменить",tap_photo:"Выбрать фото",label_name:"Название",label_type:"Тип",label_color:"Цвет",label_style:"Стиль",toast_saved:"Сохранено",toast_look:"Образ сохранён",toast_deleted:"Удалено",toast_need:"Мин. 2 вещи",toast_photo:"Нужно фото",toast_style_added:"Стиль добавлен",toast_batch:"Вещи сохранены",toast_analyzing:"Определение цвета…",filter_all:"Все",settings:"Настройки",choose_lang:"Язык",theme_title:"Тема и фон",custom_styles:"Свои стили",btn_add_style:"Добавить",batch_title:"Несколько вещей",batch_hint:"Цвет определён. Проверьте тип и сохраните.",style_any:"Любой",style_classic:"Классика",style_modern:"Модерн",style_elegant:"Элегант",style_casual:"Кэжуал",style_sporty:"Спорт",type_top:"Верх",type_bottom:"Низ",type_dress:"Платья",type_outerwear:"Верхняя",type_shoes:"Обувь",type_bag:"Сумки",type_accessory:"Аксессуары",type_other:"Другое",delete_confirm:"Удалить?",look_untitled:"Образ",suggested:"Идея",theme_light:"Светлая",theme_dark:"Тёмная",theme_rose:"Роза",theme_ocean:"Океан",theme_forest:"Лес",types:{top:"Верх",bottom:"Низ",dress:"Платье",outerwear:"Куртка",shoes:"Обувь",bag:"Сумка",accessory:"Аксессуар",other:"Другое"},colors:{black:"Чёрный",white:"Белый",beige:"Бежевый",gray:"Серый",brown:"Коричневый",blue:"Синий",red:"Красный",green:"Зелёный",pink:"Розовый",yellow:"Жёлтый",multicolor:"Разный"}},
-      uk:{app_title:"Look Creator",nav_wardrobe:"Шафа",nav_create:"Створити",nav_looks:"Образи",nav_suggest:"Ідеї",empty_wardrobe:"Поки порожньо. Зроби фото!",btn_add:"Додати",empty_looks:"Немає образів. Створи!",btn_create:"Створити",empty_suggest:"Потрібно більше речей (верх + низ + взуття).",btn_generate:"Ідеї",btn_save:"Зберегти",btn_cancel:"Скасувати",btn_close:"Закрити",btn_camera:"📷 Камера",btn_gallery:"🖼️ Галерея",btn_save_all:"Зберегти все",modal_add:"Додати річ",modal_edit:"Змінити",tap_photo:"Обрати фото",label_name:"Назва",label_type:"Тип",label_color:"Колір",label_style:"Стиль",toast_saved:"Збережено",toast_look:"Образ збережено",toast_deleted:"Видалено",toast_need:"Мін. 2 речі",toast_photo:"Потрібне фото",toast_style_added:"Стиль додано",toast_batch:"Речі збережено",toast_analyzing:"Визначення кольору…",filter_all:"Усі",settings:"Налаштування",choose_lang:"Мова",theme_title:"Тема і фон",custom_styles:"Власні стилі",btn_add_style:"Додати",batch_title:"Кілька речей",batch_hint:"Колір визначено. Перевірте тип і збережіть.",style_any:"Будь-який",style_classic:"Класика",style_modern:"Модерн",style_elegant:"Елегант",style_casual:"Кежуал",style_sporty:"Спорт",type_top:"Верх",type_bottom:"Низ",type_dress:"Сукні",type_outerwear:"Верхній",type_shoes:"Взуття",type_bag:"Сумки",type_accessory:"Аксесуари",type_other:"Інше",delete_confirm:"Видалити?",look_untitled:"Образ",suggested:"Ідея",theme_light:"Світла",theme_dark:"Темна",theme_rose:"Троянда",theme_ocean:"Океан",theme_forest:"Ліс",types:{top:"Верх",bottom:"Низ",dress:"Сукня",outerwear:"Куртка",shoes:"Взуття",bag:"Сумка",accessory:"Аксесуар",other:"Інше"},colors:{black:"Чорний",white:"Білий",beige:"Бежевий",gray:"Сірий",brown:"Коричневий",blue:"Синій",red:"Червоний",green:"Зелений",pink:"Рожевий",yellow:"Жовтий",multicolor:"Різний"}},
-      it:{app_title:"Look Creator",nav_wardrobe:"Armadio",nav_create:"Crea",nav_looks:"Look",nav_suggest:"Idee",empty_wardrobe:"Nessun capo. Scatta una foto!",btn_add:"Aggiungi",empty_looks:"Nessun look. Creane uno!",btn_create:"Crea",empty_suggest:"Servono più capi (top + pantaloni + scarpe).",btn_generate:"Idee",btn_save:"Salva",btn_cancel:"Annulla",btn_close:"Chiudi",btn_camera:"📷 Fotocamera",btn_gallery:"🖼️ Galleria",btn_save_all:"Salva tutti",modal_add:"Aggiungi capo",modal_edit:"Modifica",tap_photo:"Scegli foto",label_name:"Nome",label_type:"Tipo",label_color:"Colore",label_style:"Stile",toast_saved:"Salvato",toast_look:"Look salvato",toast_deleted:"Eliminato",toast_need:"Min. 2 pezzi",toast_photo:"Foto richiesta",toast_style_added:"Stile aggiunto",toast_batch:"Capi salvati",toast_analyzing:"Rilevamento colore…",filter_all:"Tutti",settings:"Impostazioni",choose_lang:"Lingua",theme_title:"Tema e sfondo",custom_styles:"Stili personalizzati",btn_add_style:"Aggiungi",batch_title:"Più capi",batch_hint:"Colore rilevato. Controlla tipo e salva.",style_any:"Qualsiasi",style_classic:"Classico",style_modern:"Modern",style_elegant:"Elegante",style_casual:"Casual",style_sporty:"Sportivo",type_top:"Top",type_bottom:"Pantaloni",type_dress:"Abiti",type_outerwear:"Giacche",type_shoes:"Scarpe",type_bag:"Borse",type_accessory:"Accessori",type_other:"Altro",delete_confirm:"Eliminare?",look_untitled:"Look",suggested:"Idea",theme_light:"Chiaro",theme_dark:"Scuro",theme_rose:"Rosa",theme_ocean:"Oceano",theme_forest:"Foresta",types:{top:"Top",bottom:"Pantalone",dress:"Abito",outerwear:"Giacca",shoes:"Scarpe",bag:"Borsa",accessory:"Accessorio",other:"Altro"},colors:{black:"Nero",white:"Bianco",beige:"Beige",gray:"Grigio",brown:"Marrone",blue:"Blu",red:"Rosso",green:"Verde",pink:"Rosa",yellow:"Giallo",multicolor:"Multicolore"}},
-      es:{app_title:"Look Creator",nav_wardrobe:"Armario",nav_create:"Crear",nav_looks:"Looks",nav_suggest:"Ideas",empty_wardrobe:"Sin prendas. ¡Haz una foto!",btn_add:"Añadir",empty_looks:"Sin looks. ¡Crea uno!",btn_create:"Crear",empty_suggest:"Necesitas más prendas (top + pantalón + zapatos).",btn_generate:"Ideas",btn_save:"Guardar",btn_cancel:"Cancelar",btn_close:"Cerrar",btn_camera:"📷 Cámara",btn_gallery:"🖼️ Galería",btn_save_all:"Guardar todo",modal_add:"Añadir prenda",modal_edit:"Editar",tap_photo:"Elegir foto",label_name:"Nombre",label_type:"Tipo",label_color:"Color",label_style:"Estilo",toast_saved:"Guardado",toast_look:"Look guardado",toast_deleted:"Eliminado",toast_need:"Mín. 2 prendas",toast_photo:"Foto necesaria",toast_style_added:"Estilo añadido",toast_batch:"Prendas guardadas",toast_analyzing:"Detectando color…",filter_all:"Todos",settings:"Ajustes",choose_lang:"Idioma",theme_title:"Tema y fondo",custom_styles:"Estilos propios",btn_add_style:"Añadir",batch_title:"Varias prendas",batch_hint:"Color detectado. Revisa tipo y guarda.",style_any:"Cualquiera",style_classic:"Clásico",style_modern:"Moderno",style_elegant:"Elegante",style_casual:"Casual",style_sporty:"Sport",type_top:"Tops",type_bottom:"Pantalones",type_dress:"Vestidos",type_outerwear:"Abrigos",type_shoes:"Zapatos",type_bag:"Bolsos",type_accessory:"Accesorios",type_other:"Otro",delete_confirm:"¿Borrar?",look_untitled:"Look",suggested:"Idea",theme_light:"Claro",theme_dark:"Oscuro",theme_rose:"Rosa",theme_ocean:"Océano",theme_forest:"Bosque",types:{top:"Top",bottom:"Pantalón",dress:"Vestido",outerwear:"Chaqueta",shoes:"Zapatos",bag:"Bolso",accessory:"Accesorio",other:"Otro"},colors:{black:"Negro",white:"Blanco",beige:"Beige",gray:"Gris",brown:"Marrón",blue:"Azul",red:"Rojo",green:"Verde",pink:"Rosa",yellow:"Amarillo",multicolor:"Multicolor"}},
-      fr:{app_title:"Look Creator",nav_wardrobe:"Penderie",nav_create:"Créer",nav_looks:"Looks",nav_suggest:"Idées",empty_wardrobe:"Rien encore. Prends une photo !",btn_add:"Ajouter",empty_looks:"Aucun look. Crée-en un !",btn_create:"Créer",empty_suggest:"Il faut plus de pièces (haut + bas + chaussures).",btn_generate:"Idées",btn_save:"Enregistrer",btn_cancel:"Annuler",btn_close:"Fermer",btn_camera:"📷 Appareil",btn_gallery:"🖼️ Galerie",btn_save_all:"Tout enregistrer",modal_add:"Ajouter un article",modal_edit:"Modifier",tap_photo:"Choisir photo",label_name:"Nom",label_type:"Type",label_color:"Couleur",label_style:"Style",toast_saved:"Enregistré",toast_look:"Look enregistré",toast_deleted:"Supprimé",toast_need:"Min. 2 pièces",toast_photo:"Photo requise",toast_style_added:"Style ajouté",toast_batch:"Articles enregistrés",toast_analyzing:"Détection couleur…",filter_all:"Tous",settings:"Réglages",choose_lang:"Langue",theme_title:"Thème et fond",custom_styles:"Styles perso",btn_add_style:"Ajouter",batch_title:"Plusieurs articles",batch_hint:"Couleur détectée. Vérifiez le type et enregistrez.",style_any:"Tous",style_classic:"Classique",style_modern:"Moderne",style_elegant:"Élégant",style_casual:"Casual",style_sporty:"Sport",type_top:"Hauts",type_bottom:"Bas",type_dress:"Robes",type_outerwear:"Manteaux",type_shoes:"Chaussures",type_bag:"Sacs",type_accessory:"Accessoires",type_other:"Autre",delete_confirm:"Supprimer ?",look_untitled:"Look",suggested:"Idée",theme_light:"Clair",theme_dark:"Sombre",theme_rose:"Rose",theme_ocean:"Océan",theme_forest:"Forêt",types:{top:"Haut",bottom:"Bas",dress:"Robe",outerwear:"Veste",shoes:"Chaussures",bag:"Sac",accessory:"Accessoire",other:"Autre"},colors:{black:"Noir",white:"Blanc",beige:"Beige",gray:"Gris",brown:"Marron",blue:"Bleu",red:"Rouge",green:"Vert",pink:"Rose",yellow:"Jaune",multicolor:"Multicolore"}}
-    };
-    const LANGS=[{code:'de',flag:'🇩🇪',name:'Deutsch'},{code:'en',flag:'🇬🇧',name:'English'},{code:'ru',flag:'🇷🇺',name:'Русский'},{code:'uk',flag:'🇺🇦',name:'Українська'},{code:'it',flag:'🇮🇹',name:'Italiano'},{code:'es',flag:'🇪🇸',name:'Español'},{code:'fr',flag:'🇫🇷',name:'Français'}];
-    const THEMES=[{id:'light',swatch:'linear-gradient(135deg,#f4f2ef,#fff)',key:'theme_light'},{id:'dark',swatch:'linear-gradient(135deg,#121212,#2a2a2a)',key:'theme_dark'},{id:'rose',swatch:'linear-gradient(135deg,#fdf2f4,#f0d0d8)',key:'theme_rose'},{id:'ocean',swatch:'linear-gradient(135deg,#eef5f9,#b8d4e8)',key:'theme_ocean'},{id:'forest',swatch:'linear-gradient(135deg,#f0f4ef,#c8e0c8)',key:'theme_forest'}];
-    const DEFAULT_STYLES=['classic','modern','elegant','casual','sporty'];
-    const COLOR_HEX={black:'#222',white:'#f5f5f5',beige:'#d4c4a8',gray:'#888',brown:'#8B4513',blue:'#3a6ea5',red:'#c0392b',green:'#2d6a4f',pink:'#e8a0b0',yellow:'#e8c84a',multicolor:'#aaa'};
-    const NEUTRALS=['black','white','beige','gray','brown'];
-    const COLOR_FAMILIES={black:['black','gray','white','beige'],white:['white','beige','gray','black'],beige:['beige','white','brown','gray'],gray:['gray','black','white','beige'],brown:['brown','beige','black'],blue:['blue','white','beige','gray','black'],red:['red','black','white','beige'],green:['green','beige','white','brown'],pink:['pink','white','beige','gray'],yellow:['yellow','white','beige','brown'],multicolor:['black','white','beige','gray']};
+<script>
+const CATEGORIES = {
+  jacke:    { emoji: '🧥', label: 'Jacke/Mantel', slot: 'jacke' },
+  bluse:    { emoji: '👚', label: 'Bluse/Hemd',   slot: 'bluse' },
+  pullover: { emoji: '🧶', label: 'Pullover',     slot: 'bluse' },
+  tshirt:   { emoji: '👕', label: 'T-Shirt',      slot: 'bluse' },
+  gurtel:   { emoji: '🎗️', label: 'Gürtel',       slot: 'gurtel' },
+  hose:     { emoji: '👖', label: 'Hose/Jeans',   slot: 'hose' },
+  rock:     { emoji: '👗', label: 'Rock',         slot: 'hose' },
+  shorts:   { emoji: '🩳', label: 'Shorts',       slot: 'hose' },
+  tasche:   { emoji: '👜', label: 'Tasche',       slot: 'tasche' },
+  schuhe:   { emoji: '👟', label: 'Schuhe',       slot: 'schuhe' },
+};
 
-    let currentLang=localStorage.getItem('lookLang')||'de';
-    let currentTheme=localStorage.getItem('lookTheme')||'light';
-    let customStyles=JSON.parse(localStorage.getItem('lookCustomStyles')||'[]');
-    let items=JSON.parse(localStorage.getItem('lookItems')||'[]');
-    let looks=JSON.parse(localStorage.getItem('lookLooks')||'[]');
-    let editingId=null,selectedForLook=[],currentFilter='all',colorFilter='all';
-    let currentPhotoData=null,carouselIdx=0,touchStartX=0,batchItems=[];
+const ALL_SLOTS = ['jacke', 'bluse', 'gurtel', 'hose', 'tasche', 'schuhe'];
+const SLOT_TO_CATS = {
+  jacke:  ['jacke'],
+  bluse:  ['bluse', 'pullover', 'tshirt'],
+  gurtel: ['gurtel'],
+  hose:   ['hose', 'rock', 'shorts'],
+  tasche: ['tasche'],
+  schuhe:  ['schuhe'],
+};
+const SLOT_LABELS = {
+  jacke:  'Jacke / Mantel',
+  bluse:  'Bluse / Hemd',
+  gurtel: 'Gürtel',
+  hose:   'Hose / Jeans / Rock',
+  tasche: 'Tasche',
+  schuhe:  'Schuhe',
+};
 
-    function t(key){return (i18n[currentLang]&&i18n[currentLang][key])||i18n.en[key]||key;}
-    function tType(type){return (i18n[currentLang].types||{})[type]||type;}
-    function tColor(c){return (i18n[currentLang].colors||{})[c]||c;}
-    function allStyles(){return [...DEFAULT_STYLES,...customStyles];}
+const THEMES = {
+  classic: { emoji: '👔', label: 'Klassisch', slots: ['jacke','bluse','gurtel','hose','schuhe'], color: '#d4a373' },
+  sport:   { emoji: '🏃', label: 'Sportlich', slots: ['bluse','hose','schuhe','tasche'], color: '#4ade80' },
+  elegant: { emoji: '✨', label: 'Elegant',  slots: ['bluse','gurtel','hose','tasche','schuhe'], color: '#c084fc' },
+  casual:  { emoji: '👟', label: 'Casual',   slots: ['bluse','hose','tasche','schuhe'], color: '#60a5fa' },
+  color:   { emoji: '🎨', label: 'Farbe',    slots: ['bluse','hose','tasche','schuhe'], color: '#f472b6' },
+  empty:   { emoji: '➕', label: 'Leer',     slots: ['bluse','hose'], color: '#94a3b8' },
+};
 
-    function detectDominantColor(dataUrl){
-      return new Promise(resolve=>{
-        const img=new Image();
-        img.onload=()=>{
-          const canvas=document.getElementById('color-canvas');
-          const size=80;
-          canvas.width=size; canvas.height=size;
-          const ctx=canvas.getContext('2d');
-          ctx.drawImage(img,0,0,size,size);
-          const data=ctx.getImageData(0,0,size,size).data;
-          // Focus on center 60% (ignore white studio backgrounds at edges)
-          const margin=Math.floor(size*0.2);
-          const buckets={};
-          let total=0;
-          for(let y=margin;y<size-margin;y++){
-            for(let x=margin;x<size-margin;x++){
-              const i=(y*size+x)*4;
-              const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
-              if(a<200) continue;
-              // Skip pure white / near-white backgrounds
-              if(r>240&&g>240&&b>240) continue;
-              // Skip pure black shadows (often not the garment)
-              if(r<12&&g<12&&b<12) continue;
-              // Quantize more finely
-              const key=`${Math.round(r/16)*16},${Math.round(g/16)*16},${Math.round(b/16)*16}`;
-              buckets[key]=(buckets[key]||0)+1;
-              total++;
-            }
-          }
-          if(total<10){resolve('multicolor');return;}
-          // Get top 3 colors
-          const sorted=Object.entries(buckets).sort((a,b)=>b[1]-a[1]);
-          const top=sorted.slice(0,5).map(([k,c])=>{
-            const [r,g,b]=k.split(',').map(Number);
-            return {r,g,b,c, name:rgbToColorName(r,g,b)};
-          });
-          // If top colors disagree a lot → multicolor
-          const names=top.map(t=>t.name);
-          const unique=new Set(names);
-          if(unique.size>=4 && top[0].c/total<0.35){resolve('multicolor');return;}
-          // Prefer non-neutral if it has decent share
-          const nonNeutral=top.find(t=>!['black','white','gray'].includes(t.name) && t.c/total>0.12);
-          if(nonNeutral && top[0].name!==nonNeutral.name && top[0].c/total<0.45){
-            resolve(nonNeutral.name);return;
-          }
-          resolve(top[0].name);
-        };
-        img.onerror=()=>resolve('multicolor');
-        img.src=dataUrl;
-      });
+const WARDROBE_KEY = 'ob_w_v12';
+const SETS_KEY     = 'ob_s_v12';
+const MAX_ITEMS    = 14;
+
+let wardrobe = [];
+let sets = [];
+let activeSetIndex = 0;
+let activeFilter = null;
+let pendingImages = [];
+let pendingIndex = 0;
+let pendingCategory = 'bluse';
+
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return fallback;
+}
+function saveWardrobe() {
+  if (wardrobe.length > MAX_ITEMS) wardrobe = wardrobe.slice(-MAX_ITEMS);
+  for (let i = 0; i < 8; i++) {
+    try {
+      localStorage.setItem(WARDROBE_KEY, JSON.stringify(wardrobe));
+      return true;
+    } catch (e) {
+      if (wardrobe.length <= 1) { wardrobe = []; return false; }
+      wardrobe.shift();
     }
-    function rgbToColorName(r,g,b){
-      // Convert to HSL for more accurate naming
-      r/=255;g/=255;b/=255;
-      const max=Math.max(r,g,b),min=Math.min(r,g,b);
-      let h=0,s=0,l=(max+min)/2;
-      if(max!==min){
-        const d=max-min;
-        s=l>0.5?d/(2-max-min):d/(max+min);
-        if(max===r)h=((g-b)/d+(g<b?6:0))/6;
-        else if(max===g)h=((b-r)/d+2)/6;
-        else h=((r-g)/d+4)/6;
-      }
-      h=Math.round(h*360);s=Math.round(s*100);l=Math.round(l*100);
+  }
+  return false;
+}
+function saveSets() {
+  try { localStorage.setItem(SETS_KEY, JSON.stringify(sets)); } catch (e) {}
+}
 
-      // Neutrals first
-      if(s<12){
-        if(l<18)return 'black';
-        if(l>88)return 'white';
-        if(l>55)return 'gray';
-        return 'gray';
-      }
-      // Beige / cream (low sat, warm, light)
-      if(s<35 && l>55 && l<90 && (h<50||h>340))return 'beige';
-      if(s<28 && l>40 && l<70 && h>=20 && h<55)return 'beige';
+function createEmptySet(themeKey = 'empty') {
+  const theme = THEMES[themeKey] || THEMES.empty;
+  return {
+    id: 'set_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    name: theme.label + ' Outfit',
+    theme: themeKey,
+    indices: { jacke:0, bluse:0, gurtel:0, hose:0, tasche:0, schuhe:0 },
+    activeSlots: [...theme.slots]
+  };
+}
 
-      // Black-ish dark colors
-      if(l<18)return 'black';
-      // White-ish
-      if(l>92)return 'white';
-
-      // Hue ranges (refined)
-      if(h<=12||h>=350){ // red
-        if(l>62&&s<55)return 'pink';
-        return 'red';
-      }
-      if(h<=25){ // red-orange → brown or red
-        if(l<40)return 'brown';
-        if(s<45&&l>50)return 'beige';
-        return 'red';
-      }
-      if(h<=42){ // orange / brown / beige
-        if(l<38)return 'brown';
-        if(s<50||l>58)return 'beige';
-        return 'brown';
-      }
-      if(h<=65){ // yellow / gold
-        if(l<35)return 'brown';
-        return 'yellow';
-      }
-      if(h<=165)return 'green'; // green
-      if(h<=255)return 'blue'; // blue / cyan
-      if(h<=295){ // purple → closer to blue or pink
-        if(l>55)return 'pink';
-        return 'blue';
-      }
-      if(h<=340){ // magenta / pink
-        if(l>45)return 'pink';
-        return 'red';
-      }
-      return 'red';
-    }
-    function guessType(dataUrl){
-      return new Promise(resolve=>{
-        const img=new Image();
-        img.onload=()=>{
-          const ratio=img.width/img.height;
-          // Also sample brightness distribution for shoes vs bags
-          const canvas=document.getElementById('color-canvas');
-          const s=40; canvas.width=s; canvas.height=s;
-          const ctx=canvas.getContext('2d');
-          ctx.drawImage(img,0,0,s,s);
-          const d=ctx.getImageData(0,0,s,s).data;
-          let brightEdge=0, darkCenter=0, edgeCount=0, centerCount=0;
-          for(let y=0;y<s;y++){
-            for(let x=0;x<s;x++){
-              const i=(y*s+x)*4;
-              const lum=(d[i]+d[i+1]+d[i+2])/3;
-              const isEdge=x<4||x>s-5||y<4||y>s-5;
-              if(isEdge){ edgeCount++; if(lum>200) brightEdge++; }
-              else { centerCount++; if(lum<80) darkCenter++; }
-            }
-          }
-          // Heuristics by aspect ratio + composition
-          if(ratio>1.5) resolve('bag');
-          else if(ratio>1.15 && ratio<=1.5) resolve('shoes'); // often wider
-          else if(ratio<0.48) resolve('dress');
-          else if(ratio<0.68) resolve('bottom');
-          else if(ratio>=0.68 && ratio<=0.95) resolve('top');
-          else if(ratio>0.95 && ratio<=1.15){
-            // square-ish: could be accessory, shoes, or folded top
-            if(brightEdge/edgeCount>0.4) resolve('accessory');
-            else resolve('top');
-          }
-          else resolve('top');
-        };
-        img.onerror=()=>resolve('top');
-        img.src=dataUrl;
-      });
-    }
-    function suggestName(type, color){
-      const colorName=tColor(color);
-      const typeName=tType(type);
-      // e.g. "Schwarzes Top", "Black Top"
-      if(currentLang==='de'){
-        const adj={black:'Schwarzes',white:'Weißes',beige:'Beiges',gray:'Graues',brown:'Braunes',blue:'Blaues',red:'Rotes',green:'Grünes',pink:'Rosa',yellow:'Gelbes',multicolor:'Buntes'};
-        // grammatical gender rough
-        const fem=['Hose/Rock','Tasche','Jacke'];
-        const isFem=fem.some(f=>typeName.includes(f.split('/')[0]));
-        const a=adj[color]||colorName;
-        if(isFem){
-          const femAdj={black:'Schwarze',white:'Weiße',beige:'Beige',gray:'Graue',brown:'Braune',blue:'Blaue',red:'Rote',green:'Grüne',pink:'Rosa',yellow:'Gelbe',multicolor:'Bunte'};
-          return `${femAdj[color]||colorName} ${typeName}`;
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = new Image();
+      img.onload = function() {
+        const maxSize = 400;
+        let w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
         }
-        return `${a} ${typeName}`;
-      }
-      // EN and others: "Black Top"
-      return `${colorName} ${typeName}`;
-    }
-
-    function setLang(lang){currentLang=lang;localStorage.setItem('lookLang',lang);document.documentElement.lang=lang;applyTranslations();renderAll();}
-    function setTheme(theme){
-      currentTheme=theme;localStorage.setItem('lookTheme',theme);
-      document.documentElement.setAttribute('data-theme',theme);
-      const meta=document.getElementById('meta-theme');
-      const colors={light:'#1a1a1a',dark:'#121212',rose:'#9b2d4a',ocean:'#1a4a6e',forest:'#2d5a3d'};
-      if(meta)meta.content=colors[theme]||'#1a1a1a';
-      renderSettings();
-    }
-    function applyTranslations(){
-      document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(i18n[currentLang][k])el.textContent=i18n[currentLang][k];});
-      document.getElementById('app-title').textContent=t('app_title');
-      document.getElementById('look-name').placeholder=t('look_untitled');
-      document.getElementById('new-style-input').placeholder=t('custom_styles');
-      const typeOpts=['top','bottom','dress','outerwear','shoes','bag','accessory','other'];
-      document.getElementById('item-type').innerHTML=typeOpts.map(v=>`<option value="${v}">${tType(v)}</option>`).join('');
-      const cols=Object.keys(i18n.en.colors);
-      document.getElementById('item-color').innerHTML=cols.map(c=>`<option value="${c}">${tColor(c)}</option>`).join('');
-      renderStyleChecks();
-      const sug=document.getElementById('suggest-style');
-      const cur=sug.value||'any';
-      sug.innerHTML=['any',...allStyles()].map(s=>{
-        const label=s==='any'?t('style_any'):(DEFAULT_STYLES.includes(s)?t('style_'+s):s);
-        return `<option value="${s}">${label}</option>`;
-      }).join('');
-      sug.value=cur;
-      renderSettings();
-    }
-    function renderStyleChecks(){
-      document.getElementById('style-checks').innerHTML=allStyles().map(s=>{
-        const label=DEFAULT_STYLES.includes(s)?t('style_'+s):s;
-        return `<label><input type="checkbox" value="${s}"> ${label}</label>`;
-      }).join('');
-    }
-    function renderSettings(){
-      document.getElementById('lang-list').innerHTML=LANGS.map(l=>
-        `<button class="${currentLang===l.code?'active':''}" onclick="setLang('${l.code}')"><span><span class="lang-flag">${l.flag}</span>${l.name}</span>${currentLang===l.code?'✓':''}</button>`).join('');
-      document.getElementById('theme-list').innerHTML=THEMES.map(th=>
-        `<button class="theme-btn ${currentTheme===th.id?'active':''}" onclick="setTheme('${th.id}')"><div class="swatch" style="background:${th.swatch}"></div><span class="name">${t(th.key)}</span></button>`).join('');
-      document.getElementById('custom-styles-list').innerHTML=customStyles.length
-        ?customStyles.map(s=>`<span class="style-tag">${esc(s)} <button onclick="removeCustomStyle('${esc(s)}')">×</button></span>`).join('')
-        :`<span style="font-size:.8rem;color:var(--muted)">${t('custom_styles')}</span>`;
-    }
-    function addCustomStyle(){
-      const input=document.getElementById('new-style-input');
-      const val=input.value.trim();
-      if(!val||allStyles().map(s=>s.toLowerCase()).includes(val.toLowerCase())){input.value='';return;}
-      customStyles.push(val);localStorage.setItem('lookCustomStyles',JSON.stringify(customStyles));
-      input.value='';renderStyleChecks();renderSettings();applyTranslations();toast(t('toast_style_added'));
-    }
-    function removeCustomStyle(name){
-      customStyles=customStyles.filter(s=>s!==name);
-      localStorage.setItem('lookCustomStyles',JSON.stringify(customStyles));
-      items=items.map(i=>({...i,styles:(i.styles||[]).filter(st=>st!==name)}));
-      saveData();renderStyleChecks();renderSettings();applyTranslations();toast(t('toast_deleted'));
-    }
-    function showSection(id){
-      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
-      if(id==='create')renderCreate();
-      if(id==='looks')renderLooks();
-      if(id==='suggest')generateSuggestions();
-      if(id==='wardrobe')renderWardrobe();
-    }
-    function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
-    function saveData(){localStorage.setItem('lookItems',JSON.stringify(items));localStorage.setItem('lookLooks',JSON.stringify(looks));}
-
-    function handleSinglePhoto(e){
-      const file=e.target.files[0];if(!file)return;
-      const reader=new FileReader();
-      reader.onload=async ev=>{
-        currentPhotoData=ev.target.result;
-        document.getElementById('preview-box').innerHTML=`<img src="${currentPhotoData}">`;
-        toast(t('toast_analyzing'));
-        const color=await detectDominantColor(currentPhotoData);
-        const type=await guessType(currentPhotoData);
-        document.getElementById('item-color').value=color;
-        document.getElementById('item-type').value=type;
-        const nameField=document.getElementById('item-name');
-        if(!nameField.value.trim()) nameField.value=suggestName(type,color);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.45));
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => resolve(null);
+      img.src = ev.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+const setsWrapper = document.getElementById('setsWrapper');
+const setDots     = document.getElementById('setDots');
+const catTabs     = document.getElementById('catTabs');
+const closetRow   = document.getElementById('closetRow');
+const modal       = document.getElementById('modal');
+const newSetModal = document.getElementById('newSetModal');
+const partsModal  = document.getElementById('partsModal');
+const previewImg  = document.getElementById('previewImg');
+const catGrid     = document.getElementById('catGrid');
+const batchInfo   = document.getElementById('batchInfo');
+const fileInput   = document.getElementById('fileInput');
+const btnSave     = document.getElementById('btn-save');
+const partsList   = document.getElementById('partsList');
+const themeGrid   = document.getElementById('themeGrid');
+
+wardrobe = loadJSON(WARDROBE_KEY, []);
+sets = loadJSON(SETS_KEY, [createEmptySet('classic')]);
+if (!sets.length) { sets = [createEmptySet('classic')]; saveSets(); }
+sets.forEach(s => {
+  if (!s.activeSlots) s.activeSlots = [...ALL_SLOTS];
+  if (!s.theme) s.theme = 'empty';
+  if (!s.name) s.name = 'Outfit';
+});
+
+/* ===== DYNAMISCHES LAYOUT ===== */
+function buildSlotsHTML(activeSlots) {
+  const has = (s) => activeSlots.includes(s);
+  let html = '<div class="slots-container">';
+
+  const topSlots = [];
+  if (has('jacke')) topSlots.push('jacke');
+  if (has('bluse')) topSlots.push('bluse');
+
+  if (topSlots.length === 2) {
+    html += `<div class="row flex-2">
+      <div class="slot flex-1" data-slot="jacke">
+        <div class="label">${SLOT_LABELS.jacke}</div>
+        <div class="placeholder">${SLOT_LABELS.jacke}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+      <div class="slot flex-2" data-slot="bluse">
+        <div class="label">${SLOT_LABELS.bluse}</div>
+        <div class="placeholder">${SLOT_LABELS.bluse}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  } else if (topSlots.length === 1) {
+    const s = topSlots[0];
+    html += `<div class="row flex-2">
+      <div class="slot flex-1" data-slot="${s}">
+        <div class="label">${SLOT_LABELS[s]}</div>
+        <div class="placeholder">${SLOT_LABELS[s]}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  }
+
+  if (has('gurtel')) {
+    html += `<div class="row" style="flex:0 0 auto;">
+      <div class="slot thin" data-slot="gurtel" style="width:100%">
+        <div class="label">${SLOT_LABELS.gurtel}</div>
+        <div class="placeholder">${SLOT_LABELS.gurtel}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  }
+
+  if (has('hose')) {
+    html += `<div class="row flex-3">
+      <div class="slot flex-1" data-slot="hose">
+        <div class="label">${SLOT_LABELS.hose}</div>
+        <div class="placeholder">${SLOT_LABELS.hose}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  }
+
+  const bottomSlots = [];
+  if (has('tasche')) bottomSlots.push('tasche');
+  if (has('schuhe')) bottomSlots.push('schuhe');
+
+  if (bottomSlots.length === 2) {
+    html += `<div class="row flex-1">
+      <div class="slot flex-1" data-slot="tasche">
+        <div class="label">${SLOT_LABELS.tasche}</div>
+        <div class="placeholder">${SLOT_LABELS.tasche}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+      <div class="slot flex-1" data-slot="schuhe">
+        <div class="label">${SLOT_LABELS.schuhe}</div>
+        <div class="placeholder">${SLOT_LABELS.schuhe}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  } else if (bottomSlots.length === 1) {
+    const s = bottomSlots[0];
+    html += `<div class="row flex-1">
+      <div class="slot flex-1" data-slot="${s}">
+        <div class="label">${SLOT_LABELS[s]}</div>
+        <div class="placeholder">${SLOT_LABELS[s]}</div>
+        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function renderSets() {
+  setsWrapper.innerHTML = '';
+  setDots.innerHTML = '';
+
+  sets.forEach((set, idx) => {
+    if (!set.activeSlots) set.activeSlots = [...ALL_SLOTS];
+
+    const page = document.createElement('div');
+    page.className = 'set-page';
+    page.dataset.index = idx;
+
+    const theme = THEMES[set.theme] || THEMES.empty;
+    page.innerHTML = `
+      <div class="set-header">
+        <div class="set-name">${set.name || 'Outfit'}</div>
+        <div class="set-theme" style="border:1px solid ${theme.color}55; color:${theme.color}">
+          ${theme.emoji} ${theme.label}
+        </div>
+      </div>
+      ${buildSlotsHTML(set.activeSlots)}
+    `;
+
+    setsWrapper.appendChild(page);
+    fillSlots(page, set);
+    page.querySelectorAll('.slot').forEach(slotEl => setupSlot(slotEl, idx));
+
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (idx === activeSetIndex ? ' active' : '');
+    setDots.appendChild(dot);
+  });
+
+  requestAnimationFrame(() => {
+    setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1);
+  });
+}
+
+function fillSlots(page, set) {
+  page.querySelectorAll('.slot').forEach(slotEl => {
+    const slotName = slotEl.dataset.slot;
+    const cats = SLOT_TO_CATS[slotName] || [];
+    const items = wardrobe.filter(w => cats.includes(w.category));
+
+    const oldImg = slotEl.querySelector('img');
+    const oldPh = slotEl.querySelector('.placeholder');
+    if (oldImg) oldImg.remove();
+    if (oldPh) oldPh.remove();
+
+    if (items.length === 0) {
+      const ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.textContent = SLOT_LABELS[slotName] || slotName;
+      slotEl.appendChild(ph);
+      return;
     }
-    async function handleMultiPhotos(e){
-      const files=Array.from(e.target.files||[]);if(!files.length)return;
-      closeAddModal();toast(t('toast_analyzing'));
-      batchItems=[];
-      for(const file of files){
-        const dataUrl=await readFile(file);
-        const color=await detectDominantColor(dataUrl);
-        const type=await guessType(dataUrl);
-        const name=suggestName(type,color);
-        batchItems.push({photo:dataUrl,name,type,color,styles:[]});
+
+    let idx = set.indices[slotName] || 0;
+    if (idx < 0 || idx >= items.length) idx = 0;
+    set.indices[slotName] = idx;
+
+    const img = document.createElement('img');
+    img.src = items[idx].img;
+    slotEl.appendChild(img);
+  });
+}
+
+function setupSlot(slotEl, setIdx) {
+  const slotName = slotEl.dataset.slot;
+  let startX = 0, longTimer = null, longPressed = false;
+
+  slotEl.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.slot-arrows')) return;
+    startX = e.clientX;
+    longPressed = false;
+    longTimer = setTimeout(() => {
+      longPressed = true;
+      sets[setIdx].indices[slotName] = 0;
+      saveSets();
+      renderSets();
+      if (navigator.vibrate) navigator.vibrate(25);
+    }, 600);
+    try { slotEl.setPointerCapture(e.pointerId); } catch(e) {}
+  });
+
+  slotEl.addEventListener('pointerup', (e) => {
+    clearTimeout(longTimer);
+    if (longPressed) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 40) {
+      changeVariant(setIdx, slotName, dx > 0 ? 1 : -1);
+      return;
+    }
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+    slotEl.classList.add('active');
+    activeSetIndex = setIdx;
+  });
+
+  slotEl.addEventListener('pointercancel', () => clearTimeout(longTimer));
+
+  const prevBtn = slotEl.querySelector('.prev');
+  const nextBtn = slotEl.querySelector('.next');
+  if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); changeVariant(setIdx, slotName, -1); };
+  if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); changeVariant(setIdx, slotName, 1); };
+}
+
+function changeVariant(setIdx, slotName, dir) {
+  const set = sets[setIdx];
+  if (!set) return;
+  const cats = SLOT_TO_CATS[slotName] || [];
+  const items = wardrobe.filter(w => cats.includes(w.category));
+  if (items.length < 2) return;
+
+  let idx = (set.indices[slotName] || 0) + dir;
+  idx = (idx + items.length) % items.length;
+  set.indices[slotName] = idx;
+  saveSets();
+  renderSets();
+
+  requestAnimationFrame(() => {
+    const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
+    if (!page) return;
+    const slot = page.querySelector(`.slot[data-slot="${slotName}"]`);
+    if (slot) {
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+      slot.classList.add('active');
+    }
+  });
+}
+
+setsWrapper.addEventListener('scroll', () => {
+  clearTimeout(setsWrapper._timer);
+  setsWrapper._timer = setTimeout(() => {
+    const w = setsWrapper.clientWidth || 1;
+    activeSetIndex = Math.round(setsWrapper.scrollLeft / w);
+    if (activeSetIndex < 0) activeSetIndex = 0;
+    if (activeSetIndex >= sets.length) activeSetIndex = sets.length - 1;
+    setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === activeSetIndex));
+  }, 60);
+});
+
+/* ===== NEUES SET MIT THEMA ===== */
+function openNewSetModal() {
+  themeGrid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, t]) => {
+    const card = document.createElement('div');
+    card.className = 'theme-card ' + key;
+    card.innerHTML = `<span class="emoji">${t.emoji}</span>${t.label}`;
+    card.onclick = () => {
+      const newSet = createEmptySet(key);
+      sets.push(newSet);
+      saveSets();
+      activeSetIndex = sets.length - 1;
+      newSetModal.classList.remove('open');
+      renderSets();
+      setTimeout(() => {
+        setsWrapper.scrollTo({
+          left: activeSetIndex * setsWrapper.clientWidth,
+          behavior: 'smooth'
+        });
+      }, 50);
+    };
+    themeGrid.appendChild(card);
+  });
+  newSetModal.classList.add('open');
+}
+
+document.getElementById('btn-new-set').onclick = openNewSetModal;
+document.getElementById('btn-newset-cancel').onclick = () => newSetModal.classList.remove('open');
+
+/* ===== TEILE ===== */
+function openPartsModal() {
+  const set = sets[activeSetIndex];
+  if (!set.activeSlots) set.activeSlots = [...ALL_SLOTS];
+
+  partsList.innerHTML = '';
+  ALL_SLOTS.forEach(slot => {
+    const isOn = set.activeSlots.includes(slot);
+    const el = document.createElement('div');
+    el.className = 'part-item' + (isOn ? ' on' : '');
+    el.innerHTML = `<span>${SLOT_LABELS[slot]}</span><button class="toggle"></button>`;
+    el.onclick = () => {
+      const idx = set.activeSlots.indexOf(slot);
+      if (idx >= 0) {
+        if (set.activeSlots.length <= 1) return;
+        set.activeSlots.splice(idx, 1);
+      } else {
+        set.activeSlots.push(slot);
       }
-      openBatchModal();
-    }
-    function readFile(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});}
-    function openBatchModal(){
-      const list=document.getElementById('batch-list');
-      const typeOpts=['top','bottom','dress','outerwear','shoes','bag','accessory','other'].map(v=>`<option value="${v}">${tType(v)}</option>`).join('');
-      const colorOpts=Object.keys(i18n.en.colors).map(c=>`<option value="${c}">${tColor(c)}</option>`).join('');
-      list.innerHTML=batchItems.map((it,idx)=>`
-        <div class="batch-card" data-idx="${idx}">
-          <img src="${it.photo}" />
-          <div class="fields">
-            <input type="text" placeholder="${t('label_name')}" value="${esc(it.name)}" onchange="batchItems[${idx}].name=this.value" />
-            <select onchange="batchItems[${idx}].type=this.value">${typeOpts}</select>
-            <select onchange="batchItems[${idx}].color=this.value">${colorOpts}</select>
-            <div class="color-row"><span class="cdot" style="background:${COLOR_HEX[it.color]||'#aaa'}"></span> ${tColor(it.color)}</div>
-          </div>
-          <button class="remove-btn" onclick="removeBatchItem(${idx})">×</button>
-        </div>`).join('');
-      list.querySelectorAll('.batch-card').forEach((card,idx)=>{
-        const selects=card.querySelectorAll('select');
-        if(selects[0])selects[0].value=batchItems[idx].type;
-        if(selects[1])selects[1].value=batchItems[idx].color;
-      });
-      document.getElementById('batch-modal').classList.add('open');
-    }
-    function removeBatchItem(idx){batchItems.splice(idx,1);if(!batchItems.length)closeBatchModal();else openBatchModal();}
-    function closeBatchModal(){document.getElementById('batch-modal').classList.remove('open');batchItems=[];document.getElementById('photo-gallery').value='';}
-    function saveBatch(){
-      const count=batchItems.length;
-      batchItems.forEach(it=>{
-        items.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:it.name||t('look_untitled'),type:it.type,color:it.color,styles:it.styles||[],photo:it.photo,created:Date.now()});
-      });
-      saveData();closeBatchModal();renderWardrobe();toast(t('toast_batch')+` (${count})`);
-    }
+      set.activeSlots.sort((a, b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
+      saveSets();
+      openPartsModal();
+    };
+    partsList.appendChild(el);
+  });
+  partsModal.classList.add('open');
+}
 
-    function openAddModal(editItem=null){
-      editingId=editItem?editItem.id:null;
-      document.getElementById('modal-title').textContent=editItem?t('modal_edit'):t('modal_add');
-      currentPhotoData=editItem?editItem.photo:null;
-      const box=document.getElementById('preview-box');
-      box.innerHTML=currentPhotoData?`<img src="${currentPhotoData}">`:`<span>${t('tap_photo')}</span>`;
-      document.getElementById('item-name').value=editItem?editItem.name:'';
-      document.getElementById('item-type').value=editItem?editItem.type:'top';
-      document.getElementById('item-color').value=editItem?editItem.color:'black';
-      renderStyleChecks();
-      document.querySelectorAll('#style-checks input').forEach(cb=>{cb.checked=editItem?(editItem.styles||[]).includes(cb.value):false;});
-      document.getElementById('single-form').style.display='block';
-      document.getElementById('add-modal').classList.add('open');
-    }
-    function closeAddModal(){document.getElementById('add-modal').classList.remove('open');document.getElementById('photo-camera').value='';document.getElementById('photo-gallery').value='';currentPhotoData=null;editingId=null;}
-    function saveItem(){
-      const name=document.getElementById('item-name').value.trim()||t('look_untitled');
-      const type=document.getElementById('item-type').value;
-      const color=document.getElementById('item-color').value;
-      const styles=Array.from(document.querySelectorAll('#style-checks input:checked')).map(c=>c.value);
-      if(!currentPhotoData&&!editingId){toast(t('toast_photo'));return;}
-      if(editingId){const idx=items.findIndex(i=>i.id===editingId);if(idx>=0)items[idx]={...items[idx],name,type,color,styles,photo:currentPhotoData||items[idx].photo};}
-      else items.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,type,color,styles,photo:currentPhotoData,created:Date.now()});
-      saveData();closeAddModal();renderWardrobe();toast(t('toast_saved'));
-    }
-    function deleteItem(id){
-      if(!confirm(t('delete_confirm')))return;
-      items=items.filter(i=>i.id!==id);
-      looks=looks.map(l=>({...l,itemIds:l.itemIds.filter(iid=>iid!==id)})).filter(l=>l.itemIds.length>0);
-      selectedForLook=selectedForLook.filter(sid=>sid!==id);
-      saveData();renderAll();toast(t('toast_deleted'));
-    }
+document.getElementById('btn-parts').onclick = openPartsModal;
+document.getElementById('btn-parts-cancel').onclick = () => {
+  partsModal.classList.remove('open');
+  renderSets();
+};
 
-    /* Long-press: edit or delete */
-    let pressTimer=null, pressTarget=null, pressType=null, pressId=null, pressMoved=false;
-    function startPress(e, type, id){
-      if(e.button&&e.button!==0)return;
-      pressMoved=false; pressType=type; pressId=id;
-      const el=e.currentTarget;
-      pressTarget=el;
-      el.classList.add('pressing');
-      pressTimer=setTimeout(()=>{
-        pressTimer=null;
-        el.classList.remove('pressing');
-        // Haptic if available
-        if(navigator.vibrate) navigator.vibrate(30);
-        showItemMenu(type, id);
-      }, 550);
-    }
-    function endPress(e){
-      if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; }
-      if(pressTarget){ pressTarget.classList.remove('pressing'); pressTarget=null; }
-    }
-    function cancelPress(){
-      if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; }
-      if(pressTarget){ pressTarget.classList.remove('pressing'); pressTarget=null; }
-    }
-    function showItemMenu(type, id){
-      if(type==='item'){
-        const item=items.find(i=>i.id===id);
-        if(!item)return;
-        const choice=confirm(t('edit_or_delete')+'\n\nOK = '+t('modal_edit')+'\nCancel = '+t('delete_confirm'));
-        // confirm only has OK/Cancel - use a better approach with two-step
-        openItemActionSheet(id);
-      } else if(type==='look'){
-        openLookActionSheet(id);
+/* ===== KLEIDERSCHRANK ===== */
+function renderTabs() {
+  catTabs.innerHTML = '';
+  const order = ['bluse','hose','jacke','gurtel','tasche','schuhe','rock','pullover','tshirt','shorts'];
+  order.forEach(key => {
+    if (!CATEGORIES[key]) return;
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
+    const short = CATEGORIES[key].label.split('/')[0].split(' ')[0];
+    btn.textContent = CATEGORIES[key].emoji + ' ' + short;
+    btn.onclick = () => {
+      activeFilter = (activeFilter === key) ? null : key;
+      renderTabs();
+      renderCloset();
+    };
+    catTabs.appendChild(btn);
+  });
+}
+
+function renderCloset() {
+  closetRow.innerHTML = '';
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-thumb';
+  addBtn.textContent = '+';
+  addBtn.onclick = startAdd;
+  closetRow.appendChild(addBtn);
+
+  let list = wardrobe;
+  if (activeFilter) list = wardrobe.filter(w => w.category === activeFilter);
+
+  list.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'thumb';
+    const img = document.createElement('img');
+    img.src = item.img;
+    el.appendChild(img);
+
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = '×';
+    del.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm('Dieses Bild löschen?')) {
+        wardrobe = wardrobe.filter(w => w.id !== item.id);
+        saveWardrobe();
+        renderSets();
+        renderCloset();
       }
-    }
-    function openItemActionSheet(id){
-      const item=items.find(i=>i.id===id);
-      if(!item)return;
-      // Simple action sheet via prompt-style buttons in a mini modal
-      const existing=document.getElementById('action-sheet');
-      if(existing) existing.remove();
-      const sheet=document.createElement('div');
-      sheet.id='action-sheet';
-      sheet.className='overlay open';
-      sheet.innerHTML=`<div class="modal" style="padding-bottom:30px">
-        <h2 style="margin-bottom:8px">${esc(item.name)}</h2>
-        <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">${tType(item.type)} · ${tColor(item.color)}</p>
-        <button class="btn btn-primary btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();openAddModal(items.find(i=>i.id==='${id}'))">${t('modal_edit')}</button>
-        <button class="btn btn-danger btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();deleteItem('${id}')">${t('delete_confirm')}</button>
-        <button class="btn btn-ghost btn-block" onclick="document.getElementById('action-sheet').remove()">${t('btn_cancel')}</button>
-      </div>`;
-      sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.remove();});
-      document.body.appendChild(sheet);
-    }
-    function openLookActionSheet(id){
-      const look=looks.find(l=>l.id===id);
-      if(!look)return;
-      const existing=document.getElementById('action-sheet');
-      if(existing) existing.remove();
-      const sheet=document.createElement('div');
-      sheet.id='action-sheet';
-      sheet.className='overlay open';
-      sheet.innerHTML=`<div class="modal" style="padding-bottom:30px">
-        <h2 style="margin-bottom:14px">${esc(look.name)}</h2>
-        <button class="btn btn-danger btn-block" style="margin-bottom:8px" onclick="document.getElementById('action-sheet').remove();deleteLook('${id}')">${t('delete_confirm')}</button>
-        <button class="btn btn-ghost btn-block" onclick="document.getElementById('action-sheet').remove()">${t('btn_cancel')}</button>
-      </div>`;
-      sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.remove();});
-      document.body.appendChild(sheet);
-    }
+    };
+    el.appendChild(del);
 
-    function renderWardrobe(){
-      const grid=document.getElementById('items-grid');
-      const empty=document.getElementById('wardrobe-empty');
-      const types=['all','top','bottom','dress','outerwear','shoes','bag','accessory','other'];
-      document.getElementById('type-filters').innerHTML=types.map(ty=>
-        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`).join('');
-      const usedColors=[...new Set(items.map(i=>i.color))];
-      document.getElementById('color-filters').innerHTML=
-        `<button class="chip ${colorFilter==='all'?'active':''}" onclick="setColorFilter('all')">${t('filter_all')}</button>`+
-        usedColors.map(c=>`<button class="chip ${colorFilter===c?'active':''}" onclick="setColorFilter('${c}')"><span class="cdot" style="background:${COLOR_HEX[c]||'#aaa'}"></span>${tColor(c)}</button>`).join('');
-      let filtered=items;
-      if(currentFilter!=='all')filtered=filtered.filter(i=>i.type===currentFilter);
-      if(colorFilter!=='all')filtered=filtered.filter(i=>i.color===colorFilter);
-      if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
-      empty.style.display='none';
-      grid.innerHTML=filtered.map(item=>`
-        <div class="item-card" data-id="${item.id}"
-          onpointerdown="startPress(event,'item','${item.id}')"
-          onpointerup="endPress(event)"
-          onpointerleave="cancelPress()"
-          onpointercancel="cancelPress()">
-          <img src="${item.photo}" alt="" loading="lazy" draggable="false" />
-          <span class="color-dot" style="background:${COLOR_HEX[item.color]||'#aaa'}"></span>
-          <div class="info">
-            <div class="name">${esc(item.name)}</div>
-            <div class="meta">${tType(item.type)} · ${tColor(item.color)}</div>
-          </div>
-        </div>`).join('');
-    }
-    function setFilter(ty){currentFilter=ty;renderWardrobe();}
-    function setColorFilter(c){colorFilter=c;renderWardrobe();}
-
-    function renderCreate(){
-      const bar=document.getElementById('selected-bar');
-      bar.innerHTML=selectedForLook.map(id=>{const item=items.find(i=>i.id===id);return item?`<div class="sel-item"><img src="${item.photo}"><button onclick="toggleSelect('${id}')">×</button></div>`:'';}).join('')||`<div style="color:var(--muted);font-size:.85rem;padding:18px 0">${t('empty_looks')}</div>`;
-      const types=['all','top','bottom','dress','outerwear','shoes','bag','accessory'];
-      document.getElementById('create-filters').innerHTML=types.map(ty=>
-        `<button class="chip ${currentFilter===ty?'active':''}" onclick="setCreateFilter('${ty}')">${ty==='all'?t('filter_all'):t('type_'+ty)}</button>`).join('');
-      let filtered=currentFilter==='all'?items:items.filter(i=>i.type===currentFilter);
-      document.getElementById('create-grid').innerHTML=filtered.map(item=>`
-        <div class="item-card ${selectedForLook.includes(item.id)?'selected':''}" onclick="toggleSelect('${item.id}')">
-          <img src="${item.photo}" alt="" />
-          <div class="info"><div class="name">${esc(item.name)}</div><div class="meta">${tType(item.type)}</div></div>
-        </div>`).join('');
-    }
-    function setCreateFilter(ty){currentFilter=ty;renderCreate();}
-    function toggleSelect(id){const idx=selectedForLook.indexOf(id);if(idx>=0)selectedForLook.splice(idx,1);else selectedForLook.push(id);renderCreate();}
-    function saveLook(){
-      if(selectedForLook.length<2){toast(t('toast_need'));return;}
-      const name=document.getElementById('look-name').value.trim()||t('look_untitled');
-      looks.unshift({id:Date.now().toString(36),name,itemIds:[...selectedForLook],created:Date.now()});
-      saveData();selectedForLook=[];document.getElementById('look-name').value='';
-      renderCreate();toast(t('toast_look'));showSection('looks');
-    }
-
-    function renderLooks(){
-      const empty=document.getElementById('looks-empty');
-      const wrap=document.getElementById('carousel-wrap');
-      if(!looks.length){empty.style.display='block';wrap.style.display='none';return;}
-      empty.style.display='none';wrap.style.display='block';
-      const car=document.getElementById('carousel');
-      car.innerHTML=looks.map(look=>{
-        const lookItems=look.itemIds.map(id=>items.find(i=>i.id===id)).filter(Boolean);
-        if(!lookItems.length)return '';
-        const n=Math.min(lookItems.length,6);
-        return `<div class="carousel-slide">
-          <div class="look-card" data-id="${look.id}"
-            onpointerdown="startPress(event,'look','${look.id}')"
-            onpointerup="endPress(event)"
-            onpointerleave="cancelPress()"
-            onpointercancel="cancelPress()">
-            <div class="look-collage n${n}">
-              ${lookItems.map(it=>`<div class="li"><img src="${it.photo}" draggable="false"></div>`).join('')}
-            </div>
-            <div class="look-foot">${esc(look.name)}</div>
-          </div>
-        </div>`;
-      }).join('');
-      carouselIdx=Math.min(carouselIdx,looks.length-1);updateCarousel();
-      car.ontouchstart=e=>{touchStartX=e.touches[0].clientX;};
-      car.ontouchend=e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>50)slide(dx<0?1:-1);};
-    }
-    function updateCarousel(){
-      document.getElementById('carousel').style.transform=`translateX(-${carouselIdx*100}%)`;
-      document.getElementById('dots').innerHTML=looks.map((_,i)=>`<span class="${i===carouselIdx?'on':''}" onclick="goTo(${i})"></span>`).join('');
-    }
-    function slide(dir){carouselIdx=Math.max(0,Math.min(looks.length-1,carouselIdx+dir));updateCarousel();}
-    function goTo(i){carouselIdx=i;updateCarousel();}
-    function deleteLook(id){if(!confirm(t('delete_confirm')))return;looks=looks.filter(l=>l.id!==id);saveData();renderLooks();toast(t('toast_deleted'));}
-
-    function colorScore(c1,c2){
-      if(!c1||!c2)return 0;
-      if(c1===c2)return 4;
-      // Neutrals go with almost everything
-      if(NEUTRALS.includes(c1)&&NEUTRALS.includes(c2))return 3;
-      if(NEUTRALS.includes(c1)||NEUTRALS.includes(c2))return 2.5;
-      const family=COLOR_FAMILIES[c1]||[];
-      if(family.includes(c2))return 3;
-      // Complementary-ish pairs that work
-      const pairs=[['blue','beige'],['blue','white'],['red','black'],['red','white'],['green','beige'],['pink','gray'],['yellow','black'],['yellow','beige']];
-      for(const [a,b] of pairs){
-        if((c1===a&&c2===b)||(c1===b&&c2===a))return 2.5;
+    el.onclick = () => {
+      const slot = CATEGORIES[item.category]?.slot;
+      if (!slot) return;
+      const cats = SLOT_TO_CATS[slot] || [];
+      const items = wardrobe.filter(w => cats.includes(w.category));
+      const idx = items.findIndex(i => i.id === item.id);
+      if (idx >= 0) {
+        sets[activeSetIndex].indices[slot] = idx;
+        if (!sets[activeSetIndex].activeSlots.includes(slot)) {
+          sets[activeSetIndex].activeSlots.push(slot);
+          sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a)-ALL_SLOTS.indexOf(b));
+        }
+        saveSets();
+        renderSets();
       }
-      // Same family warm/cool soft match
-      const warm=['red','pink','yellow','beige','brown'];
-      const cool=['blue','green','gray'];
-      if(warm.includes(c1)&&warm.includes(c2))return 1.5;
-      if(cool.includes(c1)&&cool.includes(c2))return 1.5;
-      return 0.2; // slight penalty for clash
-    }
-    function generateSuggestions(){
-      const style=document.getElementById('suggest-style').value;
-      const list=document.getElementById('suggestions-list');
-      const empty=document.getElementById('suggest-empty');
-      const tops=items.filter(i=>i.type==='top'||i.type==='dress');
-      const bottoms=items.filter(i=>i.type==='bottom');
-      const shoes=items.filter(i=>i.type==='shoes');
-      if(!tops.length||(!bottoms.length&&!items.some(i=>i.type==='dress'))||!shoes.length){
-        list.innerHTML='';empty.style.display='block';return;
-      }
-      empty.style.display='none';
+    };
+    closetRow.appendChild(el);
+  });
+}
 
-      function scoreItem(item, baseColors, requiredStyle){
-        let s=Math.random()*0.8;
-        if(requiredStyle!=='any'&&item.styles&&item.styles.includes(requiredStyle))s+=3;
-        // Average color match against base pieces
-        if(baseColors&&baseColors.length){
-          const scores=baseColors.map(c=>colorScore(c,item.color));
-          s+=scores.reduce((a,b)=>a+b,0)/scores.length;
-        }
-        return s;
-      }
+function startAdd() {
+  fileInput.value = '';
+  fileInput.click();
+}
 
-      function pickBest(pool, baseColors, style, excludeIds){
-        const candidates=pool.filter(i=>!excludeIds.includes(i.id));
-        if(!candidates.length)return null;
-        return [...candidates].sort((a,b)=>scoreItem(b,baseColors,style)-scoreItem(a,baseColors,style))[0];
-      }
+fileInput.addEventListener('change', async function(e) {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
 
-      const suggestions=[];
-      const usedTops=new Set();
-      // Strategy 1: monochrome / same color looks
-      // Strategy 2: neutral base + accent
-      // Strategy 3: style-matched
-      // Strategy 4: random with color harmony
-      const strategies=['mono','neutral','style','harmony','harmony'];
+  btnSave.disabled = true;
+  btnSave.textContent = 'Lädt...';
 
-      for(let n=0;n<20&&suggestions.length<6;n++){
-        const strat=strategies[n%strategies.length];
-        // Prefer unused tops for variety
-        let topPool=tops.filter(t=>!usedTops.has(t.id));
-        if(!topPool.length)topPool=tops;
-        let top;
-        if(strat==='mono'){
-          // prefer tops that have matching bottoms in same color
-          top=topPool.find(t=>bottoms.some(b=>b.color===t.color))||topPool[Math.floor(Math.random()*topPool.length)];
-        } else if(strat==='neutral'){
-          const neutrals=topPool.filter(t=>NEUTRALS.includes(t.color));
-          top=neutrals.length?neutrals[Math.floor(Math.random()*neutrals.length)]:topPool[Math.floor(Math.random()*topPool.length)];
-        } else {
-          top=topPool[Math.floor(Math.random()*topPool.length)];
-        }
-        if(!top)continue;
-        usedTops.add(top.id);
+  pendingImages = [];
+  for (const file of files) {
+    const compressed = await compressImage(file);
+    if (compressed) pendingImages.push(compressed);
+  }
 
-        const baseColors=[top.color];
-        let bottom=null;
-        if(top.type!=='dress'&&bottoms.length){
-          if(strat==='mono'){
-            const same=bottoms.filter(b=>b.color===top.color);
-            bottom=same.length?same[Math.floor(Math.random()*same.length)]:pickBest(bottoms,baseColors,style,[]);
-          } else {
-            bottom=pickBest(bottoms,baseColors,style,[]);
-          }
-          if(bottom)baseColors.push(bottom.color);
-        }
+  btnSave.disabled = false;
+  btnSave.textContent = 'Speichern';
+  if (!pendingImages.length) return;
 
-        const shoe=pickBest(shoes,baseColors,style,[]);
-        if(shoe)baseColors.push(shoe.color);
+  pendingIndex = 0;
+  pendingCategory = activeFilter || 'bluse';
+  showCurrentPending();
+  modal.classList.add('open');
+});
 
-        const outers=items.filter(i=>i.type==='outerwear');
-        const bags=items.filter(i=>i.type==='bag');
-        const accs=items.filter(i=>i.type==='accessory');
-        // Only add outer/bag/acc if good color match (score > 1.5)
-        let out=null,bag=null,ac=null;
-        if(outers.length){
-          const cand=pickBest(outers,baseColors,style,[]);
-          if(cand&&scoreItem(cand,baseColors,style)>2)out=cand;
-        }
-        if(bags.length){
-          const cand=pickBest(bags,baseColors,style,[]);
-          if(cand&&scoreItem(cand,baseColors,style)>1.8)bag=cand;
-        }
-        if(accs.length){
-          const cand=pickBest(accs,baseColors,style,[]);
-          if(cand&&scoreItem(cand,baseColors,style)>1.5)ac=cand;
-        }
+function showCurrentPending() {
+  if (pendingIndex >= pendingImages.length) {
+    modal.classList.remove('open');
+    pendingImages = [];
+    pendingIndex = 0;
+    renderSets();
+    renderCloset();
+    return;
+  }
+  previewImg.src = pendingImages[pendingIndex];
+  if (pendingImages.length > 1) {
+    batchInfo.style.display = 'block';
+    batchInfo.textContent = `Bild ${pendingIndex + 1} von ${pendingImages.length}`;
+  } else {
+    batchInfo.style.display = 'none';
+  }
+  renderCatGrid();
+}
 
-        const combo=[top,bottom,shoe,out,bag,ac].filter(Boolean);
-        if(combo.length<2)continue;
-        const key=combo.map(c=>c.id).sort().join('-');
-        if(suggestions.some(s=>s.key===key))continue;
-        // Compute overall harmony score for sorting
-        let harmony=0;
-        for(let i=0;i<combo.length;i++){
-          for(let j=i+1;j<combo.length;j++){
-            harmony+=colorScore(combo[i].color,combo[j].color);
-          }
-        }
-        suggestions.push({key,items:combo,harmony});
-      }
-      // Sort by harmony score
-      suggestions.sort((a,b)=>b.harmony-a.harmony);
-      const final=suggestions.slice(0,5);
+function renderCatGrid() {
+  catGrid.innerHTML = '';
+  Object.keys(CATEGORIES).forEach(key => {
+    const val = CATEGORIES[key];
+    const btn = document.createElement('button');
+    btn.textContent = val.emoji + ' ' + val.label;
+    if (key === pendingCategory) btn.classList.add('selected');
+    btn.onclick = () => { pendingCategory = key; renderCatGrid(); };
+    catGrid.appendChild(btn);
+  });
+}
 
-      list.innerHTML=final.map((sug,idx)=>`
-        <div class="look-card" style="margin-bottom:14px">
-          <div class="look-collage n${Math.min(sug.items.length,6)}">${sug.items.map(it=>`<div class="li"><img src="${it.photo}"></div>`).join('')}</div>
-          <div class="look-foot"><span class="title">${t('suggested')} ${idx+1}</span><button class="btn btn-sm btn-gold" onclick="saveSuggestion(${idx})">${t('btn_save')}</button></div>
-        </div>`).join('');
-      window._lastSuggestions=final;
-    }
-    function saveSuggestion(idx){
-      const sug=window._lastSuggestions[idx];if(!sug)return;
-      looks.unshift({id:Date.now().toString(36),name:`${t('suggested')} ${idx+1}`,itemIds:sug.items.map(i=>i.id),created:Date.now()});
-      saveData();toast(t('toast_look'));showSection('looks');
-    }
-    function openSettings(){document.getElementById('settings-modal').classList.add('open');renderSettings();}
-    function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
-    function esc(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-    function renderAll(){renderWardrobe();renderCreate();renderLooks();}
+btnSave.addEventListener('click', function() {
+  if (!pendingImages[pendingIndex]) return;
 
-    document.documentElement.setAttribute('data-theme',currentTheme);
-    applyTranslations();renderAll();
-    document.getElementById('add-modal').addEventListener('click',e=>{if(e.target.id==='add-modal')closeAddModal();});
-    document.getElementById('batch-modal').addEventListener('click',e=>{if(e.target.id==='batch-modal')closeBatchModal();});
-    document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target.id==='settings-modal')closeSettings();});
-  </script>
+  const newItem = {
+    id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    img: pendingImages[pendingIndex],
+    category: pendingCategory
+  };
+  wardrobe.push(newItem);
+  saveWardrobe();
+
+  const slot = CATEGORIES[pendingCategory].slot;
+  const cats = SLOT_TO_CATS[slot] || [];
+  const itemsInSlot = wardrobe.filter(w => cats.includes(w.category));
+  sets[activeSetIndex].indices[slot] = Math.max(0, itemsInSlot.length - 1);
+
+  if (!sets[activeSetIndex].activeSlots.includes(slot)) {
+    sets[activeSetIndex].activeSlots.push(slot);
+    sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a)-ALL_SLOTS.indexOf(b));
+  }
+  saveSets();
+
+  pendingIndex++;
+  showCurrentPending();
+});
+
+document.getElementById('btn-cancel').onclick = () => {
+  modal.classList.remove('open');
+  pendingImages = [];
+  pendingIndex = 0;
+};
+
+document.getElementById('btn-add').onclick = startAdd;
+
+renderSets();
+renderTabs();
+renderCloset();
+window.addEventListener('resize', () => renderSets());
+</script>
 </body>
 </html>
