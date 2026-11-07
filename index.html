@@ -8,19 +8,28 @@
 <meta name="theme-color" content="#120b1f">
 <title>Outfit Builder</title>
 <style>
+  :root {
+    --accent: #4ade80;
+    --accent2: #22d3ee;
+    --glass: rgba(255,255,255,0.08);
+    --glass-b: rgba(255,255,255,0.14);
+    --txt-dim: rgba(255,255,255,0.55);
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     height: 100%; overflow: hidden; overscroll-behavior: none;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
     color: #fff; background: #120b1f;
+    -webkit-user-select: none; user-select: none;
   }
+  button { font-family: inherit; color: inherit; }
   body::before {
     content: ''; position: fixed; inset: 0; z-index: -1;
     background:
-      radial-gradient(ellipse at 20% 10%, #6d28d9 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, #db2777 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 90%, #0891b2 0%, transparent 50%),
-      linear-gradient(165deg, #120b1f 0%, #0a0614 100%);
+      radial-gradient(ellipse at 15% 8%, rgba(109,40,217,.85) 0%, transparent 52%),
+      radial-gradient(ellipse at 90% 18%, rgba(219,39,119,.65) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 95%, rgba(8,145,178,.7) 0%, transparent 52%),
+      linear-gradient(165deg, #150c25 0%, #0a0614 100%);
   }
   .app {
     height: 100vh; height: 100dvh;
@@ -29,972 +38,1149 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .sets-wrapper {
-    flex: 1 1 auto;
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    min-height: 0;
+  /* ===== Topbar ===== */
+  .topbar {
+    flex: 0 0 auto; display: flex; align-items: center; gap: .4rem;
+    padding: .45rem .6rem .3rem;
   }
-  .sets-wrapper::-webkit-scrollbar { display: none; }
+  .chips {
+    flex: 1; display: flex; gap: .35rem; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; max-width: 11rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: .42rem .8rem; border-radius: 999px; font-size: .78rem; font-weight: 600;
+    background: var(--glass); border: 1px solid var(--glass-b);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: rgba(255,255,255,.75);
+  }
+  .chip.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #032015; border-color: transparent; box-shadow: 0 4px 14px rgba(74,222,128,.35);
+  }
+  .chip.add { color: var(--accent); font-size: 1rem; padding: .3rem .8rem; }
+  .icon-btn {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 12px;
+    background: var(--glass); border: 1px solid var(--glass-b); font-size: 1.1rem; font-weight: 700;
+  }
 
-  .set-page {
-    flex: 0 0 100%;
-    scroll-snap-align: center;
-    display: flex;
-    flex-direction: column;
-    padding: 0.3rem 0.55rem 0.1rem;
-    gap: 0.2rem;
-    height: 100%;
-    overflow: hidden;
+  /* ===== Stage ===== */
+  .stage-meta {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+    padding: .1rem .85rem .25rem;
   }
-
-  .set-header {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.15rem 0.2rem 0.25rem;
-  }
-  .set-name {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #fff;
-  }
+  .set-name { font-size: .95rem; font-weight: 700; letter-spacing: .2px; }
   .set-theme {
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.8);
+    font-size: .66rem; font-weight: 700; padding: .18rem .55rem; border-radius: 999px;
+    background: rgba(255,255,255,.1);
   }
-
-  .slots-container {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.22rem;
-    min-height: 0;
-    overflow: hidden;
+  .stage {
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+    padding: 0 .55rem .25rem;
   }
+  .slots { flex: 1; display: flex; flex-direction: column; gap: .3rem; min-height: 0; }
+  .row { display: flex; gap: .3rem; min-height: 0; }
 
   .slot {
-    position: relative;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-radius: 13px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-  }
-  .slot.active {
-    border-color: #4ade80;
-    background: rgba(74,222,128,0.12);
-  }
-  .slot img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-  }
-  .slot .placeholder {
-    color: rgba(255,255,255,0.28);
-    font-size: 0.72rem;
-    font-weight: 500;
-    text-align: center;
-    padding: 0.25rem;
-  }
-  .slot .label {
-    position: absolute; top: 4px; left: 6px;
-    font-size: 0.55rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    background: rgba(0,0,0,0.5);
-    padding: 0.08rem 0.3rem;
-    border-radius: 5px;
-    pointer-events: none;
-  }
-  .slot-arrows {
-    position: absolute; bottom: 4px; left: 0; right: 0;
-    display: none; justify-content: space-between;
-    padding: 0 5px;
-    pointer-events: none;
-  }
-  .slot.active .slot-arrows { display: flex; }
-  .slot-arrows button {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(0,0,0,0.75);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff; font-size: 1rem;
+    position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden;
+    border-radius: 16px; border: 2px solid transparent;
+    background: linear-gradient(160deg, #ffffff 0%, #ebe6f4 100%);
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
     display: flex; align-items: center; justify-content: center;
-    pointer-events: auto;
+    touch-action: pan-y;
+    transition: border-color .15s, transform .15s;
+  }
+  .slot.thin { min-height: 38px; }
+  .slot.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,222,128,.25), 0 6px 18px rgba(0,0,0,.35); }
+  .slot.locked { border-color: #fbbf24; }
+  .slot .art { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 6px; }
+  .slot .art img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; animation: pop .22s ease; }
+  .slot.thin .art { padding: 2px; }
+  @keyframes pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  .slot.from-l .art img { animation: inl .22s ease; }
+  .slot.from-r .art img { animation: inr .22s ease; }
+  @keyframes inl { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+  @keyframes inr { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+  .placeholder { color: #8b84a0; font-size: .74rem; font-weight: 600; text-align: center; padding: .3rem; line-height: 1.3; }
+  .placeholder b { display: block; font-size: 1.3rem; color: #6d28d9; }
+  .slot .label {
+    position: absolute; top: 5px; left: 6px; z-index: 2;
+    font-size: .56rem; font-weight: 700; letter-spacing: .3px;
+    color: #fff; background: rgba(20,12,36,.72);
+    padding: .1rem .38rem; border-radius: 6px; pointer-events: none;
+  }
+  .slot .count {
+    position: absolute; bottom: 5px; right: 6px; z-index: 2;
+    font-size: .56rem; font-weight: 700; color: #fff; background: rgba(20,12,36,.72);
+    padding: .1rem .38rem; border-radius: 6px; pointer-events: none;
+  }
+  .slot.thin .count { display: none; }
+  .slot .lock {
+    position: absolute; top: 3px; right: 4px; z-index: 3; width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: rgba(20,12,36,.6); font-size: .72rem; display: none;
+  }
+  .slot.active .lock, .slot.locked .lock { display: block; }
+  .slot.locked .lock { background: #fbbf24; }
+  .slot .arrows {
+    position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+    display: none; justify-content: space-between; padding: 0 5px; z-index: 3; pointer-events: none;
+  }
+  .slot.active .arrows { display: flex; }
+  .slot.thin .arrows { display: none; }
+  .arrows button {
+    width: 30px; height: 30px; border-radius: 50%; border: none;
+    background: rgba(20,12,36,.7); font-size: 1.1rem; pointer-events: auto;
   }
 
-  .slot.flex-1 { flex: 1 1 0; }
-  .slot.flex-2 { flex: 2 1 0; }
-  .slot.thin   { flex: 0 0 8.5%; min-height: 34px; max-height: 48px; }
-
-  .row {
-    display: flex;
-    gap: 0.22rem;
-    min-height: 0;
-  }
-  .row.flex-1 { flex: 1 1 0; }
-  .row.flex-2 { flex: 2 1 0; }
-  .row.flex-3 { flex: 3 1 0; }
-
-  .set-dots {
-    flex: 0 0 auto;
-    display: flex; justify-content: center; gap: 6px;
-    padding: 0.1rem 0 0.05rem;
-  }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-  }
-  .dot.active { background: #4ade80; }
-
+  /* ===== Closet ===== */
   .closet {
-    flex: 0 0 auto;
-    margin: 0.08rem 0.45rem 0.22rem;
-    background: rgba(255,255,255,0.07);
-    border-radius: 15px;
-    padding: 0.32rem;
-    border: 1px solid rgba(255,255,255,0.1);
+    flex: 0 0 auto; margin: .1rem .5rem .3rem; padding: .45rem .5rem .5rem;
+    background: rgba(255,255,255,.08); border: 1px solid var(--glass-b); border-radius: 20px;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   }
-  .closet-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0.22rem; padding: 0 0.08rem;
+  .actions { display: flex; gap: .3rem; margin-bottom: .35rem; }
+  .actions button {
+    flex: 1; height: 36px; border-radius: 11px; border: none; font-size: .72rem; font-weight: 700;
+    background: rgba(255,255,255,.12);
   }
-  .closet-title {
-    font-size: 0.65rem; font-weight: 600;
-    color: rgba(255,255,255,0.5);
-  }
-  .closet-actions {
-    display: flex; gap: 0.25rem;
-  }
-  .closet-actions button {
-    height: 27px; padding: 0 0.5rem;
-    border-radius: 8px; font-size: 0.65rem; font-weight: 600;
-    border: none; background: rgba(255,255,255,0.12); color: #fff;
-  }
-  .closet-actions button.green { background: #4ade80; color: #062; }
-  .closet-actions button.blue  { background: #60a5fa; color: #fff; }
-  .closet-actions button.purple { background: #a78bfa; color: #fff; }
-
-  .cat-tabs {
-    display: flex; gap: 0.2rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    margin-bottom: 0.22rem;
-  }
+  .actions .magic { background: linear-gradient(135deg, #a78bfa, #ec4899); }
+  .actions .dice  { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+  .actions .photo { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #032015; }
+  .actions .parts { background: rgba(96,165,250,.85); }
+  .cat-tabs { display: flex; gap: .22rem; overflow-x: auto; scrollbar-width: none; margin-bottom: .3rem; }
   .cat-tabs::-webkit-scrollbar { display: none; }
   .cat-tab {
-    flex: 0 0 auto;
-    padding: 0.25rem 0.5rem;
-    border-radius: 8px;
-    font-size: 0.65rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    background: transparent; border: none;
+    flex: 0 0 auto; padding: .26rem .55rem; border-radius: 9px; border: none;
+    font-size: .66rem; font-weight: 700; color: var(--txt-dim); background: transparent;
   }
-  .cat-tab.active {
-    background: rgba(255,255,255,0.16);
-    color: #fff;
-  }
-  .items-row {
-    display: flex; gap: 0.25rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    min-height: 48px;
-  }
+  .cat-tab.active { background: rgba(255,255,255,.18); color: #fff; }
+  .items-row { display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none; min-height: 54px; }
   .items-row::-webkit-scrollbar { display: none; }
   .thumb {
-    flex: 0 0 auto; width: 46px; height: 46px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.06);
-    overflow: hidden; position: relative;
-    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; width: 54px; height: 54px; border-radius: 12px; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #fff, #ebe6f4); border: 2px solid transparent;
   }
-  .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
+  .thumb.sel { border-color: var(--accent); }
+  .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 3px; pointer-events: none; }
   .thumb .del {
-    position: absolute; top: 1px; right: 1px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: rgba(0,0,0,0.75); color: #fff;
-    border: none; font-size: 0.48rem;
-    display: flex; align-items: center; justify-content: center;
+    position: absolute; top: 2px; right: 2px; width: 17px; height: 17px; border-radius: 50%; border: none;
+    background: rgba(20,12,36,.8); color: #fff; font-size: .6rem; line-height: 1;
   }
+  .thumb .dot { position: absolute; left: 3px; bottom: 3px; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
   .add-thumb {
-    flex: 0 0 auto; width: 46px; height: 46px;
-    border-radius: 10px;
-    border: 1.5px dashed rgba(255,255,255,0.28);
-    background: rgba(255,255,255,0.04);
-    color: #4ade80; font-size: 1.2rem;
-    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; width: 54px; height: 54px; border-radius: 12px; border: 1.5px dashed rgba(255,255,255,.35);
+    background: rgba(255,255,255,.05); color: var(--accent); font-size: 1.4rem;
   }
+  .empty-hint { align-self: center; color: var(--txt-dim); font-size: .75rem; padding: 0 .5rem; }
 
-  /* Modals */
+  /* ===== Modals ===== */
   .modal {
-    position: fixed; inset: 0; z-index: 100;
-    display: none; flex-direction: column;
-    background: rgba(8,5,18,0.97);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
+    background: rgba(8,5,18,.97);
+    padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
   }
-  .modal.open { display: flex; }
-  .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.65rem 1rem;
-  }
-  .modal-header h3 { font-size: 1.02rem; font-weight: 600; }
+  .modal.open { display: flex; animation: fadein .18s ease; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: .7rem 1rem; gap: .5rem; }
+  .modal-header h3 { font-size: 1.02rem; font-weight: 700; text-align: center; flex: 1; }
   .modal-header button {
-    height: 36px; padding: 0 0.85rem; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.1); color: #fff; font-weight: 600;
+    min-width: 80px; height: 36px; padding: 0 .85rem; border-radius: 11px;
+    border: 1px solid var(--glass-b); background: rgba(255,255,255,.1); font-weight: 600; font-size: .85rem;
   }
-  .batch-info {
-    text-align: center; font-size: 0.78rem; color: #4ade80;
-    font-weight: 600; padding: 0.15rem 0;
-  }
-  .preview-area {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 0.5rem 1.1rem; overflow: hidden; min-height: 0;
-  }
-  .preview-area img {
-    max-width: 100%; max-height: 100%;
-    object-fit: contain; border-radius: 13px;
-  }
-  .hint {
-    text-align: center; font-size: 0.75rem;
-    color: rgba(255,255,255,0.5); padding: 0.25rem 1rem 0.4rem;
-  }
-  .cat-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem; padding: 0 0.9rem 0.5rem;
-  }
+  .hint { text-align: center; font-size: .78rem; color: var(--txt-dim); padding: .2rem 1rem .5rem; }
+  .batch-info { text-align: center; font-size: .8rem; color: var(--accent); font-weight: 700; }
+  .preview-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: .5rem 1.1rem; min-height: 0; }
+  .preview-area img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 14px; background: #fff; }
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; padding: 0 .9rem .5rem; }
   .cat-grid button {
-    padding: 0.65rem 0.15rem; border-radius: 12px;
-    background: rgba(255,255,255,0.09);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff; font-size: 0.75rem; font-weight: 600;
+    padding: .62rem .15rem; border-radius: 12px; font-size: .72rem; font-weight: 600;
+    background: rgba(255,255,255,.09); border: 1px solid var(--glass-b);
   }
-  .cat-grid button.selected {
-    background: #4ade80; color: #062; border-color: transparent;
-  }
-  .modal-bottom {
-    padding: 0.4rem 1rem 1rem;
-  }
-  .modal-bottom button {
-    width: 100%; height: 52px; border-radius: 13px; border: none;
-    background: linear-gradient(135deg, #4ade80, #22c55e);
-    color: #04210f; font-size: 1.05rem; font-weight: 700;
-  }
+  .cat-grid button.selected { background: var(--accent); color: #032015; border-color: transparent; }
+  .modal-bottom { display: flex; gap: .4rem; padding: .4rem 1rem 1rem; }
+  .modal-bottom button { height: 52px; border-radius: 14px; border: none; font-size: 1.02rem; font-weight: 700; }
+  .modal-bottom .primary { flex: 1; background: linear-gradient(135deg, var(--accent), #22c55e); color: #04210f; }
+  .modal-bottom .ghost { flex: 0 0 30%; background: rgba(255,255,255,.12); font-size: .9rem; }
 
-  /* Theme / New Set Modal */
-  .theme-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem 1rem;
-  }
+  .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; padding: .5rem 1rem 1rem; }
   .theme-card {
-    padding: 1.1rem 0.7rem;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.95rem;
+    padding: 1.1rem .7rem; border-radius: 16px; background: rgba(255,255,255,.08);
+    border: 1.5px solid var(--glass-b); text-align: center; font-weight: 700; font-size: .95rem;
   }
-  .theme-card:active { transform: scale(0.97); }
-  .theme-card .emoji { font-size: 1.6rem; display: block; margin-bottom: 0.35rem; }
-  .theme-card.classic { border-color: #d4a373; }
-  .theme-card.sport   { border-color: #4ade80; }
-  .theme-card.elegant { border-color: #c084fc; }
-  .theme-card.casual  { border-color: #60a5fa; }
-  .theme-card.color   { border-color: #f472b6; }
-  .theme-card.empty   { border-color: rgba(255,255,255,0.25); }
+  .theme-card:active { transform: scale(.97); }
+  .theme-card .emoji { font-size: 1.7rem; display: block; margin-bottom: .35rem; }
 
-  .parts-list {
-    flex: 1; overflow-y: auto; padding: 0.4rem 1rem;
-  }
+  .list { flex: 1; overflow-y: auto; padding: .4rem 1rem 1rem; -webkit-overflow-scrolling: touch; }
   .part-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.8rem 0.85rem;
-    margin-bottom: 0.35rem;
-    background: rgba(255,255,255,0.07);
-    border-radius: 12px;
-    border: 1.5px solid rgba(255,255,255,0.1);
+    padding: .8rem .9rem; margin-bottom: .4rem; background: rgba(255,255,255,.07);
+    border-radius: 13px; border: 1.5px solid rgba(255,255,255,.1);
   }
-  .part-item.on {
-    border-color: #4ade80;
-    background: rgba(74,222,128,0.12);
-  }
-  .part-item span { font-size: 0.92rem; font-weight: 600; }
-  .part-item .toggle {
-    width: 46px; height: 27px; border-radius: 14px;
-    background: rgba(255,255,255,0.15);
-    position: relative; border: none;
-  }
-  .part-item.on .toggle { background: #4ade80; }
-  .part-item .toggle::after {
-    content: '';
-    position: absolute; top: 3px; left: 3px;
-    width: 21px; height: 21px; border-radius: 50%;
-    background: #fff; transition: transform 0.15s;
-  }
+  .part-item.on { border-color: var(--accent); background: rgba(74,222,128,.12); }
+  .part-item span { font-size: .92rem; font-weight: 600; }
+  .toggle { width: 46px; height: 27px; border-radius: 14px; background: rgba(255,255,255,.18); position: relative; flex: 0 0 auto; }
+  .part-item.on .toggle { background: var(--accent); }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; transition: transform .15s; }
   .part-item.on .toggle::after { transform: translateX(19px); }
+
+  .menu-btn {
+    width: 100%; text-align: left; padding: .95rem 1rem; margin-bottom: .4rem; border-radius: 13px;
+    background: rgba(255,255,255,.08); border: 1px solid var(--glass-b); font-size: .95rem; font-weight: 600;
+  }
+  .menu-btn.danger { color: #fca5a5; }
+
+  .looks { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+  .look { background: rgba(255,255,255,.07); border: 1px solid var(--glass-b); border-radius: 16px; padding: .6rem; display: flex; flex-direction: column; gap: .45rem; }
+  .look-top { display: flex; justify-content: space-between; align-items: center; gap: .3rem; }
+  .look-top b { font-size: .8rem; }
+  .look-top span { font-size: .66rem; color: var(--accent); font-weight: 700; white-space: nowrap; }
+  .look-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .look-tiles div { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg,#fff,#ebe6f4); }
+  .look-tiles img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
+  .look-actions { display: flex; gap: .3rem; }
+  .look-actions button { flex: 1; height: 32px; border-radius: 9px; border: none; font-size: .7rem; font-weight: 700; background: rgba(255,255,255,.14); }
+  .look-actions button.go { background: var(--accent); color: #032015; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 170px); transform: translateX(-50%) translateY(20px);
+    background: rgba(20,12,36,.95); border: 1px solid var(--glass-b); padding: .55rem 1rem; border-radius: 999px;
+    font-size: .8rem; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s; z-index: 200; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+<input type="file" id="importInput" accept="application/json,.json" style="display:none">
 
 <div class="app">
-  <div class="sets-wrapper" id="setsWrapper"></div>
-  <div class="set-dots" id="setDots"></div>
+  <div class="topbar">
+    <div class="chips" id="chips"></div>
+    <button class="icon-btn" id="btn-menu" aria-label="Menü">⋯</button>
+  </div>
+  <div class="stage-meta">
+    <div class="set-name" id="setName"></div>
+    <div class="set-theme" id="setTheme"></div>
+  </div>
+  <div class="stage" id="stage"></div>
 
   <div class="closet">
-    <div class="closet-header">
-      <div class="closet-title">KLEIDERSCHRANK</div>
-      <div class="closet-actions">
-        <button id="btn-parts" class="blue">Teile</button>
-        <button id="btn-new-set" class="purple">+ Set</button>
-        <button id="btn-add" class="green">+ Foto</button>
-      </div>
+    <div class="actions">
+      <button class="dice" id="btn-shuffle">🎲 Zufall</button>
+      <button class="magic" id="btn-looks">✨ Looks</button>
+      <button class="parts" id="btn-parts">Teile</button>
+      <button class="photo" id="btn-add">+ Foto</button>
     </div>
     <div class="cat-tabs" id="catTabs"></div>
     <div class="items-row" id="closetRow"></div>
   </div>
 </div>
 
-<!-- Add Modal -->
+<!-- Foto-Kategorie -->
 <div class="modal" id="modal">
   <div class="modal-header">
     <button id="btn-cancel">Abbrechen</button>
     <h3>Kategorie wählen</h3>
-    <div style="width:80px"></div>
+    <div style="min-width:80px"></div>
   </div>
   <div class="batch-info" id="batchInfo" style="display:none"></div>
   <div class="preview-area"><img id="previewImg" alt=""></div>
   <div class="hint">Was ist das für ein Kleidungsstück?</div>
   <div class="cat-grid" id="catGrid"></div>
-  <div class="modal-bottom"><button id="btn-save">Speichern</button></div>
+  <div class="modal-bottom">
+    <button class="ghost" id="btn-skip">Überspringen</button>
+    <button class="primary" id="btn-save">Speichern</button>
+  </div>
 </div>
 
-<!-- Neues Set Modal -->
+<!-- Neues Set -->
 <div class="modal" id="newSetModal">
   <div class="modal-header">
     <button id="btn-newset-cancel">Abbrechen</button>
     <h3>Neues Outfit-Set</h3>
-    <div style="width:80px"></div>
+    <div style="min-width:80px"></div>
   </div>
-  <div class="hint">Wähle einen Stil – das Set wird danach gespeichert</div>
+  <div class="hint">Wähle einen Stil für das neue Set</div>
   <div class="theme-grid" id="themeGrid"></div>
 </div>
 
-<!-- Teile Modal -->
+<!-- Teile -->
 <div class="modal" id="partsModal">
   <div class="modal-header">
     <button id="btn-parts-cancel">Fertig</button>
-    <h3>Teile für dieses Set</h3>
-    <div style="width:70px"></div>
+    <h3>Teile in diesem Set</h3>
+    <div style="min-width:80px"></div>
   </div>
-  <div class="hint">Welche Kleidungsstücke sollen in diesem Outfit sichtbar sein?</div>
-  <div class="parts-list" id="partsList"></div>
+  <div class="hint">Welche Kleidungsstücke sollen im Outfit sichtbar sein?</div>
+  <div class="list" id="partsList"></div>
 </div>
 
+<!-- Looks -->
+<div class="modal" id="looksModal">
+  <div class="modal-header">
+    <button id="btn-looks-close">Fertig</button>
+    <h3>✨ Look-Vorschläge</h3>
+    <button id="btn-looks-again">Neu mischen</button>
+  </div>
+  <div class="hint" id="looksHint">Passende Kombinationen aus deinem Schrank – nach Farben und Stil bewertet</div>
+  <div class="list"><div class="looks" id="looksGrid"></div></div>
+</div>
+
+<!-- Menü -->
+<div class="modal" id="menuModal">
+  <div class="modal-header">
+    <button id="btn-menu-close">Fertig</button>
+    <h3>Menü</h3>
+    <div style="min-width:80px"></div>
+  </div>
+  <div class="list" id="menuList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+/* ===================== Konfiguration ===================== */
 const CATEGORIES = {
-  jacke:    { emoji: '🧥', label: 'Jacke/Mantel', slot: 'jacke' },
-  bluse:    { emoji: '👚', label: 'Bluse/Hemd',   slot: 'bluse' },
-  pullover: { emoji: '🧶', label: 'Pullover',     slot: 'bluse' },
-  tshirt:   { emoji: '👕', label: 'T-Shirt',      slot: 'bluse' },
-  gurtel:   { emoji: '🎗️', label: 'Gürtel',       slot: 'gurtel' },
-  hose:     { emoji: '👖', label: 'Hose/Jeans',   slot: 'hose' },
-  rock:     { emoji: '👗', label: 'Rock',         slot: 'hose' },
-  shorts:   { emoji: '🩳', label: 'Shorts',       slot: 'hose' },
-  tasche:   { emoji: '👜', label: 'Tasche',       slot: 'tasche' },
-  schuhe:   { emoji: '👟', label: 'Schuhe',       slot: 'schuhe' },
+  jacke:     { emoji: '🧥', label: 'Jacke/Mantel', short: 'Jacke',    slot: 'jacke' },
+  bluse:     { emoji: '👚', label: 'Bluse/Hemd',   short: 'Bluse',    slot: 'bluse' },
+  tshirt:    { emoji: '👕', label: 'T-Shirt',      short: 'T-Shirt',  slot: 'bluse' },
+  pullover:  { emoji: '🧶', label: 'Pullover',     short: 'Pullover', slot: 'bluse' },
+  hose:      { emoji: '👖', label: 'Hose/Jeans',   short: 'Hose',     slot: 'hose' },
+  rock:      { emoji: '👗', label: 'Rock',         short: 'Rock',     slot: 'hose' },
+  kleid:     { emoji: '👘', label: 'Kleid',        short: 'Kleid',    slot: 'hose' },
+  shorts:    { emoji: '🩳', label: 'Shorts',       short: 'Shorts',   slot: 'hose' },
+  gurtel:    { emoji: '🎗️', label: 'Gürtel',       short: 'Gürtel',   slot: 'gurtel' },
+  tasche:    { emoji: '👜', label: 'Tasche',       short: 'Tasche',   slot: 'tasche' },
+  schuhe:    { emoji: '👟', label: 'Schuhe',       short: 'Schuhe',   slot: 'schuhe' },
+  accessoire:{ emoji: '🧣', label: 'Accessoire',   short: 'Acc.',     slot: 'acc' },
 };
-
-const ALL_SLOTS = ['jacke', 'bluse', 'gurtel', 'hose', 'tasche', 'schuhe'];
-const SLOT_TO_CATS = {
-  jacke:  ['jacke'],
-  bluse:  ['bluse', 'pullover', 'tshirt'],
-  gurtel: ['gurtel'],
-  hose:   ['hose', 'rock', 'shorts'],
-  tasche: ['tasche'],
-  schuhe:  ['schuhe'],
-};
+const ALL_SLOTS = ['jacke', 'bluse', 'gurtel', 'hose', 'tasche', 'schuhe', 'acc'];
+const SLOT_TO_CATS = {};
+Object.entries(CATEGORIES).forEach(([k, v]) => (SLOT_TO_CATS[v.slot] = SLOT_TO_CATS[v.slot] || []).push(k));
 const SLOT_LABELS = {
-  jacke:  'Jacke / Mantel',
-  bluse:  'Bluse / Hemd',
-  gurtel: 'Gürtel',
-  hose:   'Hose / Jeans / Rock',
-  tasche: 'Tasche',
-  schuhe:  'Schuhe',
+  jacke: 'Jacke / Mantel', bluse: 'Oberteil', gurtel: 'Gürtel',
+  hose: 'Hose / Rock / Kleid', tasche: 'Tasche', schuhe: 'Schuhe', acc: 'Accessoire'
 };
-
 const THEMES = {
-  classic: { emoji: '👔', label: 'Klassisch', slots: ['jacke','bluse','gurtel','hose','schuhe'], color: '#d4a373' },
-  sport:   { emoji: '🏃', label: 'Sportlich', slots: ['bluse','hose','schuhe','tasche'], color: '#4ade80' },
-  elegant: { emoji: '✨', label: 'Elegant',  slots: ['bluse','gurtel','hose','tasche','schuhe'], color: '#c084fc' },
-  casual:  { emoji: '👟', label: 'Casual',   slots: ['bluse','hose','tasche','schuhe'], color: '#60a5fa' },
-  color:   { emoji: '🎨', label: 'Farbe',    slots: ['bluse','hose','tasche','schuhe'], color: '#f472b6' },
-  empty:   { emoji: '➕', label: 'Leer',     slots: ['bluse','hose'], color: '#94a3b8' },
+  classic: { emoji: '👔', label: 'Klassisch', slots: ['jacke','bluse','gurtel','hose','schuhe'], color: '#d4a373', pref: ['bluse','hose','jacke','gurtel'] },
+  sport:   { emoji: '🏃', label: 'Sportlich', slots: ['bluse','hose','schuhe','tasche'], color: '#4ade80', pref: ['tshirt','shorts','pullover'] },
+  elegant: { emoji: '✨', label: 'Elegant',   slots: ['jacke','bluse','hose','tasche','schuhe'], color: '#c084fc', pref: ['bluse','rock','kleid','jacke'] },
+  casual:  { emoji: '👟', label: 'Casual',    slots: ['bluse','hose','tasche','schuhe'], color: '#60a5fa', pref: ['tshirt','pullover','hose'] },
+  color:   { emoji: '🎨', label: 'Farbe',     slots: ['bluse','hose','tasche','schuhe','acc'], color: '#f472b6', pref: [] },
+  empty:   { emoji: '➕', label: 'Leer',      slots: ['bluse','hose'], color: '#94a3b8', pref: [] },
 };
+const SETS_KEY = 'ob_s_v13';
+const DB_NAME = 'outfit_db';
 
-const WARDROBE_KEY = 'ob_w_v12';
-const SETS_KEY     = 'ob_s_v12';
-const MAX_ITEMS    = 14;
-
+/* ===================== Zustand ===================== */
 let wardrobe = [];
 let sets = [];
 let activeSetIndex = 0;
-let activeFilter = null;
+let activeFilter = 'all';
+let activeSlot = null;
 let pendingImages = [];
 let pendingIndex = 0;
 let pendingCategory = 'bluse';
+let currentLooks = [];
+let db = null;
 
+const $ = (id) => document.getElementById(id);
+const el = {
+  chips: $('chips'), stage: $('stage'), setName: $('setName'), setTheme: $('setTheme'),
+  catTabs: $('catTabs'), closetRow: $('closetRow'), modal: $('modal'), newSetModal: $('newSetModal'),
+  partsModal: $('partsModal'), looksModal: $('looksModal'), menuModal: $('menuModal'),
+  previewImg: $('previewImg'), catGrid: $('catGrid'), batchInfo: $('batchInfo'),
+  fileInput: $('fileInput'), importInput: $('importInput'), btnSave: $('btn-save'),
+  partsList: $('partsList'), themeGrid: $('themeGrid'), looksGrid: $('looksGrid'), menuList: $('menuList'),
+  toast: $('toast')
+};
+
+function toast(msg) {
+  el.toast.textContent = msg;
+  el.toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.toast.classList.remove('show'), 1900);
+}
+function uid(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+/* ===================== Speicher (IndexedDB für Bilder) ===================== */
+function dbOpen() {
+  return new Promise((resolve) => {
+    try {
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('items', { keyPath: 'id' });
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => resolve(null);
+    } catch (e) { resolve(null); }
+  });
+}
+function dbAll() {
+  return new Promise((resolve) => {
+    if (!db) return resolve([]);
+    try {
+      const rq = db.transaction('items').objectStore('items').getAll();
+      rq.onsuccess = () => resolve(rq.result || []);
+      rq.onerror = () => resolve([]);
+    } catch (e) { resolve([]); }
+  });
+}
+function dbPut(item) {
+  return new Promise((resolve) => {
+    if (!db) return resolve(false);
+    try {
+      const tx = db.transaction('items', 'readwrite');
+      tx.objectStore('items').put(item);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    } catch (e) { resolve(false); }
+  });
+}
+function dbDel(id) {
+  return new Promise((resolve) => {
+    if (!db) return resolve(false);
+    try {
+      const tx = db.transaction('items', 'readwrite');
+      tx.objectStore('items').delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    } catch (e) { resolve(false); }
+  });
+}
 function loadJSON(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
+  try { const raw = localStorage.getItem(key); if (raw) return JSON.parse(raw); } catch (e) {}
   return fallback;
 }
-function saveWardrobe() {
-  if (wardrobe.length > MAX_ITEMS) wardrobe = wardrobe.slice(-MAX_ITEMS);
-  for (let i = 0; i < 8; i++) {
-    try {
-      localStorage.setItem(WARDROBE_KEY, JSON.stringify(wardrobe));
-      return true;
-    } catch (e) {
-      if (wardrobe.length <= 1) { wardrobe = []; return false; }
-      wardrobe.shift();
-    }
-  }
-  return false;
-}
-function saveSets() {
-  try { localStorage.setItem(SETS_KEY, JSON.stringify(sets)); } catch (e) {}
-}
+function saveSets() { try { localStorage.setItem(SETS_KEY, JSON.stringify(sets)); } catch (e) {} }
 
-function createEmptySet(themeKey = 'empty') {
-  const theme = THEMES[themeKey] || THEMES.empty;
+/* ===================== Hilfsfunktionen ===================== */
+function itemsForSlot(slot) {
+  const cats = SLOT_TO_CATS[slot] || [];
+  return wardrobe.filter(w => cats.includes(w.category));
+}
+function createSet(themeKey = 'empty', name) {
+  const t = THEMES[themeKey] || THEMES.empty;
+  const n = sets.filter(s => s.theme === themeKey).length + 1;
   return {
-    id: 'set_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
-    name: theme.label + ' Outfit',
-    theme: themeKey,
-    indices: { jacke:0, bluse:0, gurtel:0, hose:0, tasche:0, schuhe:0 },
-    activeSlots: [...theme.slots]
+    id: uid('set'), name: name || (t.label + ' ' + n), theme: themeKey, fav: false,
+    activeSlots: [...t.slots], sel: {}, locked: {}
   };
 }
+function sortSlots(set) { set.activeSlots.sort((a, b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b)); }
+function normalizeSet(set) {
+  if (!set.activeSlots || !set.activeSlots.length) set.activeSlots = [...THEMES.empty.slots];
+  set.activeSlots = set.activeSlots.filter(s => ALL_SLOTS.includes(s));
+  if (!set.sel) set.sel = {};
+  if (!set.locked) set.locked = {};
+  if (!THEMES[set.theme]) set.theme = 'empty';
+  if (!set.name) set.name = 'Outfit';
+  ALL_SLOTS.forEach(slot => {
+    const items = itemsForSlot(slot);
+    if (!items.length) { set.sel[slot] = null; return; }
+    if (!items.find(i => i.id === set.sel[slot])) set.sel[slot] = items[0].id;
+  });
+}
+function normalizeAll() { sets.forEach(normalizeSet); }
+function currentSet() { return sets[activeSetIndex]; }
+function selItem(set, slot) {
+  const id = set.sel[slot];
+  return id ? wardrobe.find(w => w.id === id) : null;
+}
 
+/* ===================== Bilder & Farben ===================== */
+function analyzeColor(ctxSource, w, h) {
+  const S = 36;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const g = c.getContext('2d');
+  g.drawImage(ctxSource, 0, 0, w, h, 0, 0, S, S);
+  const d = g.getImageData(0, 0, S, S).data;
+  let n = 0, sl = 0, ss = 0, vx = 0, vy = 0;
+  for (let y = 7; y < 29; y++) {
+    for (let x = 7; x < 29; x++) {
+      const i = (y * S + x) * 4;
+      const r = d[i] / 255, gg = d[i + 1] / 255, b = d[i + 2] / 255;
+      const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+      const l = (mx + mn) / 2, dl = mx - mn;
+      const s = dl === 0 ? 0 : dl / (1 - Math.abs(2 * l - 1));
+      if (l > 0.94 && s < 0.14) continue; // weißer Hintergrund
+      let h = 0;
+      if (dl) {
+        if (mx === r) h = ((gg - b) / dl) % 6;
+        else if (mx === gg) h = (b - r) / dl + 2;
+        else h = (r - gg) / dl + 4;
+        h *= 60; if (h < 0) h += 360;
+      }
+      n++; sl += l; ss += s;
+      vx += Math.cos(h * Math.PI / 180) * s; vy += Math.sin(h * Math.PI / 180) * s;
+    }
+  }
+  if (n < 12) return { h: 0, s: 0, l: 0.92 };
+  let hue = Math.atan2(vy, vx) * 180 / Math.PI; if (hue < 0) hue += 360;
+  return { h: Math.round(hue), s: +(ss / n).toFixed(3), l: +(sl / n).toFixed(3) };
+}
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+async function colorFromSrc(src) {
+  const img = await loadImage(src);
+  if (!img) return { h: 0, s: 0, l: 0.5 };
+  return analyzeColor(img, img.width, img.height);
+}
 function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onload = function(ev) {
-      const img = new Image();
-      img.onload = function() {
-        const maxSize = 400;
-        let w = img.width, h = img.height;
-        if (w > maxSize || h > maxSize) {
-          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-          else { w = Math.round(w * maxSize / h); h = maxSize; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.45));
-      };
-      img.onerror = () => resolve(null);
-      img.src = ev.target.result;
+    reader.onload = async (ev) => {
+      const img = await loadImage(ev.target.result);
+      if (!img) return resolve(null);
+      const maxSize = 640;
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const g = canvas.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, w, h);
+      g.drawImage(img, 0, 0, w, h);
+      resolve({ img: canvas.toDataURL('image/jpeg', 0.78), color: analyzeColor(canvas, w, h) });
     };
     reader.onerror = () => resolve(null);
     reader.readAsDataURL(file);
   });
 }
+function cssColor(c) {
+  if (!c) return 'transparent';
+  return `hsl(${c.h}, ${Math.round(c.s * 100)}%, ${Math.round(c.l * 100)}%)`;
+}
 
-const setsWrapper = document.getElementById('setsWrapper');
-const setDots     = document.getElementById('setDots');
-const catTabs     = document.getElementById('catTabs');
-const closetRow   = document.getElementById('closetRow');
-const modal       = document.getElementById('modal');
-const newSetModal = document.getElementById('newSetModal');
-const partsModal  = document.getElementById('partsModal');
-const previewImg  = document.getElementById('previewImg');
-const catGrid     = document.getElementById('catGrid');
-const batchInfo   = document.getElementById('batchInfo');
-const fileInput   = document.getElementById('fileInput');
-const btnSave     = document.getElementById('btn-save');
-const partsList   = document.getElementById('partsList');
-const themeGrid   = document.getElementById('themeGrid');
+/* ===================== Stage (Outfit-Ansicht) ===================== */
+function renderChips() {
+  el.chips.innerHTML = '';
+  sets.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === activeSetIndex ? ' active' : '');
+    b.textContent = (s.fav ? '⭐ ' : '') + s.name;
+    b.onclick = () => { activeSetIndex = i; activeSlot = null; renderAll(); };
+    el.chips.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'chip add';
+  add.textContent = '＋';
+  add.onclick = openNewSetModal;
+  el.chips.appendChild(add);
+  const act = el.chips.querySelector('.chip.active');
+  if (act) act.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
 
-wardrobe = loadJSON(WARDROBE_KEY, []);
-sets = loadJSON(SETS_KEY, [createEmptySet('classic')]);
-if (!sets.length) { sets = [createEmptySet('classic')]; saveSets(); }
-sets.forEach(s => {
-  if (!s.activeSlots) s.activeSlots = [...ALL_SLOTS];
-  if (!s.theme) s.theme = 'empty';
-  if (!s.name) s.name = 'Outfit';
-});
+function makeSlot(slot, flex, thin) {
+  const d = document.createElement('div');
+  d.className = 'slot' + (thin ? ' thin' : '');
+  d.dataset.slot = slot;
+  d.style.flex = flex;
+  d.innerHTML = '<div class="art"></div><div class="label"></div><div class="count"></div>' +
+    '<button class="lock" aria-label="Sperren">🔓</button>' +
+    '<div class="arrows"><button class="prev">‹</button><button class="next">›</button></div>';
+  setupSlot(d, slot);
+  return d;
+}
+function makeRow(flex) {
+  const r = document.createElement('div');
+  r.className = 'row';
+  r.style.flex = flex;
+  return r;
+}
+function renderStage() {
+  const set = currentSet();
+  const has = (s) => set.activeSlots.includes(s);
+  el.stage.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'slots';
 
-/* ===== DYNAMISCHES LAYOUT ===== */
-function buildSlotsHTML(activeSlots) {
-  const has = (s) => activeSlots.includes(s);
-  let html = '<div class="slots-container">';
-
-  const topSlots = [];
-  if (has('jacke')) topSlots.push('jacke');
-  if (has('bluse')) topSlots.push('bluse');
-
-  if (topSlots.length === 2) {
-    html += `<div class="row flex-2">
-      <div class="slot flex-1" data-slot="jacke">
-        <div class="label">${SLOT_LABELS.jacke}</div>
-        <div class="placeholder">${SLOT_LABELS.jacke}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-      <div class="slot flex-2" data-slot="bluse">
-        <div class="label">${SLOT_LABELS.bluse}</div>
-        <div class="placeholder">${SLOT_LABELS.bluse}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
-  } else if (topSlots.length === 1) {
-    const s = topSlots[0];
-    html += `<div class="row flex-2">
-      <div class="slot flex-1" data-slot="${s}">
-        <div class="label">${SLOT_LABELS[s]}</div>
-        <div class="placeholder">${SLOT_LABELS[s]}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
+  const top = ['jacke', 'bluse'].filter(has);
+  if (top.length) {
+    const r = makeRow('2.4 1 0');
+    top.forEach(s => r.appendChild(makeSlot(s, s === 'jacke' ? '1 1 0' : '1.5 1 0')));
+    wrap.appendChild(r);
   }
-
   if (has('gurtel')) {
-    html += `<div class="row" style="flex:0 0 auto;">
-      <div class="slot thin" data-slot="gurtel" style="width:100%">
-        <div class="label">${SLOT_LABELS.gurtel}</div>
-        <div class="placeholder">${SLOT_LABELS.gurtel}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
+    const r = makeRow('0 0 auto');
+    const s = makeSlot('gurtel', '1 1 100%', true);
+    s.style.height = '42px';
+    r.appendChild(s);
+    wrap.appendChild(r);
   }
-
   if (has('hose')) {
-    html += `<div class="row flex-3">
-      <div class="slot flex-1" data-slot="hose">
-        <div class="label">${SLOT_LABELS.hose}</div>
-        <div class="placeholder">${SLOT_LABELS.hose}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
+    const r = makeRow('3 1 0');
+    r.appendChild(makeSlot('hose', '1 1 0'));
+    wrap.appendChild(r);
   }
-
-  const bottomSlots = [];
-  if (has('tasche')) bottomSlots.push('tasche');
-  if (has('schuhe')) bottomSlots.push('schuhe');
-
-  if (bottomSlots.length === 2) {
-    html += `<div class="row flex-1">
-      <div class="slot flex-1" data-slot="tasche">
-        <div class="label">${SLOT_LABELS.tasche}</div>
-        <div class="placeholder">${SLOT_LABELS.tasche}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-      <div class="slot flex-1" data-slot="schuhe">
-        <div class="label">${SLOT_LABELS.schuhe}</div>
-        <div class="placeholder">${SLOT_LABELS.schuhe}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
-  } else if (bottomSlots.length === 1) {
-    const s = bottomSlots[0];
-    html += `<div class="row flex-1">
-      <div class="slot flex-1" data-slot="${s}">
-        <div class="label">${SLOT_LABELS[s]}</div>
-        <div class="placeholder">${SLOT_LABELS[s]}</div>
-        <div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div>
-      </div>
-    </div>`;
+  const bottom = ['tasche', 'schuhe', 'acc'].filter(has);
+  if (bottom.length) {
+    const r = makeRow('1.3 1 0');
+    bottom.forEach(s => r.appendChild(makeSlot(s, '1 1 0')));
+    wrap.appendChild(r);
   }
-
-  html += '</div>';
-  return html;
+  el.stage.appendChild(wrap);
+  wrap.querySelectorAll('.slot').forEach(s => paintSlot(s, set));
 }
 
-function renderSets() {
-  setsWrapper.innerHTML = '';
-  setDots.innerHTML = '';
+function paintSlot(slotEl, set, dir) {
+  const slot = slotEl.dataset.slot;
+  const items = itemsForSlot(slot);
+  const art = slotEl.querySelector('.art');
+  art.innerHTML = '';
+  slotEl.querySelector('.label').textContent = SLOT_LABELS[slot];
+  slotEl.classList.toggle('locked', !!set.locked[slot]);
+  slotEl.classList.toggle('active', activeSlot === slot);
+  slotEl.querySelector('.lock').textContent = set.locked[slot] ? '🔒' : '🔓';
+  slotEl.classList.remove('from-l', 'from-r');
+  if (dir) slotEl.classList.add(dir > 0 ? 'from-r' : 'from-l');
 
-  sets.forEach((set, idx) => {
-    if (!set.activeSlots) set.activeSlots = [...ALL_SLOTS];
-
-    const page = document.createElement('div');
-    page.className = 'set-page';
-    page.dataset.index = idx;
-
-    const theme = THEMES[set.theme] || THEMES.empty;
-    page.innerHTML = `
-      <div class="set-header">
-        <div class="set-name">${set.name || 'Outfit'}</div>
-        <div class="set-theme" style="border:1px solid ${theme.color}55; color:${theme.color}">
-          ${theme.emoji} ${theme.label}
-        </div>
-      </div>
-      ${buildSlotsHTML(set.activeSlots)}
-    `;
-
-    setsWrapper.appendChild(page);
-    fillSlots(page, set);
-    page.querySelectorAll('.slot').forEach(slotEl => setupSlot(slotEl, idx));
-
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (idx === activeSetIndex ? ' active' : '');
-    setDots.appendChild(dot);
-  });
-
-  requestAnimationFrame(() => {
-    setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1);
-  });
-}
-
-function fillSlots(page, set) {
-  page.querySelectorAll('.slot').forEach(slotEl => {
-    const slotName = slotEl.dataset.slot;
-    const cats = SLOT_TO_CATS[slotName] || [];
-    const items = wardrobe.filter(w => cats.includes(w.category));
-
-    const oldImg = slotEl.querySelector('img');
-    const oldPh = slotEl.querySelector('.placeholder');
-    if (oldImg) oldImg.remove();
-    if (oldPh) oldPh.remove();
-
-    if (items.length === 0) {
-      const ph = document.createElement('div');
-      ph.className = 'placeholder';
-      ph.textContent = SLOT_LABELS[slotName] || slotName;
-      slotEl.appendChild(ph);
-      return;
-    }
-
-    let idx = set.indices[slotName] || 0;
-    if (idx < 0 || idx >= items.length) idx = 0;
-    set.indices[slotName] = idx;
-
-    const img = document.createElement('img');
-    img.src = items[idx].img;
-    slotEl.appendChild(img);
-  });
-}
-
-function setupSlot(slotEl, setIdx) {
-  const slotName = slotEl.dataset.slot;
-  let startX = 0, longTimer = null, longPressed = false;
-
-  slotEl.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.slot-arrows')) return;
-    startX = e.clientX;
-    longPressed = false;
-    longTimer = setTimeout(() => {
-      longPressed = true;
-      sets[setIdx].indices[slotName] = 0;
-      saveSets();
-      renderSets();
-      if (navigator.vibrate) navigator.vibrate(25);
-    }, 600);
-    try { slotEl.setPointerCapture(e.pointerId); } catch(e) {}
-  });
-
-  slotEl.addEventListener('pointerup', (e) => {
-    clearTimeout(longTimer);
-    if (longPressed) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 40) {
-      changeVariant(setIdx, slotName, dx > 0 ? 1 : -1);
-      return;
-    }
-    document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
-    slotEl.classList.add('active');
-    activeSetIndex = setIdx;
-  });
-
-  slotEl.addEventListener('pointercancel', () => clearTimeout(longTimer));
-
-  const prevBtn = slotEl.querySelector('.prev');
-  const nextBtn = slotEl.querySelector('.next');
-  if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); changeVariant(setIdx, slotName, -1); };
-  if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); changeVariant(setIdx, slotName, 1); };
-}
-
-function changeVariant(setIdx, slotName, dir) {
-  const set = sets[setIdx];
-  if (!set) return;
-  const cats = SLOT_TO_CATS[slotName] || [];
-  const items = wardrobe.filter(w => cats.includes(w.category));
-  if (items.length < 2) return;
-
-  let idx = (set.indices[slotName] || 0) + dir;
-  idx = (idx + items.length) % items.length;
-  set.indices[slotName] = idx;
-  saveSets();
-  renderSets();
-
-  requestAnimationFrame(() => {
-    const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
-    if (!page) return;
-    const slot = page.querySelector(`.slot[data-slot="${slotName}"]`);
-    if (slot) {
-      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
-      slot.classList.add('active');
-    }
-  });
-}
-
-setsWrapper.addEventListener('scroll', () => {
-  clearTimeout(setsWrapper._timer);
-  setsWrapper._timer = setTimeout(() => {
-    const w = setsWrapper.clientWidth || 1;
-    activeSetIndex = Math.round(setsWrapper.scrollLeft / w);
-    if (activeSetIndex < 0) activeSetIndex = 0;
-    if (activeSetIndex >= sets.length) activeSetIndex = sets.length - 1;
-    setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === activeSetIndex));
-  }, 60);
-});
-
-/* ===== NEUES SET MIT THEMA ===== */
-function openNewSetModal() {
-  themeGrid.innerHTML = '';
-  Object.entries(THEMES).forEach(([key, t]) => {
-    const card = document.createElement('div');
-    card.className = 'theme-card ' + key;
-    card.innerHTML = `<span class="emoji">${t.emoji}</span>${t.label}`;
-    card.onclick = () => {
-      const newSet = createEmptySet(key);
-      sets.push(newSet);
-      saveSets();
-      activeSetIndex = sets.length - 1;
-      newSetModal.classList.remove('open');
-      renderSets();
-      setTimeout(() => {
-        setsWrapper.scrollTo({
-          left: activeSetIndex * setsWrapper.clientWidth,
-          behavior: 'smooth'
-        });
-      }, 50);
-    };
-    themeGrid.appendChild(card);
-  });
-  newSetModal.classList.add('open');
-}
-
-document.getElementById('btn-new-set').onclick = openNewSetModal;
-document.getElementById('btn-newset-cancel').onclick = () => newSetModal.classList.remove('open');
-
-/* ===== TEILE ===== */
-function openPartsModal() {
-  const set = sets[activeSetIndex];
-  if (!set.activeSlots) set.activeSlots = [...ALL_SLOTS];
-
-  partsList.innerHTML = '';
-  ALL_SLOTS.forEach(slot => {
-    const isOn = set.activeSlots.includes(slot);
-    const el = document.createElement('div');
-    el.className = 'part-item' + (isOn ? ' on' : '');
-    el.innerHTML = `<span>${SLOT_LABELS[slot]}</span><button class="toggle"></button>`;
-    el.onclick = () => {
-      const idx = set.activeSlots.indexOf(slot);
-      if (idx >= 0) {
-        if (set.activeSlots.length <= 1) return;
-        set.activeSlots.splice(idx, 1);
-      } else {
-        set.activeSlots.push(slot);
-      }
-      set.activeSlots.sort((a, b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
-      saveSets();
-      openPartsModal();
-    };
-    partsList.appendChild(el);
-  });
-  partsModal.classList.add('open');
-}
-
-document.getElementById('btn-parts').onclick = openPartsModal;
-document.getElementById('btn-parts-cancel').onclick = () => {
-  partsModal.classList.remove('open');
-  renderSets();
-};
-
-/* ===== KLEIDERSCHRANK ===== */
-function renderTabs() {
-  catTabs.innerHTML = '';
-  const order = ['bluse','hose','jacke','gurtel','tasche','schuhe','rock','pullover','tshirt','shorts'];
-  order.forEach(key => {
-    if (!CATEGORIES[key]) return;
-    const btn = document.createElement('button');
-    btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
-    const short = CATEGORIES[key].label.split('/')[0].split(' ')[0];
-    btn.textContent = CATEGORIES[key].emoji + ' ' + short;
-    btn.onclick = () => {
-      activeFilter = (activeFilter === key) ? null : key;
-      renderTabs();
-      renderCloset();
-    };
-    catTabs.appendChild(btn);
-  });
-}
-
-function renderCloset() {
-  closetRow.innerHTML = '';
-  const addBtn = document.createElement('div');
-  addBtn.className = 'add-thumb';
-  addBtn.textContent = '+';
-  addBtn.onclick = startAdd;
-  closetRow.appendChild(addBtn);
-
-  let list = wardrobe;
-  if (activeFilter) list = wardrobe.filter(w => w.category === activeFilter);
-
-  list.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'thumb';
-    const img = document.createElement('img');
-    img.src = item.img;
-    el.appendChild(img);
-
-    const del = document.createElement('button');
-    del.className = 'del';
-    del.textContent = '×';
-    del.onclick = (e) => {
-      e.stopPropagation();
-      if (confirm('Dieses Bild löschen?')) {
-        wardrobe = wardrobe.filter(w => w.id !== item.id);
-        saveWardrobe();
-        renderSets();
-        renderCloset();
-      }
-    };
-    el.appendChild(del);
-
-    el.onclick = () => {
-      const slot = CATEGORIES[item.category]?.slot;
-      if (!slot) return;
-      const cats = SLOT_TO_CATS[slot] || [];
-      const items = wardrobe.filter(w => cats.includes(w.category));
-      const idx = items.findIndex(i => i.id === item.id);
-      if (idx >= 0) {
-        sets[activeSetIndex].indices[slot] = idx;
-        if (!sets[activeSetIndex].activeSlots.includes(slot)) {
-          sets[activeSetIndex].activeSlots.push(slot);
-          sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a)-ALL_SLOTS.indexOf(b));
-        }
-        saveSets();
-        renderSets();
-      }
-    };
-    closetRow.appendChild(el);
-  });
-}
-
-function startAdd() {
-  fileInput.value = '';
-  fileInput.click();
-}
-
-fileInput.addEventListener('change', async function(e) {
-  const files = Array.from(e.target.files || []);
-  if (!files.length) return;
-
-  btnSave.disabled = true;
-  btnSave.textContent = 'Lädt...';
-
-  pendingImages = [];
-  for (const file of files) {
-    const compressed = await compressImage(file);
-    if (compressed) pendingImages.push(compressed);
-  }
-
-  btnSave.disabled = false;
-  btnSave.textContent = 'Speichern';
-  if (!pendingImages.length) return;
-
-  pendingIndex = 0;
-  pendingCategory = activeFilter || 'bluse';
-  showCurrentPending();
-  modal.classList.add('open');
-});
-
-function showCurrentPending() {
-  if (pendingIndex >= pendingImages.length) {
-    modal.classList.remove('open');
-    pendingImages = [];
-    pendingIndex = 0;
-    renderSets();
-    renderCloset();
+  if (!items.length) {
+    const ph = document.createElement('div');
+    ph.className = 'placeholder';
+    ph.innerHTML = '<b>＋</b>Foto hinzufügen';
+    art.appendChild(ph);
+    slotEl.querySelector('.count').textContent = '';
     return;
   }
-  previewImg.src = pendingImages[pendingIndex];
-  if (pendingImages.length > 1) {
-    batchInfo.style.display = 'block';
-    batchInfo.textContent = `Bild ${pendingIndex + 1} von ${pendingImages.length}`;
-  } else {
-    batchInfo.style.display = 'none';
-  }
-  renderCatGrid();
+  const item = selItem(set, slot) || items[0];
+  const idx = items.findIndex(i => i.id === item.id);
+  const img = document.createElement('img');
+  img.src = item.img;
+  art.appendChild(img);
+  slotEl.querySelector('.count').textContent = (idx + 1) + '/' + items.length;
 }
 
-function renderCatGrid() {
-  catGrid.innerHTML = '';
+function setupSlot(slotEl, slot) {
+  let sx = 0, sy = 0, down = false;
+  slotEl.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.arrows button, .lock')) return;
+    sx = e.clientX; sy = e.clientY; down = true;
+  });
+  slotEl.addEventListener('pointerup', (e) => {
+    if (!down) return;
+    down = false;
+    if (e.target.closest('.arrows button, .lock')) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+      changeVariant(slot, dx < 0 ? 1 : -1);
+      return;
+    }
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      if (!itemsForSlot(slot).length) {
+        pendingCategory = SLOT_TO_CATS[slot][0];
+        startAdd();
+        return;
+      }
+      setActiveSlot(slot);
+    }
+  });
+  slotEl.addEventListener('pointercancel', () => { down = false; });
+  slotEl.querySelector('.prev').onclick = (e) => { e.stopPropagation(); changeVariant(slot, -1); };
+  slotEl.querySelector('.next').onclick = (e) => { e.stopPropagation(); changeVariant(slot, 1); };
+  slotEl.querySelector('.lock').onclick = (e) => {
+    e.stopPropagation();
+    const set = currentSet();
+    set.locked[slot] = !set.locked[slot];
+    saveSets();
+    paintSlot(slotEl, set);
+    toast(set.locked[slot] ? 'Gesperrt – bleibt bei Zufall & Looks' : 'Entsperrt');
+    vibrate(15);
+  };
+}
+function setActiveSlot(slot) {
+  activeSlot = slot;
+  el.stage.querySelectorAll('.slot').forEach(s => s.classList.toggle('active', s.dataset.slot === slot));
+}
+function changeVariant(slot, dir) {
+  const set = currentSet();
+  if (set.locked[slot]) { toast('🔒 Dieses Teil ist gesperrt'); return; }
+  const items = itemsForSlot(slot);
+  if (items.length < 2) { if (items.length === 1) toast('Nur 1 Teil in dieser Kategorie'); return; }
+  let idx = items.findIndex(i => i.id === set.sel[slot]);
+  if (idx < 0) idx = 0;
+  idx = (idx + dir + items.length) % items.length;
+  set.sel[slot] = items[idx].id;
+  saveSets();
+  const slotEl = el.stage.querySelector(`.slot[data-slot="${slot}"]`);
+  if (slotEl) { setActiveSlot(slot); paintSlot(slotEl, set, dir); }
+  renderCloset();
+}
+
+function renderMeta() {
+  const set = currentSet();
+  const t = THEMES[set.theme] || THEMES.empty;
+  el.setName.textContent = (set.fav ? '⭐ ' : '') + set.name;
+  el.setTheme.textContent = t.emoji + ' ' + t.label;
+  el.setTheme.style.color = t.color;
+  el.setTheme.style.border = '1px solid ' + t.color + '66';
+}
+
+/* ===================== Kleiderschrank ===================== */
+function renderTabs() {
+  el.catTabs.innerHTML = '';
+  const make = (key, label) => {
+    const b = document.createElement('button');
+    b.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => { activeFilter = key; renderTabs(); renderCloset(); };
+    el.catTabs.appendChild(b);
+  };
+  make('all', 'Alle ' + wardrobe.length);
   Object.keys(CATEGORIES).forEach(key => {
-    const val = CATEGORIES[key];
-    const btn = document.createElement('button');
-    btn.textContent = val.emoji + ' ' + val.label;
-    if (key === pendingCategory) btn.classList.add('selected');
-    btn.onclick = () => { pendingCategory = key; renderCatGrid(); };
-    catGrid.appendChild(btn);
+    const n = wardrobe.filter(w => w.category === key).length;
+    make(key, CATEGORIES[key].emoji + ' ' + CATEGORIES[key].short + (n ? ' ' + n : ''));
+  });
+}
+function renderCloset() {
+  el.closetRow.innerHTML = '';
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-thumb';
+  addBtn.textContent = '+';
+  addBtn.onclick = () => { if (activeFilter !== 'all') pendingCategory = activeFilter; startAdd(); };
+  el.closetRow.appendChild(addBtn);
+
+  const list = activeFilter === 'all' ? wardrobe : wardrobe.filter(w => w.category === activeFilter);
+  if (!list.length) {
+    const h = document.createElement('div');
+    h.className = 'empty-hint';
+    h.textContent = wardrobe.length ? 'Nichts in dieser Kategorie' : 'Mit „+ Foto“ Kleidung hinzufügen';
+    el.closetRow.appendChild(h);
+    return;
+  }
+  const set = currentSet();
+  list.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'thumb' + (set && set.sel[CATEGORIES[item.category].slot] === item.id ? ' sel' : '');
+    const img = document.createElement('img');
+    img.src = item.img;
+    d.appendChild(img);
+    if (item.color) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.background = cssColor(item.color);
+      d.appendChild(dot);
+    }
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = '✕';
+    del.onclick = async (e) => {
+      e.stopPropagation();
+      if (!confirm('Dieses Teil löschen?')) return;
+      wardrobe = wardrobe.filter(w => w.id !== item.id);
+      await dbDel(item.id);
+      normalizeAll(); saveSets();
+      renderAll();
+    };
+    d.appendChild(del);
+    d.onclick = () => {
+      const slot = CATEGORIES[item.category].slot;
+      const s = currentSet();
+      if (s.locked[slot]) { toast('🔒 Dieses Teil ist gesperrt'); return; }
+      s.sel[slot] = item.id;
+      if (!s.activeSlots.includes(slot)) { s.activeSlots.push(slot); sortSlots(s); }
+      saveSets();
+      activeSlot = slot;
+      renderStage(); renderCloset();
+    };
+    el.closetRow.appendChild(d);
   });
 }
 
-btnSave.addEventListener('click', function() {
-  if (!pendingImages[pendingIndex]) return;
-
-  const newItem = {
-    id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
-    img: pendingImages[pendingIndex],
-    category: pendingCategory
-  };
-  wardrobe.push(newItem);
-  saveWardrobe();
-
-  const slot = CATEGORIES[pendingCategory].slot;
-  const cats = SLOT_TO_CATS[slot] || [];
-  const itemsInSlot = wardrobe.filter(w => cats.includes(w.category));
-  sets[activeSetIndex].indices[slot] = Math.max(0, itemsInSlot.length - 1);
-
-  if (!sets[activeSetIndex].activeSlots.includes(slot)) {
-    sets[activeSetIndex].activeSlots.push(slot);
-    sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a)-ALL_SLOTS.indexOf(b));
+/* ===================== Foto hinzufügen ===================== */
+function startAdd() {
+  el.fileInput.value = '';
+  el.fileInput.click();
+}
+el.fileInput.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  el.btnSave.disabled = true;
+  toast('Bilder werden verarbeitet …');
+  pendingImages = [];
+  for (const f of files) {
+    const r = await compressImage(f);
+    if (r) pendingImages.push(r);
   }
-  saveSets();
-
+  el.btnSave.disabled = false;
+  if (!pendingImages.length) { toast('Bild konnte nicht gelesen werden'); return; }
+  pendingIndex = 0;
+  if (activeFilter !== 'all') pendingCategory = activeFilter;
+  showCurrentPending();
+  el.modal.classList.add('open');
+});
+function finishPending() {
+  el.modal.classList.remove('open');
+  pendingImages = []; pendingIndex = 0;
+  normalizeAll(); saveSets();
+  renderAll();
+}
+function showCurrentPending() {
+  if (pendingIndex >= pendingImages.length) { finishPending(); return; }
+  el.previewImg.src = pendingImages[pendingIndex].img;
+  if (pendingImages.length > 1) {
+    el.batchInfo.style.display = 'block';
+    el.batchInfo.textContent = `Bild ${pendingIndex + 1} von ${pendingImages.length}`;
+  } else el.batchInfo.style.display = 'none';
+  renderCatGrid();
+}
+function renderCatGrid() {
+  el.catGrid.innerHTML = '';
+  Object.keys(CATEGORIES).forEach(key => {
+    const v = CATEGORIES[key];
+    const b = document.createElement('button');
+    b.textContent = v.emoji + ' ' + v.label;
+    if (key === pendingCategory) b.classList.add('selected');
+    b.onclick = () => { pendingCategory = key; renderCatGrid(); };
+    el.catGrid.appendChild(b);
+  });
+}
+el.btnSave.addEventListener('click', async () => {
+  const p = pendingImages[pendingIndex];
+  if (!p) return;
+  const item = { id: uid('w'), img: p.img, category: pendingCategory, color: p.color, created: Date.now() };
+  wardrobe.push(item);
+  const ok = await dbPut(item);
+  if (!ok) toast('⚠ Speichern im Browser nicht möglich (privater Modus?)');
+  const slot = CATEGORIES[pendingCategory].slot;
+  const set = currentSet();
+  set.sel[slot] = item.id;
+  if (!set.activeSlots.includes(slot)) { set.activeSlots.push(slot); sortSlots(set); }
   pendingIndex++;
   showCurrentPending();
 });
+$('btn-skip').onclick = () => { pendingIndex++; showCurrentPending(); };
+$('btn-cancel').onclick = () => finishPending();
+$('btn-add').onclick = () => { if (activeFilter !== 'all') pendingCategory = activeFilter; startAdd(); };
 
-document.getElementById('btn-cancel').onclick = () => {
-  modal.classList.remove('open');
-  pendingImages = [];
-  pendingIndex = 0;
-};
+/* ===================== Neues Set ===================== */
+function openNewSetModal() {
+  el.themeGrid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, t]) => {
+    const card = document.createElement('div');
+    card.className = 'theme-card';
+    card.style.borderColor = t.color;
+    card.innerHTML = `<span class="emoji">${t.emoji}</span>${t.label}`;
+    card.onclick = () => {
+      const s = createSet(key);
+      normalizeSet(s);
+      sets.push(s);
+      saveSets();
+      activeSetIndex = sets.length - 1;
+      activeSlot = null;
+      el.newSetModal.classList.remove('open');
+      renderAll();
+    };
+    el.themeGrid.appendChild(card);
+  });
+  el.newSetModal.classList.add('open');
+}
+$('btn-newset-cancel').onclick = () => el.newSetModal.classList.remove('open');
 
-document.getElementById('btn-add').onclick = startAdd;
+/* ===================== Teile ===================== */
+function openPartsModal() {
+  const set = currentSet();
+  el.partsList.innerHTML = '';
+  ALL_SLOTS.forEach(slot => {
+    const isOn = set.activeSlots.includes(slot);
+    const d = document.createElement('div');
+    d.className = 'part-item' + (isOn ? ' on' : '');
+    d.innerHTML = `<span>${SLOT_LABELS[slot]}</span><div class="toggle"></div>`;
+    d.onclick = () => {
+      const i = set.activeSlots.indexOf(slot);
+      if (i >= 0) {
+        if (set.activeSlots.length <= 1) { toast('Mindestens 1 Teil nötig'); return; }
+        set.activeSlots.splice(i, 1);
+      } else set.activeSlots.push(slot);
+      sortSlots(set);
+      saveSets();
+      openPartsModal();
+    };
+    el.partsList.appendChild(d);
+  });
+  el.partsModal.classList.add('open');
+}
+$('btn-parts').onclick = openPartsModal;
+$('btn-parts-cancel').onclick = () => { el.partsModal.classList.remove('open'); renderAll(); };
 
-renderSets();
-renderTabs();
-renderCloset();
-window.addEventListener('resize', () => renderSets());
+/* ===================== Farb-Logik & Looks ===================== */
+function hueDist(a, b) { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); }
+function isNeutral(c) { return !c || c.s < 0.2 || c.l < 0.14 || c.l > 0.88; }
+
+function scoreLook(combo, set) {
+  const slots = Object.keys(combo);
+  const cols = slots.map(s => combo[s].color || { h: 0, s: 0, l: 0.5 });
+  const chrom = cols.filter(c => !isNeutral(c));
+  let name, score;
+  if (chrom.length === 0) { name = 'Neutral & clean'; score = 0.72; }
+  else if (chrom.length === 1) { name = 'Neutral + Akzent'; score = 0.86; }
+  else {
+    let maxd = 0, hasComp = false;
+    for (let i = 0; i < chrom.length; i++) for (let j = i + 1; j < chrom.length; j++) {
+      const d = hueDist(chrom[i].h, chrom[j].h);
+      maxd = Math.max(maxd, d);
+      if (d >= 150 && d <= 210) hasComp = true;
+    }
+    if (maxd <= 30) { name = 'Ton-in-Ton'; score = 0.92; }
+    else if (maxd <= 65) { name = 'Analog'; score = 0.8; }
+    else if (hasComp && chrom.length === 2) { name = 'Komplementär'; score = 0.77; }
+    else if (chrom.length >= 3) { name = 'Bunt gemischt'; score = 0.38; }
+    else { name = 'Kontrast'; score = 0.5; }
+  }
+  if (combo.bluse && combo.hose) {
+    const dl = Math.abs((combo.bluse.color?.l ?? .5) - (combo.hose.color?.l ?? .5));
+    score += Math.min(0.1, dl * 0.25);
+  }
+  const pref = (THEMES[set.theme] || THEMES.empty).pref;
+  Object.values(combo).forEach(it => { if (pref.includes(it.category)) score += 0.04; });
+  score += Math.random() * 0.05;
+  return { name, score: Math.min(score, 0.99) };
+}
+function randomCombo(set, slots) {
+  const combo = {};
+  slots.forEach(slot => {
+    const items = itemsForSlot(slot);
+    if (set.locked[slot]) { const it = selItem(set, slot); if (it) combo[slot] = it; return; }
+    const optional = ['jacke', 'gurtel', 'acc'].includes(slot);
+    if (optional && Math.random() < 0.25 && items.length) return;
+    combo[slot] = items[Math.floor(Math.random() * items.length)];
+  });
+  return combo;
+}
+function generateLooks(set, count, tries) {
+  const slots = set.activeSlots.filter(s => itemsForSlot(s).length > 0);
+  if (slots.length < 2) return [];
+  const map = new Map();
+  for (let i = 0; i < tries; i++) {
+    const combo = randomCombo(set, slots);
+    if (Object.keys(combo).length < 2) continue;
+    const key = Object.keys(combo).sort().map(s => combo[s].id).join('|');
+    if (map.has(key)) continue;
+    const r = scoreLook(combo, set);
+    map.set(key, { combo, name: r.name, score: r.score });
+  }
+  const all = [...map.values()].sort((a, b) => b.score - a.score);
+  const out = [], names = {};
+  for (const l of all) {
+    if ((names[l.name] || 0) >= 2) continue;
+    names[l.name] = (names[l.name] || 0) + 1;
+    out.push(l);
+    if (out.length >= count) break;
+  }
+  for (const l of all) { if (out.length >= count) break; if (!out.includes(l)) out.push(l); }
+  return out;
+}
+function applyCombo(set, combo) {
+  Object.entries(combo).forEach(([slot, item]) => { if (!set.locked[slot]) set.sel[slot] = item.id; });
+  Object.keys(combo).forEach(slot => { if (!set.activeSlots.includes(slot)) set.activeSlots.push(slot); });
+  sortSlots(set);
+}
+
+function shuffleOutfit() {
+  const set = currentSet();
+  const looks = generateLooks(set, 5, 160);
+  if (!looks.length) { toast('Füge mindestens ein Oberteil und ein Unterteil hinzu'); return; }
+  const pick = looks[Math.floor(Math.random() * looks.length)];
+  applyCombo(set, pick.combo);
+  saveSets();
+  activeSlot = null;
+  renderStage(); renderCloset();
+  toast('🎲 ' + pick.name);
+  vibrate(20);
+}
+$('btn-shuffle').onclick = shuffleOutfit;
+
+function openLooks() {
+  const set = currentSet();
+  currentLooks = generateLooks(set, 8, 400);
+  el.looksGrid.innerHTML = '';
+  if (!currentLooks.length) {
+    el.looksGrid.innerHTML = '<div class="hint" style="grid-column:1/-1;padding:2rem 1rem">Füge mindestens ein Oberteil und ein Unterteil hinzu, dann entstehen hier Vorschläge.</div>';
+  }
+  currentLooks.forEach(look => {
+    const card = document.createElement('div');
+    card.className = 'look';
+    const top = document.createElement('div');
+    top.className = 'look-top';
+    top.innerHTML = `<b></b><span>★ ${Math.round(look.score * 100)}%</span>`;
+    top.querySelector('b').textContent = look.name;
+    const tiles = document.createElement('div');
+    tiles.className = 'look-tiles';
+    ALL_SLOTS.filter(s => look.combo[s]).forEach(s => {
+      const t = document.createElement('div');
+      const im = document.createElement('img');
+      im.src = look.combo[s].img;
+      t.appendChild(im);
+      tiles.appendChild(t);
+    });
+    const act = document.createElement('div');
+    act.className = 'look-actions';
+    const go = document.createElement('button');
+    go.className = 'go'; go.textContent = 'Anwenden';
+    go.onclick = () => {
+      applyCombo(set, look.combo); saveSets();
+      el.looksModal.classList.remove('open');
+      activeSlot = null; renderAll();
+      toast('Look angewendet');
+    };
+    const sv = document.createElement('button');
+    sv.textContent = 'Als Set';
+    sv.onclick = () => {
+      const ns = createSet(set.theme, look.name + ' ' + (sets.length + 1));
+      ns.activeSlots = [...new Set([...set.activeSlots, ...Object.keys(look.combo)])];
+      sortSlots(ns);
+      normalizeSet(ns);
+      Object.entries(look.combo).forEach(([slot, item]) => { ns.sel[slot] = item.id; });
+      sets.push(ns); saveSets();
+      sv.textContent = '✓ Gespeichert'; sv.disabled = true;
+      renderChips();
+      toast('Neues Set gespeichert');
+    };
+    act.appendChild(go); act.appendChild(sv);
+    card.appendChild(top); card.appendChild(tiles); card.appendChild(act);
+    el.looksGrid.appendChild(card);
+  });
+  el.looksModal.classList.add('open');
+}
+$('btn-looks').onclick = openLooks;
+$('btn-looks-again').onclick = openLooks;
+$('btn-looks-close').onclick = () => el.looksModal.classList.remove('open');
+
+/* ===================== Menü (Set-Verwaltung & Backup) ===================== */
+function openMenu() {
+  const set = currentSet();
+  el.menuList.innerHTML = '';
+  const add = (text, fn, danger) => {
+    const b = document.createElement('button');
+    b.className = 'menu-btn' + (danger ? ' danger' : '');
+    b.textContent = text;
+    b.onclick = fn;
+    el.menuList.appendChild(b);
+  };
+  add('✏️ Set umbenennen', () => {
+    const n = prompt('Name des Sets:', set.name);
+    if (n && n.trim()) { set.name = n.trim().slice(0, 30); saveSets(); renderChips(); renderMeta(); }
+    el.menuModal.classList.remove('open');
+  });
+  add(set.fav ? '☆ Favorit entfernen' : '⭐ Als Favorit markieren', () => {
+    set.fav = !set.fav; saveSets(); renderChips(); renderMeta();
+    el.menuModal.classList.remove('open');
+  });
+  add('⧉ Set duplizieren', () => {
+    const c = JSON.parse(JSON.stringify(set));
+    c.id = uid('set'); c.name = set.name + ' Kopie'; c.fav = false;
+    sets.splice(activeSetIndex + 1, 0, c);
+    activeSetIndex++; saveSets(); renderAll();
+    el.menuModal.classList.remove('open');
+  });
+  add('🗑 Set löschen', () => {
+    if (!confirm('Set „' + set.name + '“ löschen?')) return;
+    sets.splice(activeSetIndex, 1);
+    if (!sets.length) sets.push(createSet('classic'));
+    activeSetIndex = Math.max(0, Math.min(activeSetIndex, sets.length - 1));
+    normalizeAll(); saveSets(); renderAll();
+    el.menuModal.classList.remove('open');
+  }, true);
+  add('💾 Backup exportieren', exportBackup);
+  add('📂 Backup importieren', () => { el.importInput.value = ''; el.importInput.click(); });
+  el.menuModal.classList.add('open');
+}
+$('btn-menu').onclick = openMenu;
+$('btn-menu-close').onclick = () => el.menuModal.classList.remove('open');
+
+function exportBackup() {
+  const data = JSON.stringify({ v: 13, items: wardrobe, sets });
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'outfit-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Backup erstellt');
+}
+el.importInput.addEventListener('change', async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    let added = 0;
+    for (const it of (data.items || [])) {
+      if (!it.id || !it.img || !CATEGORIES[it.category]) continue;
+      if (wardrobe.find(w => w.id === it.id)) continue;
+      if (!it.color) it.color = await colorFromSrc(it.img);
+      it.created = it.created || Date.now();
+      wardrobe.push(it); await dbPut(it); added++;
+    }
+    (data.sets || []).forEach(s => {
+      if (sets.find(x => x.id === s.id)) return;
+      sets.push(s);
+    });
+    normalizeAll(); saveSets();
+    el.menuModal.classList.remove('open');
+    renderAll();
+    toast(added + ' Teile importiert');
+  } catch (err) { toast('Datei konnte nicht gelesen werden'); }
+});
+
+/* ===================== Start & Migration ===================== */
+async function migrateOld() {
+  if (localStorage.getItem('ob_migrated13')) return;
+  try {
+    const ow = JSON.parse(localStorage.getItem('ob_w_v12') || 'null');
+    const os = JSON.parse(localStorage.getItem('ob_s_v12') || 'null');
+    if (ow && ow.length && !wardrobe.length) {
+      for (let i = 0; i < ow.length; i++) {
+        const o = ow[i];
+        if (!o.img || !CATEGORIES[o.category]) continue;
+        const it = { id: o.id, img: o.img, category: o.category, color: await colorFromSrc(o.img), created: i };
+        wardrobe.push(it); await dbPut(it);
+      }
+      if (os && os.length && !sets.length) {
+        os.forEach(old => {
+          const s = createSet(old.theme || 'empty', old.name);
+          s.activeSlots = old.activeSlots || s.activeSlots;
+          ALL_SLOTS.forEach(slot => {
+            const list = itemsForSlot(slot);
+            const idx = old.indices ? old.indices[slot] : 0;
+            if (list[idx || 0]) s.sel[slot] = list[idx || 0].id;
+          });
+          sets.push(s);
+        });
+      }
+    }
+  } catch (e) {}
+  try { localStorage.setItem('ob_migrated13', '1'); } catch (e) {}
+}
+async function ensureColors() {
+  for (const it of wardrobe) {
+    if (!it.color) { it.color = await colorFromSrc(it.img); dbPut(it); }
+  }
+}
+function renderAll() {
+  renderChips(); renderMeta(); renderStage(); renderTabs(); renderCloset();
+}
+async function init() {
+  db = await dbOpen();
+  wardrobe = (await dbAll()).sort((a, b) => (a.created || 0) - (b.created || 0));
+  sets = loadJSON(SETS_KEY, []);
+  await migrateOld();
+  if (!sets.length) sets = [createSet('classic')];
+  await ensureColors();
+  normalizeAll(); saveSets();
+  activeSetIndex = 0;
+  renderAll();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+}
+init();
 </script>
 </body>
 </html>
