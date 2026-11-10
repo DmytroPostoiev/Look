@@ -198,13 +198,6 @@
     border: none; font-size: 0.48rem;
     display: flex; align-items: center; justify-content: center;
   }
-  .thumb .edit {
-    position: absolute; bottom: 1px; right: 1px;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: rgba(0,0,0,0.75); color: #fff;
-    border: none; font-size: 0.55rem;
-    display: flex; align-items: center; justify-content: center;
-  }
   .add-thumb {
     flex: 0 0 auto; width: 46px; height: 46px;
     border-radius: 10px;
@@ -398,31 +391,29 @@
   </div>
 </div>
 
-<!-- Progress Modal -->
-<div class="modal" id="progressModal" style="align-items:center;justify-content:center;gap:0.8rem;text-align:center">
-  <div class="spinner"></div>
-  <div id="progressText" style="font-size:1.05rem;font-weight:700">Загрузка…</div>
-  <div id="progressSub" style="font-size:0.8rem;color:rgba(255,255,255,0.55)"></div>
-</div>
-
-<!-- Edit Modal -->
-<div class="modal" id="editModal">
+<!-- Add Modal -->
+<div class="modal" id="modal">
   <div class="modal-header">
-    <button id="btn-edit-cancel">Отмена</button>
-    <h3>Изменить вещь</h3>
+    <button id="btn-cancel">Отмена</button>
+    <h3>Добавить вещь</h3>
     <div style="width:70px"></div>
   </div>
   <div class="preview-area">
-    <img id="editImg" alt="">
+    <img id="previewImg" alt="">
+    <div class="bg-overlay" id="bgOverlay">
+      <div class="spinner"></div>
+      <div id="bgStatus">Удаляю фон…</div>
+    </div>
   </div>
   <div class="edit-tools">
     <button id="btn-rotate-left">↺ 90°</button>
     <button id="btn-rotate-right">90° ↻</button>
+    <button id="btn-remove-bg" class="bg-btn">✂️ Убрать фон</button>
   </div>
-  <div class="hint">Категория</div>
-  <div class="cat-grid" id="editCatGrid"></div>
+  <div class="hint">Выбери категорию</div>
+  <div class="cat-grid" id="catGrid"></div>
   <div class="modal-bottom">
-    <button id="btn-edit-save">Сохранить</button>
+    <button id="btn-save">Сохранить</button>
   </div>
 </div>
 
@@ -500,6 +491,12 @@ let wardrobe = [];
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
+let pendingImages = [];
+let pendingIndex = 0;
+let pendingCategory = 'bluse';
+let currentPreviewData = null;
+let currentHasAlpha = false;   // true, если у текущей картинки уже прозрачный фон (PNG)
+let bgJobId = 0;               // защита от гонок при быстрой смене фото
 let removeBackgroundFn = null;
 
 function loadJSON(key, fallback) {
@@ -590,9 +587,18 @@ const setsWrapper = document.getElementById('setsWrapper');
 const setDots = document.getElementById('setDots');
 const catTabs = document.getElementById('catTabs');
 const closetRow = document.getElementById('closetRow');
+const modal = document.getElementById('modal');
 const newSetModal = document.getElementById('newSetModal');
 const partsModal = document.getElementById('partsModal');
 const suggestModal = document.getElementById('suggestModal');
+const previewImg = document.getElementById('previewImg');
+const catGrid = document.getElementById('catGrid');
+const bgOverlay = document.getElementById('bgOverlay');
+const bgStatus = document.getElementById('bgStatus');
+const btnSave = document.getElementById('btn-save');
+const btnRemoveBg = document.getElementById('btn-remove-bg');
+const btnRotL = document.getElementById('btn-rotate-left');
+const btnRotR = document.getElementById('btn-rotate-right');
 const fileInput = document.getElementById('fileInput');
 
 wardrobe = loadJSON(WARDROBE_KEY, []);
@@ -760,149 +766,156 @@ setsWrapper.addEventListener('scroll', () => {
   }, 60);
 });
 
-/* ===== ADD: все выбранные фото обрабатываются сразу, фон удаляется автоматически ===== */
-const progressModal = document.getElementById('progressModal');
-const progressText = document.getElementById('progressText');
-const progressSub = document.getElementById('progressSub');
-
+/* ===== ADD + ROTATE + BG REMOVE ===== */
 function startAdd() {
   fileInput.value = '';
   fileInput.click();
 }
 
-function readAsDataURL(blobOrFile) {
-  return new Promise(res => {
-    const r = new FileReader();
-    r.onload = ev => res(ev.target.result);
-    r.onerror = () => res(null);
-    r.readAsDataURL(blobOrFile);
-  });
+function setBusy(busy) {
+  btnRemoveBg.disabled = busy;
+  btnRotL.disabled = busy;
+  btnRotR.disabled = busy;
+  btnSave.disabled = busy;
+  bgOverlay.classList.toggle('show', busy);
 }
 
-async function removeBgFromDataURL(dataUrl, removeBg) {
-  const srcBlob = await (await fetch(dataUrl)).blob();
-  const blob = await removeBg(srcBlob, {
-    model: 'isnet_quint8',
-    output: { format: 'image/png' }
-  });
-  return readAsDataURL(blob);
+/* Автоматическое удаление фона для текущей картинки в окне добавления */
+async function removeBgFromCurrent() {
+  if (!currentPreviewData || currentHasAlpha) return;
+  const job = ++bgJobId;
+  const source = currentPreviewData;
+  setBusy(true);
+  bgStatus.textContent = 'Загружаю модель…';
+  try {
+    const removeBg = await loadBackgroundRemover();
+    if (job !== bgJobId) return;
+    bgStatus.textContent = 'Удаляю фон…';
+    const srcBlob = await (await fetch(source)).blob();
+    const blob = await removeBg(srcBlob, {
+      model: 'isnet_quint8',
+      output: { format: 'image/png' }
+    });
+    if (job !== bgJobId) return;   // окно закрыли / переключили фото
+    currentPreviewData = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = ev => res(ev.target.result);
+      r.readAsDataURL(blob);
+    });
+    currentHasAlpha = true;
+    previewImg.src = currentPreviewData;
+  } catch (err) {
+    console.error(err);
+    if (job === bgJobId) {
+      alert('Не удалось удалить фон (' + (err.message || err) + ').\nПроверь интернет — при первом запуске скачивается модель ~40 МБ.\nФото можно сохранить и без удаления фона.');
+    }
+  } finally {
+    if (job === bgJobId) setBusy(false);
+  }
 }
 
 fileInput.addEventListener('change', async e => {
   const files = Array.from(e.target.files || []);
   if (!files.length) return;
-
-  // Категория = выбранная вкладка в гардеробе (по умолчанию «Блузка»); потом можно сменить через ✎
-  const category = activeFilter || 'bluse';
-  const slot = CATEGORIES[category].slot;
-
-  progressModal.classList.add('open');
-  progressText.textContent = 'Загружаю модель…';
-  progressSub.textContent = 'При первом запуске ~40 МБ';
-
-  let removeBg = null;
-  try { removeBg = await loadBackgroundRemover(); }
-  catch (err) { console.error(err); removeBg = null; }
-
-  let added = 0, noBg = 0;
-  for (let i = 0; i < files.length; i++) {
-    progressText.textContent = 'Фото ' + (i + 1) + ' из ' + files.length;
-    progressSub.textContent = removeBg ? 'Удаляю фон…' : 'Сохраняю…';
-    const data = await readAsDataURL(files[i]);
-    const small = data ? await compressImage(data, 640, 0.8) : null;
-    if (!small) continue;
-
-    let finalImg = null;
-    if (removeBg) {
-      try {
-        const png = await removeBgFromDataURL(small, removeBg);
-        if (png) finalImg = await compressImage(png, 320, 1, true);
-      } catch (err) { console.error(err); }
-    }
-    if (!finalImg) {
-      noBg++;
-      finalImg = await compressImage(small, 400, 0.45);
-    }
-    if (!finalImg) continue;
-
-    wardrobe.push({
-      id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
-      img: finalImg,
-      category
+  btnSave.disabled = true;
+  btnSave.textContent = 'Загрузка…';
+  pendingImages = [];
+  for (const f of files) {
+    const data = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = ev => res(ev.target.result);
+      r.readAsDataURL(f);
     });
-    added++;
+    const compressed = await compressImage(data, 640, 0.8);
+    if (compressed) pendingImages.push(compressed);
   }
-
-  saveWardrobe();
-  if (added) {
-    const cats = SLOT_TO_CATS[slot] || [];
-    const itemsInSlot = wardrobe.filter(w => cats.includes(w.category));
-    sets[activeSetIndex].indices[slot] = Math.max(0, itemsInSlot.length - 1);
-    if (!sets[activeSetIndex].activeSlots.includes(slot)) {
-      sets[activeSetIndex].activeSlots.push(slot);
-      sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
-    }
-    saveSets();
-  }
-  progressModal.classList.remove('open');
-  renderSets();
-  renderCloset();
-
-  if (noBg) {
-    alert('У ' + noBg + ' фото фон не удалился (проверь интернет). Они сохранены с фоном. Удали их и добавь снова.');
-  }
+  btnSave.disabled = false;
+  btnSave.textContent = 'Сохранить';
+  if (!pendingImages.length) return;
+  pendingIndex = 0;
+  pendingCategory = activeFilter || 'bluse';
+  currentPreviewData = pendingImages[0];
+  currentHasAlpha = false;
+  previewImg.src = currentPreviewData;
+  renderCatGrid();
+  modal.classList.add('open');
+  removeBgFromCurrent();            // фон удаляется автоматически
 });
 
-/* ===== EDIT: поворот и смена категории уже после добавления ===== */
-const editModal = document.getElementById('editModal');
-const editImg = document.getElementById('editImg');
-const editCatGrid = document.getElementById('editCatGrid');
-let editItemId = null, editImgData = null, editCategory = null;
+btnRotL.onclick = async () => {
+  if (!currentPreviewData) return;
+  currentPreviewData = await rotateImage(currentPreviewData, -90, currentHasAlpha);
+  previewImg.src = currentPreviewData;
+};
+btnRotR.onclick = async () => {
+  if (!currentPreviewData) return;
+  currentPreviewData = await rotateImage(currentPreviewData, 90, currentHasAlpha);
+  previewImg.src = currentPreviewData;
+};
 
-function openEdit(item) {
-  editItemId = item.id;
-  editImgData = item.img;
-  editCategory = item.category;
-  editImg.src = editImgData;
-  renderEditCatGrid();
-  editModal.classList.add('open');
-}
+/* Кнопка — повторная попытка (например, если не было интернета) */
+btnRemoveBg.onclick = removeBgFromCurrent;
 
-function renderEditCatGrid() {
-  editCatGrid.innerHTML = '';
+function renderCatGrid() {
+  catGrid.innerHTML = '';
   Object.keys(CATEGORIES).forEach(key => {
     const val = CATEGORIES[key];
     const btn = document.createElement('button');
     btn.textContent = val.emoji + ' ' + val.label;
-    if (key === editCategory) btn.classList.add('selected');
-    btn.onclick = () => { editCategory = key; renderEditCatGrid(); };
-    editCatGrid.appendChild(btn);
+    if (key === pendingCategory) btn.classList.add('selected');
+    btn.onclick = () => { pendingCategory = key; renderCatGrid(); };
+    catGrid.appendChild(btn);
   });
 }
 
-async function rotateEdit(deg) {
-  if (!editImgData) return;
-  const isPng = editImgData.startsWith('data:image/png');
-  editImgData = await rotateImage(editImgData, deg, isPng);
-  editImg.src = editImgData;
-}
-document.getElementById('btn-rotate-left').onclick = () => rotateEdit(-90);
-document.getElementById('btn-rotate-right').onclick = () => rotateEdit(90);
+btnSave.onclick = async () => {
+  if (!currentPreviewData) return;
+  const finalImg = currentHasAlpha
+    ? await compressImage(currentPreviewData, 360, 1, true)
+    : await compressImage(currentPreviewData, 400, 0.45);
+  const newItem = {
+    id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
+    img: finalImg || currentPreviewData,
+    category: pendingCategory
+  };
+  wardrobe.push(newItem);
+  saveWardrobe();
 
-document.getElementById('btn-edit-save').onclick = () => {
-  const item = wardrobe.find(w => w.id === editItemId);
-  if (item) {
-    item.img = editImgData;
-    item.category = editCategory;
-    saveWardrobe();
-    saveSets();
+  const slot = CATEGORIES[pendingCategory].slot;
+  const cats = SLOT_TO_CATS[slot] || [];
+  const itemsInSlot = wardrobe.filter(w => cats.includes(w.category));
+  sets[activeSetIndex].indices[slot] = Math.max(0, itemsInSlot.length - 1);
+  if (!sets[activeSetIndex].activeSlots.includes(slot)) {
+    sets[activeSetIndex].activeSlots.push(slot);
+    sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
   }
-  editModal.classList.remove('open');
-  renderSets();
-  renderCloset();
+  saveSets();
+
+  pendingIndex++;
+  if (pendingIndex >= pendingImages.length) {
+    bgJobId++;
+    modal.classList.remove('open');
+    pendingImages = [];
+    currentPreviewData = null;
+    currentHasAlpha = false;
+    renderSets();
+    renderCloset();
+  } else {
+    currentPreviewData = pendingImages[pendingIndex];
+    currentHasAlpha = false;
+    previewImg.src = currentPreviewData;
+    renderCatGrid();
+    removeBgFromCurrent();          // следующее фото из пачки — тоже автоматически
+  }
 };
-document.getElementById('btn-edit-cancel').onclick = () => {
-  editModal.classList.remove('open');
+
+document.getElementById('btn-cancel').onclick = () => {
+  bgJobId++;                        // отменяет текущую обработку
+  setBusy(false);
+  modal.classList.remove('open');
+  pendingImages = [];
+  currentPreviewData = null;
+  currentHasAlpha = false;
 };
 
 /* ===== NEW SET ===== */
@@ -1050,11 +1063,6 @@ function renderCloset() {
       }
     };
     el.appendChild(del);
-    const ed = document.createElement('button');
-    ed.className = 'edit';
-    ed.textContent = '✎';
-    ed.onclick = e => { e.stopPropagation(); openEdit(item); };
-    el.appendChild(ed);
     el.onclick = () => {
       const slot = CATEGORIES[item.category]?.slot;
       if (!slot) return;
