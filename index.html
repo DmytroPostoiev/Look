@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#120b1f">
 <title>Outfit Builder</title>
+<script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/browser.iife.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -151,7 +152,7 @@
     margin-bottom: 0.22rem; padding: 0 0.08rem;
   }
   .closet-title { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.5); }
-  .closet-actions { display: flex; gap: 0.25rem; flex-wrap: wrap; justify-content: flex-end; }
+  .closet-actions { display: flex; gap: 0.25rem; }
   .closet-actions button {
     height: 27px; padding: 0 0.5rem;
     border-radius: 8px; font-size: 0.65rem; font-weight: 600;
@@ -207,6 +208,7 @@
     display: flex; align-items: center; justify-content: center;
   }
 
+  /* Modals */
   .modal {
     position: fixed; inset: 0; z-index: 100;
     display: none; flex-direction: column;
@@ -235,21 +237,19 @@
     object-fit: contain; border-radius: 12px;
   }
   .edit-tools {
-    display: flex; justify-content: center; gap: 0.45rem;
+    display: flex; justify-content: center; gap: 0.5rem;
     padding: 0.4rem 1rem;
-    flex-wrap: wrap;
   }
   .edit-tools button {
-    height: 40px; padding: 0 0.85rem;
+    height: 42px; padding: 0 0.9rem;
     border-radius: 11px; border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.1); color: #fff;
-    font-size: 0.82rem; font-weight: 600;
+    font-size: 0.85rem; font-weight: 600;
   }
   .edit-tools button.bg-btn {
     background: rgba(123, 77, 255, 0.35);
     border-color: rgba(123, 77, 255, 0.6);
   }
-  .edit-tools button:disabled { opacity: 0.5; }
   .hint {
     text-align: center; font-size: 0.75rem;
     color: rgba(255,255,255,0.5); padding: 0.2rem 1rem 0.35rem;
@@ -279,7 +279,7 @@
 
   .bg-overlay {
     position: absolute; inset: 0;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.7);
     display: none; align-items: center; justify-content: center;
     flex-direction: column; gap: 0.8rem; z-index: 5;
     border-radius: 12px;
@@ -402,7 +402,7 @@
     <img id="previewImg" alt="">
     <div class="bg-overlay" id="bgOverlay">
       <div class="spinner"></div>
-      <div id="bgStatus">Удаляю фон…</div>
+      <div>Удаляю фон…</div>
     </div>
   </div>
   <div class="edit-tools">
@@ -446,7 +446,7 @@
     <h3>Идеи по цветам</h3>
     <div style="width:70px"></div>
   </div>
-  <div class="hint">Рекомендации сочетаний</div>
+  <div class="hint">Рекомендации сочетаний на основе твоих вещей</div>
   <div class="suggest-list" id="suggestList"></div>
 </div>
 
@@ -483,8 +483,8 @@ const THEMES = {
   empty:   { emoji: '➕', label: 'Пустой', slots: ['bluse','hose'], color: '#94a3b8' },
 };
 
-const WARDROBE_KEY = 'ob_w_v14';
-const SETS_KEY = 'ob_s_v14';
+const WARDROBE_KEY = 'ob_w_v13';
+const SETS_KEY = 'ob_s_v13';
 const MAX_ITEMS = 16;
 
 let wardrobe = [];
@@ -494,10 +494,7 @@ let activeFilter = null;
 let pendingImages = [];
 let pendingIndex = 0;
 let pendingCategory = 'bluse';
-let currentPreviewData = null;
-let currentHasAlpha = false;   // true, если у текущей картинки уже прозрачный фон (PNG)
-let bgJobId = 0;               // защита от гонок при быстрой смене фото
-let removeBackgroundFn = null;
+let currentPreviewData = null; // текущее изображение в модалке (после поворота/фона)
 
 function loadJSON(key, fallback) {
   try { const r = localStorage.getItem(key); if (r) return JSON.parse(r); } catch(e) {}
@@ -530,8 +527,7 @@ function createEmptySet(themeKey = 'empty') {
   };
 }
 
-/* PNG сохраняет прозрачность, JPEG — нет (фон становился бы чёрным) */
-function compressImage(src, maxSize = 420, quality = 0.48, png = false) {
+function compressImage(src, maxSize = 420, quality = 0.48) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
@@ -543,20 +539,20 @@ function compressImage(src, maxSize = 420, quality = 0.48, png = false) {
       const c = document.createElement('canvas');
       c.width = w; c.height = h;
       c.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', quality));
+      resolve(c.toDataURL('image/jpeg', quality));
     };
     img.onerror = () => resolve(null);
     img.src = src;
   });
 }
 
-function rotateImage(dataUrl, degrees, png = false) {
+function rotateImage(dataUrl, degrees) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
       const c = document.createElement('canvas');
       const ctx = c.getContext('2d');
-      if (degrees === 90 || degrees === 270 || degrees === -90) {
+      if (degrees === 90 || degrees === 270) {
         c.width = img.height;
         c.height = img.width;
       } else {
@@ -566,23 +562,13 @@ function rotateImage(dataUrl, degrees, png = false) {
       ctx.translate(c.width/2, c.height/2);
       ctx.rotate(degrees * Math.PI / 180);
       ctx.drawImage(img, -img.width/2, -img.height/2);
-      resolve(png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.85));
+      resolve(c.toDataURL('image/jpeg', 0.85));
     };
     img.src = dataUrl;
   });
 }
 
-/* ===== Удаление фона ===== */
-async function loadBackgroundRemover() {
-  if (removeBackgroundFn) return removeBackgroundFn;
-  const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm');
-  removeBackgroundFn = mod.removeBackground || mod.default;
-  if (typeof removeBackgroundFn !== 'function') {
-    throw new Error('removeBackground not found');
-  }
-  return removeBackgroundFn;
-}
-
+/* ===== DOM ===== */
 const setsWrapper = document.getElementById('setsWrapper');
 const setDots = document.getElementById('setDots');
 const catTabs = document.getElementById('catTabs');
@@ -594,11 +580,7 @@ const suggestModal = document.getElementById('suggestModal');
 const previewImg = document.getElementById('previewImg');
 const catGrid = document.getElementById('catGrid');
 const bgOverlay = document.getElementById('bgOverlay');
-const bgStatus = document.getElementById('bgStatus');
 const btnSave = document.getElementById('btn-save');
-const btnRemoveBg = document.getElementById('btn-remove-bg');
-const btnRotL = document.getElementById('btn-rotate-left');
-const btnRotR = document.getElementById('btn-rotate-right');
 const fileInput = document.getElementById('fileInput');
 
 wardrobe = loadJSON(WARDROBE_KEY, []);
@@ -610,6 +592,7 @@ sets.forEach(s => {
   if (!s.name) s.name = 'Сет';
 });
 
+/* ===== LAYOUT ===== */
 function buildSlotsHTML(activeSlots) {
   const has = s => activeSlots.includes(s);
   let html = '<div class="slots-container">';
@@ -766,52 +749,10 @@ setsWrapper.addEventListener('scroll', () => {
   }, 60);
 });
 
-/* ===== ADD + ROTATE + BG REMOVE ===== */
+/* ===== ADD FLOW + ROTATE + BG REMOVE ===== */
 function startAdd() {
   fileInput.value = '';
   fileInput.click();
-}
-
-function setBusy(busy) {
-  btnRemoveBg.disabled = busy;
-  btnRotL.disabled = busy;
-  btnRotR.disabled = busy;
-  btnSave.disabled = busy;
-  bgOverlay.classList.toggle('show', busy);
-}
-
-/* Автоматическое удаление фона для текущей картинки в окне добавления */
-async function removeBgFromCurrent() {
-  if (!currentPreviewData || currentHasAlpha) return;
-  const job = ++bgJobId;
-  const source = currentPreviewData;
-  setBusy(true);
-  bgStatus.textContent = 'Загружаю модель…';
-  try {
-    const removeBg = await loadBackgroundRemover();
-    if (job !== bgJobId) return;
-    bgStatus.textContent = 'Удаляю фон…';
-    const srcBlob = await (await fetch(source)).blob();
-    const blob = await removeBg(srcBlob, {
-      model: 'isnet_quint8',
-      output: { format: 'image/png' }
-    });
-    if (job !== bgJobId) return;   // окно закрыли / переключили фото
-    currentPreviewData = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = ev => res(ev.target.result);
-      r.readAsDataURL(blob);
-    });
-    currentHasAlpha = true;
-    previewImg.src = currentPreviewData;
-  } catch (err) {
-    console.error(err);
-    if (job === bgJobId) {
-      alert('Не удалось удалить фон (' + (err.message || err) + ').\nПроверь интернет — при первом запуске скачивается модель ~40 МБ.\nФото можно сохранить и без удаления фона.');
-    }
-  } finally {
-    if (job === bgJobId) setBusy(false);
-  }
 }
 
 fileInput.addEventListener('change', async e => {
@@ -826,7 +767,7 @@ fileInput.addEventListener('change', async e => {
       r.onload = ev => res(ev.target.result);
       r.readAsDataURL(f);
     });
-    const compressed = await compressImage(data, 640, 0.8);
+    const compressed = await compressImage(data);
     if (compressed) pendingImages.push(compressed);
   }
   btnSave.disabled = false;
@@ -835,26 +776,44 @@ fileInput.addEventListener('change', async e => {
   pendingIndex = 0;
   pendingCategory = activeFilter || 'bluse';
   currentPreviewData = pendingImages[0];
-  currentHasAlpha = false;
   previewImg.src = currentPreviewData;
   renderCatGrid();
   modal.classList.add('open');
-  removeBgFromCurrent();            // фон удаляется автоматически
 });
 
-btnRotL.onclick = async () => {
+document.getElementById('btn-rotate-left').onclick = async () => {
   if (!currentPreviewData) return;
-  currentPreviewData = await rotateImage(currentPreviewData, -90, currentHasAlpha);
+  currentPreviewData = await rotateImage(currentPreviewData, -90);
   previewImg.src = currentPreviewData;
 };
-btnRotR.onclick = async () => {
+document.getElementById('btn-rotate-right').onclick = async () => {
   if (!currentPreviewData) return;
-  currentPreviewData = await rotateImage(currentPreviewData, 90, currentHasAlpha);
+  currentPreviewData = await rotateImage(currentPreviewData, 90);
   previewImg.src = currentPreviewData;
 };
 
-/* Кнопка — повторная попытка (например, если не было интернета) */
-btnRemoveBg.onclick = removeBgFromCurrent;
+document.getElementById('btn-remove-bg').onclick = async () => {
+  if (!currentPreviewData) return;
+  if (typeof window.removeBackground !== 'function') {
+    alert('Библиотека удаления фона не загрузилась. Проверь интернет.');
+    return;
+  }
+  bgOverlay.classList.add('show');
+  try {
+    const blob = await window.removeBackground(currentPreviewData);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      currentPreviewData = ev.target.result;
+      previewImg.src = currentPreviewData;
+      bgOverlay.classList.remove('show');
+    };
+    reader.readAsDataURL(blob);
+  } catch (err) {
+    console.error(err);
+    bgOverlay.classList.remove('show');
+    alert('Не удалось удалить фон. Попробуй другое фото.');
+  }
+};
 
 function renderCatGrid() {
   catGrid.innerHTML = '';
@@ -870,9 +829,7 @@ function renderCatGrid() {
 
 btnSave.onclick = async () => {
   if (!currentPreviewData) return;
-  const finalImg = currentHasAlpha
-    ? await compressImage(currentPreviewData, 360, 1, true)
-    : await compressImage(currentPreviewData, 400, 0.45);
+  const finalImg = await compressImage(currentPreviewData, 400, 0.45);
   const newItem = {
     id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
     img: finalImg || currentPreviewData,
@@ -893,29 +850,22 @@ btnSave.onclick = async () => {
 
   pendingIndex++;
   if (pendingIndex >= pendingImages.length) {
-    bgJobId++;
     modal.classList.remove('open');
     pendingImages = [];
     currentPreviewData = null;
-    currentHasAlpha = false;
     renderSets();
     renderCloset();
   } else {
     currentPreviewData = pendingImages[pendingIndex];
-    currentHasAlpha = false;
     previewImg.src = currentPreviewData;
     renderCatGrid();
-    removeBgFromCurrent();          // следующее фото из пачки — тоже автоматически
   }
 };
 
 document.getElementById('btn-cancel').onclick = () => {
-  bgJobId++;                        // отменяет текущую обработку
-  setBusy(false);
   modal.classList.remove('open');
   pendingImages = [];
   currentPreviewData = null;
-  currentHasAlpha = false;
 };
 
 /* ===== NEW SET ===== */
@@ -976,24 +926,69 @@ document.getElementById('btn-parts-cancel').onclick = () => {
   renderSets();
 };
 
-/* ===== COLOR SUGGEST ===== */
-function openSuggestModal() {
+/* ===== COLOR SUGGESTIONS ===== */
+function getAverageColor(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 20; c.height = 20;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 20, 20);
+      const data = ctx.getImageData(0, 0, 20, 20).data;
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i+3] < 128) continue;
+        r += data[i]; g += data[i+1]; b += data[i+2];
+        count++;
+      }
+      if (!count) return resolve('#888888');
+      r = Math.round(r / count);
+      g = Math.round(g / count);
+      b = Math.round(b / count);
+      resolve(`#${((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}`);
+    };
+    img.onerror = () => resolve('#888888');
+    img.src = dataUrl;
+  });
+}
+
+async function openSuggestModal() {
   const list = document.getElementById('suggestList');
-  list.innerHTML = '';
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:#aaa">Анализирую цвета…</div>';
+  suggestModal.classList.add('open');
+
+  if (wardrobe.length < 2) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:#aaa">Добавь больше вещей для рекомендаций</div>';
+    return;
+  }
+
+  // Берём цвета вещей
+  const withColors = [];
+  for (const item of wardrobe.slice(-12)) {
+    const color = await getAverageColor(item.img);
+    withColors.push({ ...item, color });
+  }
+
+  // Простые гармоничные пары
   const suggestions = [
     { title: 'Нейтральная база', colors: ['#2c2c2c', '#f5f5f5', '#8b7355'], desc: 'Чёрный + белый + беж' },
     { title: 'Свежий контраст', colors: ['#0d5c63', '#f5f0e6', '#c4a484'], desc: 'Бирюза + кремовый' },
     { title: 'Тёплый классический', colors: ['#8b4513', '#f5deb3', '#2f4f4f'], desc: 'Коричневый + песочный' },
     { title: 'Современный', colors: ['#1e3a5f', '#e8e8e8', '#c0c0c0'], desc: 'Тёмно-синий + серый' },
   ];
+
+  list.innerHTML = '';
   suggestions.forEach(s => {
     const card = document.createElement('div');
     card.className = 'suggest-card';
     card.innerHTML = `
       <h4>${s.title}</h4>
-      <div class="suggest-colors">${s.colors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="suggest-colors">
+        ${s.colors.map(c => `<span style="background:${c}"></span>`).join('')}
+      </div>
       <div style="font-size:0.75rem;color:#aaa;margin-bottom:0.5rem">${s.desc}</div>
-      <button>Создать сет</button>
+      <button>Создать сет в этом стиле</button>
     `;
     card.querySelector('button').onclick = () => {
       const newSet = createEmptySet('color');
@@ -1009,7 +1004,6 @@ function openSuggestModal() {
     };
     list.appendChild(card);
   });
-  suggestModal.classList.add('open');
 }
 document.getElementById('btn-suggest').onclick = openSuggestModal;
 document.getElementById('btn-suggest-cancel').onclick = () => suggestModal.classList.remove('open');
