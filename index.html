@@ -403,7 +403,7 @@
     <button id="btn-angle-reset">0°</button>
     <button id="btn-edit-bg" class="bg-btn">✂️ Убрать фон</button>
   </div>
-  <div class="hint" style="padding-bottom:0.2rem">Категория</div>
+  <div class="hint" style="padding-bottom:0.2rem">Поверни слайдером или кнопками · категория</div>
   <div class="cat-grid" id="editCatGrid"></div>
   <div class="modal-bottom">
     <button id="edit-delete" class="danger">Удалить</button>
@@ -509,6 +509,7 @@ const THEMES = {
 const PREP_MAX = 640;     // макс. сторона сохранённого фото
 const THUMB_MAX = 160;    // макс. сторона миниатюры
 const ROT_MAX = 760;      // макс. сторона после поворота
+const BG_INFER_MAX = 480; // сторона для нейросети (меньше = быстрее)
 
 const $ = id => document.getElementById(id);
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -711,8 +712,27 @@ function updateChip() {
 }
 async function cutout(blob) {
   const rm = await loadBackgroundRemover();
-  const out = await rm(blob, { model: 'isnet_quint8', output: { format: 'image/png' }, progress: onModelProgress });
-  const c = trimCanvas(await toCanvas(out, 0));
+  // Уменьшаем до 480px — модель работает быстрее, для коллажа качества хватает
+  const smallC = await toCanvas(blob, BG_INFER_MAX);
+  const inputBlob = await canvasToBlob(smallC, 'image/jpeg', 0.92);
+  const out = await rm(inputBlob, {
+    model: 'isnet_quint8',
+    output: { format: 'image/png' },
+    progress: onModelProgress
+  });
+  let c = await toCanvas(out, 0);
+  c = trimCanvas(c);
+  // Финальный размер не больше PREP_MAX
+  if (Math.max(c.width, c.height) > PREP_MAX) {
+    const k = PREP_MAX / Math.max(c.width, c.height);
+    const n = document.createElement('canvas');
+    n.width = Math.max(1, Math.round(c.width * k));
+    n.height = Math.max(1, Math.round(c.height * k));
+    const x = n.getContext('2d');
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(c, 0, 0, n.width, n.height);
+    c = n;
+  }
   const png = await canvasToBlob(c, 'image/png');
   return { blob: png, thumb: await makeThumb(png, true) };
 }
@@ -1236,6 +1256,7 @@ function openEdit(item) {
   if (item.bg === 'pending') { toast('Фон ещё обрабатывается…'); return; }
   Object.assign(edit, { item, angle: 0, flip: false, cat: item.cat, wantBg: false });
   $('editImg').src = item.url;
+  $('angleRange').value = 0;
   renderEditCats(); updateEditUI();
   $('editModal').classList.add('open');
 }
@@ -1496,6 +1517,15 @@ async function init() {
   normalizeSets();
   renderAll();
   resumePending();
+  // Предзагрузка модели удаления фона (не блокирует UI)
+  if (navigator.onLine) {
+    setTimeout(() => {
+      loadBackgroundRemover().then(() => {
+        console.log('BG model ready');
+        toast('Модель фона готова', 1800);
+      }).catch(() => {});
+    }, 800);
+  }
 }
 window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
 init();
