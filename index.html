@@ -14,6 +14,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: #fff; background: #120b1f;
   }
+  button, select, input { font-family: inherit; }
   body::before {
     content: ''; position: fixed; inset: 0; z-index: -1;
     background:
@@ -28,95 +29,70 @@
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
   }
+  .checker {
+    background-color: #241a38;
+    background-image:
+      linear-gradient(45deg, #ffffff12 25%, transparent 25%, transparent 75%, #ffffff12 75%),
+      linear-gradient(45deg, #ffffff12 25%, transparent 25%, transparent 75%, #ffffff12 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 7px 7px;
+  }
+
+  /* ---------- Сеты ---------- */
   .sets-wrapper {
-    flex: 1 1 auto;
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex: 1 1 auto; display: flex;
+    overflow-x: auto; overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    min-height: 0;
+    -webkit-overflow-scrolling: touch; min-height: 0;
   }
   .sets-wrapper::-webkit-scrollbar { display: none; }
   .set-page {
-    flex: 0 0 100%;
-    scroll-snap-align: center;
-    display: flex;
-    flex-direction: column;
-    padding: 0.3rem 0.55rem 0.1rem;
-    gap: 0.2rem;
-    height: 100%;
-    overflow: hidden;
+    flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always;
+    display: flex; flex-direction: column;
+    padding: 0.3rem 0.55rem 0.1rem; gap: 0.2rem;
+    height: 100%; overflow: hidden;
   }
   .set-header {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.1rem 0.15rem 0.2rem;
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+    padding: 0.1rem 0.15rem 0.2rem; gap: 0.4rem;
   }
-  .set-name { font-size: 0.85rem; font-weight: 700; }
+  .set-name { font-size: 0.85rem; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .set-theme {
     font-size: 0.62rem; font-weight: 600;
-    padding: 0.12rem 0.45rem; border-radius: 8px;
-    background: rgba(255,255,255,0.12);
+    padding: 0.12rem 0.45rem; border-radius: 8px; background: rgba(255,255,255,0.12);
+    white-space: nowrap;
+  }
+  .set-del {
+    width: 24px; height: 24px; border-radius: 8px; border: none;
+    background: rgba(255,255,255,0.1); color: #fff; font-size: 0.7rem;
   }
   .slots-container {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.22rem;
-    min-height: 0;
-    overflow: hidden;
+    flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.22rem;
+    min-height: 0; overflow: hidden;
   }
   .slot {
-    position: relative;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-radius: 13px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
+    position: relative; background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12); border-radius: 13px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; min-height: 0;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
-  .slot.active {
-    border-color: #4ade80;
-    background: rgba(74,222,128,0.12);
-  }
-  .slot img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-  }
-  .slot .placeholder {
-    color: rgba(255,255,255,0.28);
-    font-size: 0.72rem;
-    font-weight: 500;
-    text-align: center;
-  }
+  .slot.active { border-color: #4ade80; background: rgba(74,222,128,0.12); }
+  .slot img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+  .slot .placeholder { color: rgba(255,255,255,0.28); font-size: 0.72rem; font-weight: 500; text-align: center; }
   .slot .label {
-    position: absolute; top: 4px; left: 6px;
-    font-size: 0.55rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    background: rgba(0,0,0,0.5);
-    padding: 0.08rem 0.3rem;
-    border-radius: 5px;
-    pointer-events: none;
+    position: absolute; top: 4px; left: 6px; font-size: 0.55rem; font-weight: 600;
+    color: rgba(255,255,255,0.45); background: rgba(0,0,0,0.5);
+    padding: 0.08rem 0.3rem; border-radius: 5px; pointer-events: none; z-index: 2;
   }
   .slot-arrows {
     position: absolute; bottom: 4px; left: 0; right: 0;
-    display: none; justify-content: space-between;
-    padding: 0 5px;
-    pointer-events: none;
+    display: none; justify-content: space-between; padding: 0 5px; pointer-events: none;
   }
   .slot.active .slot-arrows { display: flex; }
   .slot-arrows button {
     width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(0,0,0,0.75);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff; font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center;
     pointer-events: auto;
   }
   .slot.flex-1 { flex: 1 1 0; }
@@ -127,34 +103,22 @@
   .row.flex-2 { flex: 2 1 0; }
   .row.flex-3 { flex: 3 1 0; }
 
-  .set-dots {
-    flex: 0 0 auto;
-    display: flex; justify-content: center; gap: 6px;
-    padding: 0.1rem 0 0.05rem;
-  }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-  }
+  .set-dots { flex: 0 0 auto; display: flex; justify-content: center; padding: 0.15rem 0 0.1rem; }
+  .dot { width: 7px; height: 7px; margin: 0 4px; border-radius: 50%; background: rgba(255,255,255,0.25); position: relative; }
+  .dot::after { content: ''; position: absolute; inset: -9px -5px; }
   .dot.active { background: #4ade80; }
 
+  /* ---------- Гардероб ---------- */
   .closet {
-    flex: 0 0 auto;
-    margin: 0.08rem 0.45rem 0.22rem;
-    background: rgba(255,255,255,0.07);
-    border-radius: 15px;
-    padding: 0.32rem;
+    flex: 0 0 auto; margin: 0.08rem 0.45rem 0.22rem;
+    background: rgba(255,255,255,0.07); border-radius: 15px; padding: 0.32rem;
     border: 1px solid rgba(255,255,255,0.1);
   }
-  .closet-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0.22rem; padding: 0 0.08rem;
-  }
+  .closet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.22rem; padding: 0 0.08rem; }
   .closet-title { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.5); }
   .closet-actions { display: flex; gap: 0.25rem; flex-wrap: wrap; justify-content: flex-end; }
   .closet-actions button {
-    height: 27px; padding: 0 0.5rem;
-    border-radius: 8px; font-size: 0.65rem; font-weight: 600;
+    height: 27px; padding: 0 0.5rem; border-radius: 8px; font-size: 0.65rem; font-weight: 600;
     border: none; background: rgba(255,255,255,0.12); color: #fff;
   }
   .closet-actions button.green { background: #4ade80; color: #062; }
@@ -162,215 +126,217 @@
   .closet-actions button.purple { background: #a78bfa; color: #fff; }
   .closet-actions button.orange { background: #fb923c; color: #fff; }
 
-  .cat-tabs {
-    display: flex; gap: 0.2rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    margin-bottom: 0.22rem;
-  }
+  .cat-tabs { display: flex; gap: 0.2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 0.22rem; }
   .cat-tabs::-webkit-scrollbar { display: none; }
   .cat-tab {
-    flex: 0 0 auto;
-    padding: 0.25rem 0.5rem;
-    border-radius: 8px;
-    font-size: 0.65rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    background: transparent; border: none;
+    flex: 0 0 auto; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.45); background: transparent; border: none;
   }
   .cat-tab.active { background: rgba(255,255,255,0.16); color: #fff; }
-  .items-row {
-    display: flex; gap: 0.25rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    min-height: 48px;
-  }
+  .items-row { display: flex; gap: 0.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch; min-height: 52px; }
   .items-row::-webkit-scrollbar { display: none; }
   .thumb {
-    flex: 0 0 auto; width: 46px; height: 46px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.06);
-    overflow: hidden; position: relative;
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 10px;
+    overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    transition: opacity 0.15s;
+  }
+  .thumb.dragging { opacity: 0.25; }
+  .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; pointer-events: none; -webkit-touch-callout: none; }
+  .thumb .del, .thumb .edit {
+    position: absolute; width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(0,0,0,0.75); color: #fff; border: none; font-size: 0.55rem;
     display: flex; align-items: center; justify-content: center;
   }
-  .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
-  .thumb .del {
-    position: absolute; top: 1px; right: 1px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: rgba(0,0,0,0.75); color: #fff;
-    border: none; font-size: 0.48rem;
-    display: flex; align-items: center; justify-content: center;
+  .thumb .del { top: 1px; right: 1px; }
+  .thumb .edit { bottom: 1px; right: 1px; }
+  .thumb.pending::after {
+    content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 10px;
+  }
+  .thumb.pending::before {
+    content: ''; position: absolute; z-index: 2; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+    border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #4ade80; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
   }
   .add-thumb {
-    flex: 0 0 auto; width: 46px; height: 46px;
-    border-radius: 10px;
-    border: 1.5px dashed rgba(255,255,255,0.28);
-    background: rgba(255,255,255,0.04);
-    color: #4ade80; font-size: 1.2rem;
-    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 10px;
+    border: 1.5px dashed rgba(255,255,255,0.28); background: rgba(255,255,255,0.04);
+    color: #4ade80; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
   }
+  .empty-hint { align-self: center; font-size: 0.68rem; color: rgba(255,255,255,0.4); padding: 0 0.4rem; }
 
+  /* ---------- Модальные окна ---------- */
   .modal {
-    position: fixed; inset: 0; z-index: 100;
-    display: none; flex-direction: column;
+    position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
     background: rgba(8,5,18,0.97);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
   }
   .modal.open { display: flex; }
-  .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.65rem 1rem;
-  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 1rem; }
   .modal-header h3 { font-size: 1.02rem; font-weight: 600; }
   .modal-header button {
     height: 36px; padding: 0 0.85rem; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.1); color: #fff; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.1); color: #fff; font-weight: 600;
   }
-  .preview-area {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 0.4rem 1rem; overflow: hidden; min-height: 0;
-    position: relative;
-  }
-  .preview-area img {
-    max-width: 100%; max-height: 100%;
-    object-fit: contain; border-radius: 12px;
-  }
-  .edit-tools {
-    display: flex; justify-content: center; gap: 0.45rem;
-    padding: 0.4rem 1rem;
-    flex-wrap: wrap;
-  }
-  .edit-tools button {
-    height: 40px; padding: 0 0.85rem;
-    border-radius: 11px; border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.1); color: #fff;
-    font-size: 0.82rem; font-weight: 600;
-  }
-  .edit-tools button.bg-btn {
-    background: rgba(123, 77, 255, 0.35);
-    border-color: rgba(123, 77, 255, 0.6);
-  }
-  .edit-tools button:disabled { opacity: 0.5; }
-  .hint {
-    text-align: center; font-size: 0.75rem;
-    color: rgba(255,255,255,0.5); padding: 0.2rem 1rem 0.35rem;
-  }
-  .cat-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem; padding: 0 0.9rem 0.5rem;
-  }
-  .cat-grid button {
-    padding: 0.65rem 0.15rem; border-radius: 12px;
-    background: rgba(255,255,255,0.09);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff; font-size: 0.75rem; font-weight: 600;
-  }
-  .cat-grid button.selected {
-    background: #4ade80; color: #062; border-color: transparent;
-  }
-  .modal-bottom {
-    padding: 0.4rem 1rem 1rem;
-  }
+  .hint { text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.5); padding: 0.2rem 1rem 0.35rem; }
+  .modal-bottom { padding: 0.4rem 1rem 1rem; display: flex; gap: 0.5rem; }
   .modal-bottom button {
-    width: 100%; height: 52px; border-radius: 13px; border: none;
-    background: linear-gradient(135deg, #4ade80, #22c55e);
-    color: #04210f; font-size: 1.05rem; font-weight: 700;
+    flex: 1; height: 52px; border-radius: 13px; border: none;
+    background: linear-gradient(135deg, #4ade80, #22c55e); color: #04210f; font-size: 1.05rem; font-weight: 700;
   }
+  .modal-bottom button.danger { flex: 0 0 90px; background: rgba(239,68,68,0.25); color: #fecaca; border: 1px solid rgba(239,68,68,0.5); font-size: 0.9rem; }
   .modal-bottom button:disabled { opacity: 0.5; }
 
-  .bg-overlay {
-    position: absolute; inset: 0;
-    background: rgba(0,0,0,0.75);
-    display: none; align-items: center; justify-content: center;
-    flex-direction: column; gap: 0.8rem; z-index: 5;
-    border-radius: 12px;
+  /* выбор фото */
+  .stage-bar { display: flex; gap: 0.35rem; padding: 0 0.8rem 0.2rem; align-items: center; }
+  .stage-bar select, .stage-bar button {
+    height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.1); color: #fff; font-size: 0.78rem; font-weight: 600; padding: 0 0.6rem;
   }
-  .bg-overlay.show { display: flex; }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid rgba(255,255,255,0.2);
-    border-top-color: #4ade80; border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+  .stage-bar select { flex: 1; min-width: 0; }
+  .stage-bar select option { color: #000; }
+  .stage-grid {
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;
+    padding: 0.2rem 0.8rem 0.6rem; align-content: start;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .tile { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.14); }
+  .tile img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .tile.loading img { opacity: 0; }
+  .tile.loading::after, .tile.failed::after {
+    content: ''; position: absolute; left: 50%; top: 45%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+    border: 3px solid rgba(255,255,255,0.2); border-top-color: #4ade80; border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .tile.failed::after { border: none; animation: none; content: '⚠️'; font-size: 1.4rem; width: auto; height: auto; margin: -14px 0 0 -14px; }
+  .t-x {
+    position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,0,0,0.7); color: #fff; border: none; font-size: 0.72rem;
+  }
+  .t-bg {
+    position: absolute; left: 3px; right: 3px; bottom: 30px; height: 28px; border-radius: 8px; border: none;
+    font-size: 0.68rem; font-weight: 700; background: rgba(0,0,0,0.7); color: #fff;
+  }
+  .t-bg.on { background: #7c3aed; }
+  .t-bg.alpha { background: #15803d; }
+  .t-cat {
+    position: absolute; left: 3px; right: 3px; bottom: 3px; height: 25px; border-radius: 8px; border: none;
+    background: rgba(0,0,0,0.75); color: #fff; font-size: 0.66rem; font-weight: 600;
+    -webkit-appearance: none; appearance: none; text-align: center; text-align-last: center;
+  }
 
-  .theme-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem 1rem;
+  /* редактор */
+  .preview-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    margin: 0.2rem 1rem; border-radius: 14px; overflow: hidden; min-height: 0; position: relative;
   }
+  .preview-area img { max-width: 70%; max-height: 70%; object-fit: contain; transition: transform 0.05s linear; }
+  .angle-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 1rem 0; }
+  .angle-row input[type=range] { flex: 1; accent-color: #4ade80; height: 30px; }
+  .angle-row .angle-val { width: 46px; text-align: right; font-weight: 700; font-size: 0.85rem; }
+  .edit-tools { display: flex; justify-content: center; gap: 0.4rem; padding: 0.35rem 1rem; flex-wrap: wrap; }
+  .edit-tools button {
+    height: 38px; padding: 0 0.75rem; border-radius: 11px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1); color: #fff; font-size: 0.8rem; font-weight: 600;
+  }
+  .edit-tools button.bg-btn { background: rgba(123,77,255,0.3); border-color: rgba(123,77,255,0.6); }
+  .edit-tools button.bg-btn.on { background: #7c3aed; }
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; padding: 0 0.9rem 0.3rem; }
+  .cat-grid button {
+    padding: 0.45rem 0.15rem; border-radius: 11px; background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 0.7rem; font-weight: 600;
+  }
+  .cat-grid button.selected { background: #4ade80; color: #062; border-color: transparent; }
+
+  /* настройки */
+  .settings-body { flex: 1; overflow-y: auto; padding: 0.4rem 1rem 1rem; }
+  .set-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 0.8rem; margin-bottom: 0.6rem; }
+  .set-card h4 { font-size: 0.85rem; margin-bottom: 0.35rem; color: #4ade80; }
+  .set-card p { font-size: 0.75rem; color: rgba(255,255,255,0.65); line-height: 1.4; margin-bottom: 0.5rem; }
+  .set-card button {
+    width: 100%; height: 40px; border-radius: 10px; border: none; margin-top: 0.3rem;
+    background: rgba(255,255,255,0.14); color: #fff; font-weight: 700; font-size: 0.82rem;
+  }
+  .set-card button.danger { background: rgba(239,68,68,0.3); color: #fecaca; }
+
+  .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.5rem 1rem 1rem; }
   .theme-card {
-    padding: 1rem 0.6rem;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.92rem;
+    padding: 1rem 0.6rem; border-radius: 14px; background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12); text-align: center; font-weight: 700; font-size: 0.92rem;
   }
   .theme-card .emoji { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
-
-  .parts-list {
-    flex: 1; overflow-y: auto; padding: 0.4rem 1rem;
-  }
+  .parts-list { flex: 1; overflow-y: auto; padding: 0.4rem 1rem; }
   .part-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.8rem 0.85rem;
-    margin-bottom: 0.35rem;
-    background: rgba(255,255,255,0.07);
-    border-radius: 12px;
-    border: 1.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 0.85rem; margin-bottom: 0.35rem;
+    background: rgba(255,255,255,0.07); border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.1);
   }
-  .part-item.on {
-    border-color: #4ade80;
-    background: rgba(74,222,128,0.12);
-  }
+  .part-item.on { border-color: #4ade80; background: rgba(74,222,128,0.12); }
   .part-item span { font-size: 0.92rem; font-weight: 600; }
-  .part-item .toggle {
-    width: 46px; height: 27px; border-radius: 14px;
-    background: rgba(255,255,255,0.15);
-    position: relative; border: none;
-  }
+  .part-item .toggle { width: 46px; height: 27px; border-radius: 14px; background: rgba(255,255,255,0.15); position: relative; border: none; }
   .part-item.on .toggle { background: #4ade80; }
   .part-item .toggle::after {
-    content: '';
-    position: absolute; top: 3px; left: 3px;
-    width: 21px; height: 21px; border-radius: 50%;
+    content: ''; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%;
     background: #fff; transition: transform 0.15s;
   }
   .part-item.on .toggle::after { transform: translateX(19px); }
+  .suggest-list { flex: 1; overflow-y: auto; padding: 0.5rem 1rem 1rem; }
+  .suggest-card { background: rgba(255,255,255,0.08); border-radius: 14px; padding: 0.9rem; margin-bottom: 0.6rem; border: 1px solid rgba(255,255,255,0.12); }
+  .suggest-card h4 { font-size: 0.9rem; margin-bottom: 0.5rem; color: #4ade80; }
+  .suggest-colors { display: flex; gap: 0.35rem; margin-bottom: 0.5rem; }
+  .suggest-colors span { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+  .suggest-card button { width: 100%; height: 40px; border-radius: 10px; border: none; background: #4ade80; color: #062; font-weight: 700; font-size: 0.85rem; }
 
-  .suggest-list {
-    flex: 1; overflow-y: auto; padding: 0.5rem 1rem 1rem;
+  /* перетаскивание */
+  #dropbar {
+    position: fixed; left: 0; right: 0; top: 0; z-index: 300; display: none;
+    padding: calc(env(safe-area-inset-top) + 0.4rem) 0.6rem 0.6rem;
+    background: rgba(10,6,20,0.97); border-bottom: 1px solid rgba(255,255,255,0.15);
   }
-  .suggest-card {
-    background: rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 0.9rem;
-    margin-bottom: 0.6rem;
-    border: 1px solid rgba(255,255,255,0.12);
+  #dropbar.show { display: block; }
+  .drop-title { font-size: 0.7rem; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 0.35rem; }
+  .drop-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; }
+  .drop-chip {
+    padding: 0.45rem 0.05rem; border-radius: 10px; background: rgba(255,255,255,0.09);
+    border: 1.5px solid rgba(255,255,255,0.15); text-align: center; font-size: 0.6rem; font-weight: 600;
   }
-  .suggest-card h4 {
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    color: #4ade80;
+  .drop-chip .e { font-size: 1.05rem; display: block; margin-bottom: 1px; }
+  .drop-chip.hover { background: #4ade80; color: #062; border-color: transparent; }
+  .drop-chip.current { opacity: 0.35; }
+  .drop-chip.trash { background: rgba(127,29,29,0.4); border-color: rgba(248,113,113,0.4); }
+  .drop-chip.trash.hover { background: #ef4444; color: #fff; }
+  .ghost {
+    position: fixed; z-index: 400; width: 64px; height: 64px; pointer-events: none; border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); transform: translate(-50%, -65%) scale(1.1);
+    overflow: hidden; border: 2px solid #4ade80;
   }
-  .suggest-colors {
-    display: flex; gap: 0.35rem; margin-bottom: 0.5rem;
+  .ghost img { width: 100%; height: 100%; object-fit: contain; }
+
+  .spinner {
+    width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: #4ade80; border-radius: 50%; animation: spin 0.8s linear infinite;
   }
-  .suggest-colors span {
-    width: 22px; height: 22px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.3);
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #bgChip {
+    position: fixed; z-index: 250; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top) + 6px);
+    background: rgba(124,58,237,0.95); color: #fff; font-size: 0.72rem; font-weight: 700;
+    padding: 0.35rem 0.8rem; border-radius: 999px; display: none; box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    pointer-events: none; white-space: nowrap;
   }
-  .suggest-card button {
-    width: 100%; height: 40px; border-radius: 10px;
-    border: none; background: #4ade80; color: #062;
-    font-weight: 700; font-size: 0.85rem;
+  #bgChip.show { display: block; }
+  #toast {
+    position: fixed; z-index: 500; left: 50%; transform: translate(-50%, 20px);
+    bottom: calc(env(safe-area-inset-bottom) + 90px);
+    background: rgba(30,20,50,0.97); color: #fff; font-size: 0.8rem; font-weight: 600;
+    padding: 0.55rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; max-width: 90vw; text-align: center;
   }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
 </style>
 </head>
 <body>
 <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+<input type="file" id="importInput" accept=".json,application/json" style="display:none">
 
 <div class="app">
   <div class="sets-wrapper" id="setsWrapper"></div>
@@ -378,12 +344,13 @@
 
   <div class="closet">
     <div class="closet-header">
-      <div class="closet-title">ГАРДЕРОБ</div>
+      <div class="closet-title" id="closetTitle">ГАРДЕРОБ</div>
       <div class="closet-actions">
         <button id="btn-suggest" class="orange">Цвета</button>
         <button id="btn-parts" class="blue">Части</button>
         <button id="btn-new-set" class="purple">+ Сет</button>
         <button id="btn-add" class="green">+ Фото</button>
+        <button id="btn-settings" aria-label="Настройки">⚙️</button>
       </div>
     </div>
     <div class="cat-tabs" id="catTabs"></div>
@@ -391,33 +358,60 @@
   </div>
 </div>
 
-<!-- Add Modal -->
-<div class="modal" id="modal">
+<div id="bgChip"></div>
+<div id="toast"></div>
+
+<div id="dropbar">
+  <div class="drop-title">Отпусти на категории, чтобы перенести</div>
+  <div class="drop-grid" id="dropGrid"></div>
+</div>
+
+<!-- Выбор новых фото -->
+<div class="modal" id="stageModal">
   <div class="modal-header">
-    <button id="btn-cancel">Отмена</button>
-    <h3>Добавить вещь</h3>
+    <button id="stage-cancel">Отмена</button>
+    <h3 id="stageTitle">Новые фото</h3>
     <div style="width:70px"></div>
   </div>
-  <div class="preview-area">
-    <img id="previewImg" alt="">
-    <div class="bg-overlay" id="bgOverlay">
-      <div class="spinner"></div>
-      <div id="bgStatus">Удаляю фон…</div>
-    </div>
+  <div class="stage-bar">
+    <select id="stageCat"></select>
+    <button id="stage-all-on">✂️ всем</button>
+    <button id="stage-all-off">🖼 никому</button>
+  </div>
+  <div class="hint">✂️ — убрать фон · 🖼 — оставить как есть. Кнопки на фото — для каждого отдельно.</div>
+  <div class="stage-grid" id="stageGrid"></div>
+  <div class="modal-bottom"><button id="stage-add" disabled>Добавить</button></div>
+</div>
+
+<!-- Редактор вещи -->
+<div class="modal" id="editModal">
+  <div class="modal-header">
+    <button id="edit-cancel">Отмена</button>
+    <h3>Изменить вещь</h3>
+    <div style="width:70px"></div>
+  </div>
+  <div class="preview-area checker"><img id="editImg" alt="" draggable="false"></div>
+  <div class="angle-row">
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Угол</span>
+    <input type="range" id="angleRange" min="-180" max="180" step="1" value="0">
+    <span class="angle-val" id="angleVal">0°</span>
   </div>
   <div class="edit-tools">
-    <button id="btn-rotate-left">↺ 90°</button>
-    <button id="btn-rotate-right">90° ↻</button>
-    <button id="btn-remove-bg" class="bg-btn">✂️ Убрать фон</button>
+    <button id="btn-rot-l">↺ 90°</button>
+    <button id="btn-rot-r">90° ↻</button>
+    <button id="btn-flip">⇋ Зеркало</button>
+    <button id="btn-angle-reset">0°</button>
+    <button id="btn-edit-bg" class="bg-btn">✂️ Убрать фон</button>
   </div>
-  <div class="hint">Выбери категорию</div>
-  <div class="cat-grid" id="catGrid"></div>
+  <div class="hint" style="padding-bottom:0.2rem">Категория</div>
+  <div class="cat-grid" id="editCatGrid"></div>
   <div class="modal-bottom">
-    <button id="btn-save">Сохранить</button>
+    <button id="edit-delete" class="danger">Удалить</button>
+    <button id="edit-save">Сохранить</button>
   </div>
 </div>
 
-<!-- New Set Modal -->
+<!-- Новый сет -->
 <div class="modal" id="newSetModal">
   <div class="modal-header">
     <button id="btn-newset-cancel">Отмена</button>
@@ -428,7 +422,7 @@
   <div class="theme-grid" id="themeGrid"></div>
 </div>
 
-<!-- Parts Modal -->
+<!-- Части сета -->
 <div class="modal" id="partsModal">
   <div class="modal-header">
     <button id="btn-parts-cancel">Готово</button>
@@ -439,7 +433,7 @@
   <div class="parts-list" id="partsList"></div>
 </div>
 
-<!-- Suggest Modal -->
+<!-- Цвета -->
 <div class="modal" id="suggestModal">
   <div class="modal-header">
     <button id="btn-suggest-cancel">Закрыть</button>
@@ -450,7 +444,36 @@
   <div class="suggest-list" id="suggestList"></div>
 </div>
 
+<!-- Настройки -->
+<div class="modal" id="settingsModal">
+  <div class="modal-header">
+    <button id="btn-settings-close">Готово</button>
+    <h3>Настройки</h3>
+    <div style="width:70px"></div>
+  </div>
+  <div class="settings-body">
+    <div class="set-card">
+      <h4>Память</h4>
+      <p id="storageInfo">…</p>
+    </div>
+    <div class="set-card">
+      <h4>Резервная копия</h4>
+      <p>Safari может стереть данные сайта, если им долго не пользоваться. Надёжнее: «Поделиться» → «На экран «Домой»» и иногда сохранять копию.</p>
+      <button id="btn-export">⬇️ Сохранить копию (файл)</button>
+      <button id="btn-import">⬆️ Загрузить копию</button>
+    </div>
+    <div class="set-card">
+      <h4>Опасная зона</h4>
+      <button id="btn-clear" class="danger">Удалить все вещи и сеты</button>
+    </div>
+  </div>
+</div>
+
 <script>
+'use strict';
+/* =====================================================================
+   КОНСТАНТЫ
+   ===================================================================== */
 const CATEGORIES = {
   jacke:    { emoji: '🧥', label: 'Куртка/Пальто', slot: 'jacke' },
   bluse:    { emoji: '👚', label: 'Блузка/Рубашка', slot: 'bluse' },
@@ -463,6 +486,7 @@ const CATEGORIES = {
   tasche:   { emoji: '👜', label: 'Сумка', slot: 'tasche' },
   schuhe:   { emoji: '👟', label: 'Обувь', slot: 'schuhe' },
 };
+const CAT_ORDER = ['bluse','hose','jacke','gurtel','tasche','schuhe','rock','pullover','tshirt','shorts'];
 const ALL_SLOTS = ['jacke','bluse','gurtel','hose','tasche','schuhe'];
 const SLOT_TO_CATS = {
   jacke: ['jacke'], bluse: ['bluse','pullover','tshirt'],
@@ -482,169 +506,322 @@ const THEMES = {
   color:   { emoji: '🎨', label: 'Цвет', slots: ['bluse','hose','tasche','schuhe'], color: '#f472b6' },
   empty:   { emoji: '➕', label: 'Пустой', slots: ['bluse','hose'], color: '#94a3b8' },
 };
+const PREP_MAX = 640;     // макс. сторона сохранённого фото
+const THUMB_MAX = 160;    // макс. сторона миниатюры
+const ROT_MAX = 760;      // макс. сторона после поворота
 
-const WARDROBE_KEY = 'ob_w_v14';
-const SETS_KEY = 'ob_s_v14';
-const MAX_ITEMS = 16;
+const $ = id => document.getElementById(id);
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shortName = k => CATEGORIES[k].label.split('/')[0].split(' ')[0];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-let wardrobe = [];
+/* =====================================================================
+   СОСТОЯНИЕ
+   ===================================================================== */
+let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t, url, turl}
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
-let pendingImages = [];
-let pendingIndex = 0;
-let pendingCategory = 'bluse';
-let currentPreviewData = null;
-let currentHasAlpha = false;   // true, если у текущей картинки уже прозрачный фон (PNG)
-let bgJobId = 0;               // защита от гонок при быстрой смене фото
-let removeBackgroundFn = null;
+let prefs = { bgDefault: true };
+let db = null;
 
-function loadJSON(key, fallback) {
-  try { const r = localStorage.getItem(key); if (r) return JSON.parse(r); } catch(e) {}
-  return fallback;
+const setsWrapper = $('setsWrapper');
+const setDots = $('setDots');
+const catTabs = $('catTabs');
+const closetRow = $('closetRow');
+const fileInput = $('fileInput');
+
+const getItem = id => wardrobe.find(w => w.id === id);
+
+/* =====================================================================
+   ХРАНИЛИЩЕ: IndexedDB (картинки как Blob, без base64)
+   ===================================================================== */
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) return reject(new Error('IndexedDB недоступна'));
+    const r = indexedDB.open('outfit-builder', 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('items')) d.createObjectStore('items', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'k' });
+    };
+    r.onsuccess = () => { r.result.onversionchange = () => r.result.close(); resolve(r.result); };
+    r.onerror = () => reject(r.error);
+    r.onblocked = () => reject(new Error('blocked'));
+  });
 }
-function saveWardrobe() {
-  if (wardrobe.length > MAX_ITEMS) wardrobe = wardrobe.slice(-MAX_ITEMS);
-  for (let i = 0; i < 8; i++) {
-    try {
-      localStorage.setItem(WARDROBE_KEY, JSON.stringify(wardrobe));
-      return true;
-    } catch(e) {
-      if (wardrobe.length <= 1) { wardrobe = []; return false; }
-      wardrobe.shift();
-    }
-  }
+function idb(store, mode, fn) {
+  if (!db) return Promise.resolve(undefined);
+  return new Promise((resolve, reject) => {
+    let t;
+    try { t = db.transaction(store, mode); } catch (e) { return reject(e); }
+    let out;
+    const rq = fn(t.objectStore(store));
+    if (rq) rq.onsuccess = () => { out = rq.result; };
+    t.oncomplete = () => resolve(out);
+    t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error || new Error('abort'));
+  });
+}
+const dbGetAll = s => idb(s, 'readonly', st => st.getAll());
+const dbGet = (s, k) => idb(s, 'readonly', st => st.get(k));
+const dbPut = (s, o) => idb(s, 'readwrite', st => st.put(o));
+const dbDel = (s, k) => idb(s, 'readwrite', st => st.delete(k));
+const dbClear = s => idb(s, 'readwrite', st => st.clear());
+
+function storeError(e) {
+  console.error(e);
+  toast(e && e.name === 'QuotaExceededError' ? 'Память заполнена — удали лишнее' : 'Не удалось сохранить');
+}
+const ser = it => ({ id: it.id, cat: it.cat, blob: it.blob, thumb: it.thumb, alpha: it.alpha, cut: it.cut, bg: it.bg, t: it.t });
+async function persistItem(it) { try { await dbPut('items', ser(it)); } catch (e) { storeError(e); } }
+function saveSets() { dbPut('meta', { k: 'sets', v: sets }).catch(storeError); }
+function savePrefs() { dbPut('meta', { k: 'prefs', v: prefs }).catch(() => {}); }
+
+function hydrate(row) {
+  const it = Object.assign({}, row);
+  it.url = URL.createObjectURL(row.blob);
+  it.turl = URL.createObjectURL(row.thumb || row.blob);
+  return it;
+}
+function setImage(it, blob, thumb, alpha) {
+  if (it.url) URL.revokeObjectURL(it.url);
+  if (it.turl) URL.revokeObjectURL(it.turl);
+  it.blob = blob; it.thumb = thumb; it.alpha = alpha;
+  it.url = URL.createObjectURL(blob);
+  it.turl = URL.createObjectURL(thumb);
+}
+
+/* =====================================================================
+   КАРТИНКИ
+   ===================================================================== */
+async function toCanvas(blob, maxSide) {
+  const u = URL.createObjectURL(blob);
+  try {
+    const im = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error('decode'));
+      i.src = u;
+    });
+    let w = im.naturalWidth, h = im.naturalHeight;
+    if (!w || !h) throw new Error('empty');
+    const k = maxSide ? Math.min(1, maxSide / Math.max(w, h)) : 1;
+    w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const x = c.getContext('2d');
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(im, 0, 0, w, h);
+    return c;
+  } finally { URL.revokeObjectURL(u); }
+}
+const canvasToBlob = (c, type, q) => new Promise(r => c.toBlob(b => r(b), type, q));
+const blobToDataURL = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(null); r.readAsDataURL(b); });
+
+function canvasHasAlpha(c) {
+  const t = document.createElement('canvas'); t.width = t.height = 32;
+  const x = t.getContext('2d'); x.drawImage(c, 0, 0, 32, 32);
+  const d = x.getImageData(0, 0, 32, 32).data;
+  for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return true;
   return false;
 }
-function saveSets() {
-  try { localStorage.setItem(SETS_KEY, JSON.stringify(sets)); } catch(e) {}
+function trimCanvas(c) {
+  const w = c.width, h = c.height;
+  const d = c.getContext('2d').getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (d[(y * w + x) * 4 + 3] > 12) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x;
+        if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return c;
+  const pad = Math.round(Math.max(w, h) * 0.01);
+  x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad);
+  x1 = Math.min(w - 1, x1 + pad); y1 = Math.min(h - 1, y1 + pad);
+  const ww = x1 - x0 + 1, hh = y1 - y0 + 1;
+  if (ww >= w - 1 && hh >= h - 1) return c;
+  const o = document.createElement('canvas'); o.width = ww; o.height = hh;
+  o.getContext('2d').drawImage(c, x0, y0, ww, hh, 0, 0, ww, hh);
+  return o;
 }
+async function makeThumb(blob, alpha) {
+  const c = await toCanvas(blob, THUMB_MAX);
+  return alpha ? canvasToBlob(c, 'image/png') : canvasToBlob(c, 'image/jpeg', 0.75);
+}
+/* Подготовка загруженного фото: уменьшить, JPEG (или PNG, если уже прозрачное) */
+async function prepare(file) {
+  const c = await toCanvas(file, PREP_MAX);
+  const alpha = /png|webp|gif/i.test(file.type) && canvasHasAlpha(c);
+  const blob = alpha ? await canvasToBlob(c, 'image/png') : await canvasToBlob(c, 'image/jpeg', 0.85);
+  if (!blob) throw new Error('blob');
+  return { blob, alpha };
+}
+/* Поворот на любой угол + зеркало, потом обрезка пустых краёв («вписать») */
+async function bake(blob, angle, flip, wasAlpha) {
+  const src = await toCanvas(blob, 0);
+  const rad = angle * Math.PI / 180;
+  const cs = Math.abs(Math.cos(rad)), sn = Math.abs(Math.sin(rad));
+  let W = src.width * cs + src.height * sn, H = src.width * sn + src.height * cs;
+  const k = Math.min(1, ROT_MAX / Math.max(W, H));
+  W = Math.max(1, Math.round(W * k)); H = Math.max(1, Math.round(H * k));
+  let c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.imageSmoothingQuality = 'high';
+  x.translate(W / 2, H / 2); x.rotate(rad); if (flip) x.scale(-1, 1); x.scale(k, k);
+  x.drawImage(src, -src.width / 2, -src.height / 2);
+  const alpha = wasAlpha || Math.abs(angle % 90) > 0.01;
+  if (wasAlpha) c = trimCanvas(c);
+  const out = alpha ? await canvasToBlob(c, 'image/png') : await canvasToBlob(c, 'image/jpeg', 0.88);
+  return { blob: out, alpha, thumb: await makeThumb(out, alpha) };
+}
+
+/* =====================================================================
+   УДАЛЕНИЕ ФОНА (очередь в фоне, приложение не блокируется)
+   ===================================================================== */
+let removeBackgroundFn = null;
+async function loadBackgroundRemover() {
+  if (removeBackgroundFn) return removeBackgroundFn;
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm');
+    const fn = mod.removeBackground || mod.default;
+    if (typeof fn !== 'function') throw new Error('removeBackground not found');
+    removeBackgroundFn = fn;
+    return fn;
+  } catch (e) { e.isLoad = true; throw e; }
+}
+const bg = { queue: [], running: false, total: 0, done: 0, pct: null, prog: {} };
+function onModelProgress(key, cur, tot) {
+  bg.prog[key] = [cur, tot];
+  let c = 0, t = 0;
+  for (const k in bg.prog) { c += bg.prog[k][0]; t += bg.prog[k][1]; }
+  bg.pct = t ? Math.round(100 * c / t) : null;
+  updateChip();
+}
+function updateChip() {
+  const c = $('bgChip');
+  if (!bg.running && !bg.queue.length) { c.classList.remove('show'); return; }
+  c.classList.add('show');
+  c.textContent = '✂️ Фон: ' + Math.min(bg.done + 1, Math.max(bg.total, 1)) + ' из ' + Math.max(bg.total, 1) +
+    (bg.pct != null && bg.pct < 100 ? ' · модель ' + bg.pct + '%' : '');
+}
+async function cutout(blob) {
+  const rm = await loadBackgroundRemover();
+  const out = await rm(blob, { model: 'isnet_quint8', output: { format: 'image/png' }, progress: onModelProgress });
+  const c = trimCanvas(await toCanvas(out, 0));
+  const png = await canvasToBlob(c, 'image/png');
+  return { blob: png, thumb: await makeThumb(png, true) };
+}
+function enqueueBg(id) {
+  if (!bg.queue.includes(id)) { bg.queue.push(id); bg.total++; }
+  updateChip();
+  runBg();
+}
+async function runBg() {
+  if (bg.running) return;
+  bg.running = true;
+  let fail = 0, loadFail = false;
+  try {
+    while (bg.queue.length) {
+      const id = bg.queue[0];
+      const it = getItem(id);
+      if (!it || it.bg !== 'pending') { bg.queue.shift(); bg.total = Math.max(0, bg.total - 1); continue; }
+      updateChip();
+      try {
+        const r = await cutout(it.blob);
+        const cur = getItem(id);
+        if (cur && cur.bg === 'pending') {
+          setImage(cur, r.blob, r.thumb, true);
+          cur.cut = true; cur.bg = 'done';
+          await persistItem(cur);
+        }
+      } catch (err) {
+        console.error(err);
+        if (err && err.isLoad) {
+          loadFail = true;
+          for (const qid of bg.queue) { const q = getItem(qid); if (q && q.bg === 'pending') { q.bg = 'none'; await persistItem(q); } }
+          bg.queue.length = 0;
+          break;
+        }
+        const cur = getItem(id);
+        if (cur) { cur.bg = 'none'; await persistItem(cur); }
+        fail++;
+      }
+      bg.queue.shift(); bg.done++;
+      renderCloset(); refreshSlots(); updateChip();
+    }
+  } finally {
+    bg.running = false; bg.total = 0; bg.done = 0; bg.pct = null; bg.prog = {};
+    updateChip(); renderCloset(); refreshSlots();
+    if (loadFail) toast('Модель не загрузилась (нет интернета?). Фото сохранены с фоном — в ✎ можно повторить.', 5000);
+    else if (fail) toast('У ' + fail + ' фото фон не удалился', 4000);
+  }
+}
+function resumePending() {
+  if (!navigator.onLine) return;
+  wardrobe.filter(w => w.bg === 'pending').forEach(w => enqueueBg(w.id));
+}
+window.addEventListener('online', resumePending);
+
+/* =====================================================================
+   TOAST
+   ===================================================================== */
+let toastT;
+function toast(msg, ms = 2600) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+/* =====================================================================
+   СЕТЫ
+   ===================================================================== */
 function createEmptySet(themeKey = 'empty') {
   const t = THEMES[themeKey] || THEMES.empty;
   return {
-    id: 'set_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
-    name: t.label + ' сет',
-    theme: themeKey,
+    id: uid('set_'), name: t.label + ' сет', theme: themeKey,
     indices: { jacke:0, bluse:0, gurtel:0, hose:0, tasche:0, schuhe:0 },
     activeSlots: [...t.slots]
   };
 }
-
-/* PNG сохраняет прозрачность, JPEG — нет (фон становился бы чёрным) */
-function compressImage(src, maxSize = 420, quality = 0.48, png = false) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      let w = img.width, h = img.height;
-      if (w > maxSize || h > maxSize) {
-        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-        else { w = Math.round(w * maxSize / h); h = maxSize; }
-      }
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = () => resolve(null);
-    img.src = src;
+function normalizeSets() {
+  if (!Array.isArray(sets) || !sets.length) sets = [createEmptySet('classic')];
+  sets.forEach(s => {
+    if (!s.activeSlots) s.activeSlots = [...ALL_SLOTS];
+    if (!s.theme) s.theme = 'empty';
+    if (!s.name) s.name = 'Сет';
+    if (!s.indices) s.indices = { jacke:0, bluse:0, gurtel:0, hose:0, tasche:0, schuhe:0 };
   });
+  if (activeSetIndex >= sets.length) activeSetIndex = sets.length - 1;
 }
-
-function rotateImage(dataUrl, degrees, png = false) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d');
-      if (degrees === 90 || degrees === 270 || degrees === -90) {
-        c.width = img.height;
-        c.height = img.width;
-      } else {
-        c.width = img.width;
-        c.height = img.height;
-      }
-      ctx.translate(c.width/2, c.height/2);
-      ctx.rotate(degrees * Math.PI / 180);
-      ctx.drawImage(img, -img.width/2, -img.height/2);
-      resolve(png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.85));
-    };
-    img.src = dataUrl;
-  });
+function ensureSlot(set, slot) {
+  if (set.activeSlots.includes(slot)) return false;
+  set.activeSlots.push(slot);
+  set.activeSlots.sort((a, b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
+  return true;
 }
+const itemsForSlot = slot => wardrobe.filter(w => (SLOT_TO_CATS[slot] || []).includes(w.cat));
 
-/* ===== Удаление фона ===== */
-async function loadBackgroundRemover() {
-  if (removeBackgroundFn) return removeBackgroundFn;
-  const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm');
-  removeBackgroundFn = mod.removeBackground || mod.default;
-  if (typeof removeBackgroundFn !== 'function') {
-    throw new Error('removeBackground not found');
-  }
-  return removeBackgroundFn;
+function slotHTML(s, cls, style) {
+  return `<div class="slot ${cls}" data-slot="${s}"${style ? ` style="${style}"` : ''}><div class="label">${SLOT_LABELS[s]}</div><div class="placeholder">${SLOT_LABELS[s]}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>`;
 }
-
-const setsWrapper = document.getElementById('setsWrapper');
-const setDots = document.getElementById('setDots');
-const catTabs = document.getElementById('catTabs');
-const closetRow = document.getElementById('closetRow');
-const modal = document.getElementById('modal');
-const newSetModal = document.getElementById('newSetModal');
-const partsModal = document.getElementById('partsModal');
-const suggestModal = document.getElementById('suggestModal');
-const previewImg = document.getElementById('previewImg');
-const catGrid = document.getElementById('catGrid');
-const bgOverlay = document.getElementById('bgOverlay');
-const bgStatus = document.getElementById('bgStatus');
-const btnSave = document.getElementById('btn-save');
-const btnRemoveBg = document.getElementById('btn-remove-bg');
-const btnRotL = document.getElementById('btn-rotate-left');
-const btnRotR = document.getElementById('btn-rotate-right');
-const fileInput = document.getElementById('fileInput');
-
-wardrobe = loadJSON(WARDROBE_KEY, []);
-sets = loadJSON(SETS_KEY, [createEmptySet('classic')]);
-if (!sets.length) sets = [createEmptySet('classic')];
-sets.forEach(s => {
-  if (!s.activeSlots) s.activeSlots = [...ALL_SLOTS];
-  if (!s.theme) s.theme = 'empty';
-  if (!s.name) s.name = 'Сет';
-});
-
 function buildSlotsHTML(activeSlots) {
   const has = s => activeSlots.includes(s);
   let html = '<div class="slots-container">';
-  const top = [];
-  if (has('jacke')) top.push('jacke');
-  if (has('bluse')) top.push('bluse');
-  if (top.length === 2) {
-    html += `<div class="row flex-2">
-      <div class="slot flex-1" data-slot="jacke"><div class="label">${SLOT_LABELS.jacke}</div><div class="placeholder">${SLOT_LABELS.jacke}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>
-      <div class="slot flex-2" data-slot="bluse"><div class="label">${SLOT_LABELS.bluse}</div><div class="placeholder">${SLOT_LABELS.bluse}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>
-    </div>`;
-  } else if (top.length === 1) {
-    const s = top[0];
-    html += `<div class="row flex-2"><div class="slot flex-1" data-slot="${s}"><div class="label">${SLOT_LABELS[s]}</div><div class="placeholder">${SLOT_LABELS[s]}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div></div>`;
-  }
-  if (has('gurtel')) {
-    html += `<div class="row" style="flex:0 0 auto;"><div class="slot thin" data-slot="gurtel" style="width:100%"><div class="label">${SLOT_LABELS.gurtel}</div><div class="placeholder">${SLOT_LABELS.gurtel}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div></div>`;
-  }
-  if (has('hose')) {
-    html += `<div class="row flex-3"><div class="slot flex-1" data-slot="hose"><div class="label">${SLOT_LABELS.hose}</div><div class="placeholder">${SLOT_LABELS.hose}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div></div>`;
-  }
-  const bot = [];
-  if (has('tasche')) bot.push('tasche');
-  if (has('schuhe')) bot.push('schuhe');
-  if (bot.length === 2) {
-    html += `<div class="row flex-1">
-      <div class="slot flex-1" data-slot="tasche"><div class="label">${SLOT_LABELS.tasche}</div><div class="placeholder">${SLOT_LABELS.tasche}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>
-      <div class="slot flex-1" data-slot="schuhe"><div class="label">${SLOT_LABELS.schuhe}</div><div class="placeholder">${SLOT_LABELS.schuhe}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>
-    </div>`;
-  } else if (bot.length === 1) {
-    const s = bot[0];
-    html += `<div class="row flex-1"><div class="slot flex-1" data-slot="${s}"><div class="label">${SLOT_LABELS[s]}</div><div class="placeholder">${SLOT_LABELS[s]}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div></div>`;
-  }
-  html += '</div>';
-  return html;
+  const top = ['jacke', 'bluse'].filter(has);
+  if (top.length === 2) html += `<div class="row flex-2">${slotHTML('jacke','flex-1')}${slotHTML('bluse','flex-2')}</div>`;
+  else if (top.length === 1) html += `<div class="row flex-2">${slotHTML(top[0],'flex-1')}</div>`;
+  if (has('gurtel')) html += `<div class="row" style="flex:0 0 auto;">${slotHTML('gurtel','thin','width:100%')}</div>`;
+  if (has('hose')) html += `<div class="row flex-3">${slotHTML('hose','flex-1')}</div>`;
+  const bot = ['tasche', 'schuhe'].filter(has);
+  if (bot.length === 2) html += `<div class="row flex-1">${slotHTML('tasche','flex-1')}${slotHTML('schuhe','flex-1')}</div>`;
+  else if (bot.length === 1) html += `<div class="row flex-1">${slotHTML(bot[0],'flex-1')}</div>`;
+  return html + '</div>';
 }
 
 function renderSets() {
@@ -657,36 +834,46 @@ function renderSets() {
     const theme = THEMES[set.theme] || THEMES.empty;
     page.innerHTML = `
       <div class="set-header">
-        <div class="set-name">${set.name || 'Сет'}</div>
+        <div class="set-name" title="Нажми, чтобы переименовать">${esc(set.name || 'Сет')}</div>
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${theme.label}</div>
+        ${sets.length > 1 ? '<button class="set-del" aria-label="Удалить сет">🗑</button>' : ''}
       </div>
-      ${buildSlotsHTML(set.activeSlots || ALL_SLOTS)}
-    `;
+      ${buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
     setsWrapper.appendChild(page);
     fillSlots(page, set);
     page.querySelectorAll('.slot').forEach(el => setupSlot(el, idx));
+    page.querySelector('.set-name').onclick = () => {
+      const n = prompt('Название сета', set.name);
+      if (n && n.trim()) { set.name = n.trim().slice(0, 40); saveSets(); renderSets(); }
+    };
+    const del = page.querySelector('.set-del');
+    if (del) del.onclick = () => {
+      if (!confirm('Удалить сет «' + set.name + '»? Вещи останутся.')) return;
+      sets.splice(idx, 1);
+      if (activeSetIndex >= sets.length) activeSetIndex = sets.length - 1;
+      saveSets(); renderSets();
+    };
     const dot = document.createElement('div');
     dot.className = 'dot' + (idx === activeSetIndex ? ' active' : '');
+    dot.onclick = () => goToSet(idx);
     setDots.appendChild(dot);
   });
-  requestAnimationFrame(() => {
-    setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1);
-  });
+  requestAnimationFrame(() => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
 }
-
+function goToSet(idx) {
+  activeSetIndex = idx;
+  setsWrapper.scrollTo({ left: idx * setsWrapper.clientWidth, behavior: 'smooth' });
+  setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
 function fillSlots(page, set) {
   page.querySelectorAll('.slot').forEach(slotEl => {
     const slotName = slotEl.dataset.slot;
-    const cats = SLOT_TO_CATS[slotName] || [];
-    const items = wardrobe.filter(w => cats.includes(w.category));
-    const oldImg = slotEl.querySelector('img');
-    const oldPh = slotEl.querySelector('.placeholder');
-    if (oldImg) oldImg.remove();
-    if (oldPh) oldPh.remove();
+    const items = itemsForSlot(slotName);
+    const oldImg = slotEl.querySelector('img'); if (oldImg) oldImg.remove();
+    const oldPh = slotEl.querySelector('.placeholder'); if (oldPh) oldPh.remove();
     if (!items.length) {
       const ph = document.createElement('div');
-      ph.className = 'placeholder';
-      ph.textContent = SLOT_LABELS[slotName];
+      ph.className = 'placeholder'; ph.textContent = SLOT_LABELS[slotName];
       slotEl.appendChild(ph);
       return;
     }
@@ -694,261 +881,456 @@ function fillSlots(page, set) {
     if (idx < 0 || idx >= items.length) idx = 0;
     set.indices[slotName] = idx;
     const img = document.createElement('img');
-    img.src = items[idx].img;
+    img.src = items[idx].url; img.draggable = false; img.alt = '';
     slotEl.appendChild(img);
   });
 }
-
+function refreshSlots() {
+  sets.forEach((set, i) => {
+    const page = setsWrapper.querySelector(`.set-page[data-index="${i}"]`);
+    if (page) fillSlots(page, set);
+  });
+}
 function setupSlot(slotEl, setIdx) {
   const slotName = slotEl.dataset.slot;
   let startX = 0, longTimer = null, longPressed = false;
   slotEl.addEventListener('pointerdown', e => {
     if (e.target.closest('.slot-arrows')) return;
-    startX = e.clientX;
-    longPressed = false;
+    startX = e.clientX; longPressed = false;
     longTimer = setTimeout(() => {
       longPressed = true;
       sets[setIdx].indices[slotName] = 0;
-      saveSets(); renderSets();
+      saveSets(); refreshSlots();
       if (navigator.vibrate) navigator.vibrate(25);
     }, 600);
-    try { slotEl.setPointerCapture(e.pointerId); } catch(e) {}
+    try { slotEl.setPointerCapture(e.pointerId); } catch (err) {}
   });
+  slotEl.addEventListener('pointermove', e => { if (Math.abs(e.clientX - startX) > 12) clearTimeout(longTimer); });
   slotEl.addEventListener('pointerup', e => {
     clearTimeout(longTimer);
     if (longPressed) return;
     const dx = e.clientX - startX;
-    if (Math.abs(dx) > 40) {
-      changeVariant(setIdx, slotName, dx > 0 ? 1 : -1);
-      return;
-    }
+    if (Math.abs(dx) > 40) { changeVariant(setIdx, slotName, dx > 0 ? 1 : -1); return; }
     document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
     slotEl.classList.add('active');
     activeSetIndex = setIdx;
   });
   slotEl.addEventListener('pointercancel', () => clearTimeout(longTimer));
-  const prev = slotEl.querySelector('.prev');
-  const next = slotEl.querySelector('.next');
+  const prev = slotEl.querySelector('.prev'), next = slotEl.querySelector('.next');
   if (prev) prev.onclick = e => { e.stopPropagation(); changeVariant(setIdx, slotName, -1); };
   if (next) next.onclick = e => { e.stopPropagation(); changeVariant(setIdx, slotName, 1); };
 }
-
 function changeVariant(setIdx, slotName, dir) {
   const set = sets[setIdx];
   if (!set) return;
-  const cats = SLOT_TO_CATS[slotName] || [];
-  const items = wardrobe.filter(w => cats.includes(w.category));
+  const items = itemsForSlot(slotName);
   if (items.length < 2) return;
-  let idx = (set.indices[slotName] || 0) + dir;
-  idx = (idx + items.length) % items.length;
-  set.indices[slotName] = idx;
+  set.indices[slotName] = ((set.indices[slotName] || 0) + dir + items.length) % items.length;
   saveSets();
-  renderSets();
-  requestAnimationFrame(() => {
-    const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
-    if (!page) return;
-    const slot = page.querySelector(`.slot[data-slot="${slotName}"]`);
-    if (slot) {
-      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
-      slot.classList.add('active');
-    }
-  });
+  const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
+  if (page) fillSlots(page, set);
 }
-
 setsWrapper.addEventListener('scroll', () => {
   clearTimeout(setsWrapper._t);
   setsWrapper._t = setTimeout(() => {
     const w = setsWrapper.clientWidth || 1;
-    activeSetIndex = Math.round(setsWrapper.scrollLeft / w);
-    if (activeSetIndex < 0) activeSetIndex = 0;
-    if (activeSetIndex >= sets.length) activeSetIndex = sets.length - 1;
+    activeSetIndex = Math.max(0, Math.min(sets.length - 1, Math.round(setsWrapper.scrollLeft / w)));
     setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === activeSetIndex));
   }, 60);
 });
 
-/* ===== ADD + ROTATE + BG REMOVE ===== */
-function startAdd() {
-  fileInput.value = '';
-  fileInput.click();
-}
-
-function setBusy(busy) {
-  btnRemoveBg.disabled = busy;
-  btnRotL.disabled = busy;
-  btnRotR.disabled = busy;
-  btnSave.disabled = busy;
-  bgOverlay.classList.toggle('show', busy);
-}
-
-/* Автоматическое удаление фона для текущей картинки в окне добавления */
-async function removeBgFromCurrent() {
-  if (!currentPreviewData || currentHasAlpha) return;
-  const job = ++bgJobId;
-  const source = currentPreviewData;
-  setBusy(true);
-  bgStatus.textContent = 'Загружаю модель…';
-  try {
-    const removeBg = await loadBackgroundRemover();
-    if (job !== bgJobId) return;
-    bgStatus.textContent = 'Удаляю фон…';
-    const srcBlob = await (await fetch(source)).blob();
-    const blob = await removeBg(srcBlob, {
-      model: 'isnet_quint8',
-      output: { format: 'image/png' }
-    });
-    if (job !== bgJobId) return;   // окно закрыли / переключили фото
-    currentPreviewData = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = ev => res(ev.target.result);
-      r.readAsDataURL(blob);
-    });
-    currentHasAlpha = true;
-    previewImg.src = currentPreviewData;
-  } catch (err) {
-    console.error(err);
-    if (job === bgJobId) {
-      alert('Не удалось удалить фон (' + (err.message || err) + ').\nПроверь интернет — при первом запуске скачивается модель ~40 МБ.\nФото можно сохранить и без удаления фона.');
-    }
-  } finally {
-    if (job === bgJobId) setBusy(false);
-  }
-}
-
-fileInput.addEventListener('change', async e => {
-  const files = Array.from(e.target.files || []);
-  if (!files.length) return;
-  btnSave.disabled = true;
-  btnSave.textContent = 'Загрузка…';
-  pendingImages = [];
-  for (const f of files) {
-    const data = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = ev => res(ev.target.result);
-      r.readAsDataURL(f);
-    });
-    const compressed = await compressImage(data, 640, 0.8);
-    if (compressed) pendingImages.push(compressed);
-  }
-  btnSave.disabled = false;
-  btnSave.textContent = 'Сохранить';
-  if (!pendingImages.length) return;
-  pendingIndex = 0;
-  pendingCategory = activeFilter || 'bluse';
-  currentPreviewData = pendingImages[0];
-  currentHasAlpha = false;
-  previewImg.src = currentPreviewData;
-  renderCatGrid();
-  modal.classList.add('open');
-  removeBgFromCurrent();            // фон удаляется автоматически
-});
-
-btnRotL.onclick = async () => {
-  if (!currentPreviewData) return;
-  currentPreviewData = await rotateImage(currentPreviewData, -90, currentHasAlpha);
-  previewImg.src = currentPreviewData;
-};
-btnRotR.onclick = async () => {
-  if (!currentPreviewData) return;
-  currentPreviewData = await rotateImage(currentPreviewData, 90, currentHasAlpha);
-  previewImg.src = currentPreviewData;
-};
-
-/* Кнопка — повторная попытка (например, если не было интернета) */
-btnRemoveBg.onclick = removeBgFromCurrent;
-
-function renderCatGrid() {
-  catGrid.innerHTML = '';
-  Object.keys(CATEGORIES).forEach(key => {
-    const val = CATEGORIES[key];
+/* =====================================================================
+   ГАРДЕРОБ (вкладки + миниатюры)
+   ===================================================================== */
+function renderTabs() {
+  catTabs.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'cat-tab' + (activeFilter === null ? ' active' : '');
+  all.textContent = 'Все ' + wardrobe.length;
+  all.onclick = () => { activeFilter = null; renderTabs(); renderCloset(); };
+  catTabs.appendChild(all);
+  CAT_ORDER.forEach(key => {
+    const n = wardrobe.filter(w => w.cat === key).length;
     const btn = document.createElement('button');
-    btn.textContent = val.emoji + ' ' + val.label;
-    if (key === pendingCategory) btn.classList.add('selected');
-    btn.onclick = () => { pendingCategory = key; renderCatGrid(); };
-    catGrid.appendChild(btn);
+    btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
+    btn.textContent = CATEGORIES[key].emoji + ' ' + shortName(key) + (n ? ' ' + n : '');
+    btn.onclick = () => { activeFilter = activeFilter === key ? null : key; renderTabs(); renderCloset(); };
+    catTabs.appendChild(btn);
   });
 }
-
-btnSave.onclick = async () => {
-  if (!currentPreviewData) return;
-  const finalImg = currentHasAlpha
-    ? await compressImage(currentPreviewData, 360, 1, true)
-    : await compressImage(currentPreviewData, 400, 0.45);
-  const newItem = {
-    id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
-    img: finalImg || currentPreviewData,
-    category: pendingCategory
-  };
-  wardrobe.push(newItem);
-  saveWardrobe();
-
-  const slot = CATEGORIES[pendingCategory].slot;
-  const cats = SLOT_TO_CATS[slot] || [];
-  const itemsInSlot = wardrobe.filter(w => cats.includes(w.category));
-  sets[activeSetIndex].indices[slot] = Math.max(0, itemsInSlot.length - 1);
-  if (!sets[activeSetIndex].activeSlots.includes(slot)) {
-    sets[activeSetIndex].activeSlots.push(slot);
-    sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
+function renderCloset() {
+  closetRow.innerHTML = '';
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-thumb'; addBtn.textContent = '+';
+  addBtn.onclick = startAdd;
+  closetRow.appendChild(addBtn);
+  const list = activeFilter ? wardrobe.filter(w => w.cat === activeFilter) : wardrobe;
+  if (!list.length) {
+    const h = document.createElement('div');
+    h.className = 'empty-hint';
+    h.textContent = wardrobe.length ? 'В этой категории пусто' : 'Добавь первые фото →';
+    closetRow.appendChild(h);
   }
+  list.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'thumb checker' + (item.bg === 'pending' ? ' pending' : '');
+    el.dataset.id = item.id;
+    const img = document.createElement('img');
+    img.src = item.turl; img.draggable = false; img.alt = '';
+    el.appendChild(img);
+    const del = document.createElement('button');
+    del.className = 'del'; del.textContent = '×';
+    del.onclick = e => { e.stopPropagation(); if (confirm('Удалить это фото?')) deleteItem(item.id); };
+    el.appendChild(del);
+    const ed = document.createElement('button');
+    ed.className = 'edit'; ed.textContent = '✎';
+    ed.onclick = e => { e.stopPropagation(); openEdit(item); };
+    el.appendChild(ed);
+    el.addEventListener('contextmenu', e => e.preventDefault());
+    el.onclick = () => {
+      if (drag.suppress) return;
+      const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
+      if (!slot) return;
+      const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
+      if (idx < 0) return;
+      const set = sets[activeSetIndex];
+      set.indices[slot] = idx;
+      const changed = ensureSlot(set, slot);
+      saveSets();
+      changed ? renderSets() : refreshSlots();
+    };
+    bindThumbDrag(el, item);
+    closetRow.appendChild(el);
+  });
+  updateTitle();
+}
+function updateTitle() { $('closetTitle').textContent = 'ГАРДЕРОБ · ' + wardrobe.length; }
+function renderAll() { renderSets(); renderTabs(); renderCloset(); }
+
+async function deleteItem(id) {
+  const it = getItem(id);
+  if (!it) return;
+  wardrobe = wardrobe.filter(w => w.id !== id);
+  bg.queue = bg.queue.filter(q => q !== id);
+  if (it.url) URL.revokeObjectURL(it.url);
+  if (it.turl) URL.revokeObjectURL(it.turl);
+  try { await dbDel('items', id); } catch (e) { storeError(e); }
+  renderTabs(); renderCloset(); refreshSlots();
+}
+function moveItem(item, newCat) {
+  if (item.cat === newCat) return;
+  item.cat = newCat;
+  persistItem(item);
+  const set = sets[activeSetIndex];
+  const slot = CATEGORIES[newCat].slot;
+  const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
+  if (idx >= 0) set.indices[slot] = idx;
+  const changed = ensureSlot(set, slot);
   saveSets();
+  renderTabs(); renderCloset();
+  changed ? renderSets() : refreshSlots();
+  toast('Перенесено: ' + CATEGORIES[newCat].emoji + ' ' + shortName(newCat));
+}
 
-  pendingIndex++;
-  if (pendingIndex >= pendingImages.length) {
-    bgJobId++;
-    modal.classList.remove('open');
-    pendingImages = [];
-    currentPreviewData = null;
-    currentHasAlpha = false;
-    renderSets();
-    renderCloset();
-  } else {
-    currentPreviewData = pendingImages[pendingIndex];
-    currentHasAlpha = false;
-    previewImg.src = currentPreviewData;
-    renderCatGrid();
-    removeBgFromCurrent();          // следующее фото из пачки — тоже автоматически
+/* =====================================================================
+   DRAG & DROP (долгое нажатие на миниатюру → отпустить на категории)
+   ===================================================================== */
+const drag = { timer: null, active: false, item: null, el: null, ghost: null, x: 0, y: 0, sx: 0, sy: 0, suppress: false };
+(function buildDropbar() {
+  const g = $('dropGrid');
+  CAT_ORDER.forEach(k => {
+    const d = document.createElement('div');
+    d.className = 'drop-chip'; d.dataset.drop = k;
+    d.innerHTML = `<span class="e">${CATEGORIES[k].emoji}</span>${esc(shortName(k))}`;
+    g.appendChild(d);
+  });
+  const t = document.createElement('div');
+  t.className = 'drop-chip trash'; t.dataset.drop = '__trash';
+  t.innerHTML = '<span class="e">🗑</span>Удалить';
+  g.appendChild(t);
+})();
+function bindThumbDrag(el, item) {
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    drag.sx = drag.x = e.clientX; drag.sy = drag.y = e.clientY;
+    clearTimeout(drag.timer);
+    drag.timer = setTimeout(() => beginDrag(item, el), 350);
+  });
+}
+function beginDrag(item, el) {
+  drag.timer = null; drag.active = true; drag.item = item; drag.el = el;
+  el.classList.add('dragging');
+  const g = document.createElement('div');
+  g.className = 'ghost checker';
+  g.innerHTML = `<img src="${item.turl}" alt="">`;
+  document.body.appendChild(g);
+  drag.ghost = g;
+  moveGhost();
+  document.querySelectorAll('.drop-chip').forEach(c => {
+    c.classList.remove('hover');
+    c.classList.toggle('current', c.dataset.drop === item.cat);
+  });
+  $('dropbar').classList.add('show');
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+function moveGhost() {
+  if (!drag.ghost) return;
+  drag.ghost.style.left = drag.x + 'px';
+  drag.ghost.style.top = drag.y + 'px';
+  const under = document.elementFromPoint(drag.x, drag.y);
+  const chip = under && under.closest ? under.closest('.drop-chip') : null;
+  document.querySelectorAll('.drop-chip.hover').forEach(c => { if (c !== chip) c.classList.remove('hover'); });
+  if (chip) chip.classList.add('hover');
+  drag.target = chip ? chip.dataset.drop : null;
+}
+function finishDrag(drop) {
+  clearTimeout(drag.timer); drag.timer = null;
+  if (!drag.active) return;
+  const item = drag.item, target = drag.target;
+  drag.active = false;
+  if (drag.ghost) drag.ghost.remove();
+  if (drag.el) drag.el.classList.remove('dragging');
+  $('dropbar').classList.remove('show');
+  drag.ghost = null; drag.el = null; drag.item = null; drag.target = null;
+  drag.suppress = true; setTimeout(() => { drag.suppress = false; }, 80);
+  if (!drop || !target || !item) return;
+  if (target === '__trash') { if (confirm('Удалить это фото?')) deleteItem(item.id); }
+  else if (CATEGORIES[target]) moveItem(item, target);
+}
+window.addEventListener('pointermove', e => {
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (drag.timer && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 10) { clearTimeout(drag.timer); drag.timer = null; }
+  if (drag.active) moveGhost();
+}, { passive: true });
+window.addEventListener('pointerup', e => { drag.x = e.clientX; drag.y = e.clientY; if (drag.active) moveGhost(); finishDrag(true); });
+window.addEventListener('pointercancel', () => finishDrag(false));
+window.addEventListener('touchmove', e => { if (drag.active) e.preventDefault(); }, { passive: false });
+
+/* =====================================================================
+   ДОБАВЛЕНИЕ: сначала выбор (фон да/нет, категория), потом всё сразу
+   ===================================================================== */
+const stageModal = $('stageModal'), stageGrid = $('stageGrid'), stageCat = $('stageCat');
+let staged = [], stageToken = 0;
+
+(function fillStageCat() {
+  stageCat.innerHTML = CAT_ORDER.map(k => `<option value="${k}">${CATEGORIES[k].emoji} ${esc(CATEGORIES[k].label)}</option>`).join('');
+})();
+function startAdd() { fileInput.value = ''; fileInput.click(); }
+fileInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  if (files.length) openStage(files);
+});
+const tileEl = s => stageGrid.querySelector(`[data-sid="${s.sid}"]`);
+
+function addTile(s) {
+  const d = document.createElement('div');
+  d.className = 'tile checker loading'; d.dataset.sid = s.sid;
+  d.innerHTML = `<img alt="" draggable="false"><button class="t-x" aria-label="Убрать">✕</button><button class="t-bg"></button><select class="t-cat">${
+    CAT_ORDER.map(k => `<option value="${k}">${CATEGORIES[k].emoji} ${esc(shortName(k))}</option>`).join('')}</select>`;
+  const sel = d.querySelector('.t-cat');
+  sel.value = s.cat;
+  sel.onchange = () => { s.cat = sel.value; s.manualCat = true; };
+  d.querySelector('.t-x').onclick = () => { s.removed = true; d.remove(); updateStageUI(); };
+  d.querySelector('.t-bg').onclick = () => { if (!s.alpha) { s.bg = !s.bg; updateTile(s); } };
+  stageGrid.appendChild(d);
+  updateTile(s);
+}
+function updateTile(s) {
+  const d = tileEl(s); if (!d) return;
+  d.classList.toggle('loading', !s.ready && !s.failed);
+  d.classList.toggle('failed', !!s.failed);
+  const img = d.querySelector('img');
+  if (s.url && img.getAttribute('src') !== s.url) img.src = s.url;
+  const b = d.querySelector('.t-bg');
+  if (s.alpha) { b.textContent = '✓ уже прозрачное'; b.className = 't-bg alpha'; }
+  else if (s.bg) { b.textContent = '✂️ без фона'; b.className = 't-bg on'; }
+  else { b.textContent = '🖼 с фоном'; b.className = 't-bg'; }
+}
+function updateStageUI() {
+  const live = staged.filter(s => !s.removed);
+  const ready = live.filter(s => s.ready);
+  const busy = live.some(s => !s.ready && !s.failed);
+  const btn = $('stage-add');
+  btn.disabled = !ready.length;
+  btn.textContent = busy ? 'Готовлю… (' + ready.length + '/' + live.length + ')' : 'Добавить ' + ready.length + ' фото';
+  $('stageTitle').textContent = 'Новые фото · ' + live.length;
+}
+async function openStage(files) {
+  const token = ++stageToken;
+  staged = []; stageGrid.innerHTML = '';
+  stageCat.value = activeFilter || 'bluse';
+  stageModal.classList.add('open');
+  files.forEach(f => {
+    const s = { sid: uid('s'), file: f, cat: stageCat.value, bg: prefs.bgDefault, ready: false };
+    staged.push(s); addTile(s);
+  });
+  updateStageUI();
+  for (const s of staged) {
+    if (token !== stageToken) return;
+    if (s.removed) continue;
+    try {
+      const p = await prepare(s.file);
+      if (token !== stageToken) return;
+      s.blob = p.blob; s.alpha = p.alpha; s.url = URL.createObjectURL(p.blob); s.ready = true;
+    } catch (err) { console.error(err); s.failed = true; }
+    s.file = null;
+    updateTile(s); updateStageUI();
+    await sleep(0);
   }
+}
+function closeStage(keep) {
+  stageToken++;
+  staged.forEach(s => { if (s.url && !(keep && keep.has(s.sid))) URL.revokeObjectURL(s.url); });
+  staged = []; stageGrid.innerHTML = '';
+  stageModal.classList.remove('open');
+}
+stageCat.onchange = () => {
+  staged.forEach(s => { if (!s.manualCat) { s.cat = stageCat.value; const d = tileEl(s); if (d) d.querySelector('.t-cat').value = s.cat; } });
+};
+$('stage-all-on').onclick = () => staged.forEach(s => { s.bg = true; updateTile(s); });
+$('stage-all-off').onclick = () => staged.forEach(s => { s.bg = false; updateTile(s); });
+$('stage-cancel').onclick = () => closeStage();
+$('stage-add').onclick = commitStage;
+
+async function commitStage() {
+  const list = staged.filter(s => s.ready && !s.removed);
+  if (!list.length) return;
+  const keep = new Set(list.map(s => s.sid));
+  closeStage(keep);
+  const pending = [], touched = new Set();
+  let n = 0;
+  for (const s of list) {
+    const it = {
+      id: uid('w_'), cat: s.cat, blob: s.blob, thumb: null, alpha: !!s.alpha, cut: !!s.alpha,
+      bg: (s.bg && !s.alpha) ? 'pending' : 'none', t: Date.now() + n++
+    };
+    try { it.thumb = await makeThumb(s.blob, it.alpha); } catch (e) { it.thumb = s.blob; }
+    it.url = s.url; it.turl = URL.createObjectURL(it.thumb);
+    wardrobe.push(it);
+    await persistItem(it);
+    touched.add(CATEGORIES[s.cat].slot);
+    if (it.bg === 'pending') pending.push(it.id);
+  }
+  const noAlpha = list.filter(s => !s.alpha);
+  if (noAlpha.length) { prefs.bgDefault = noAlpha.filter(s => s.bg).length * 2 >= noAlpha.length; savePrefs(); }
+  const set = sets[activeSetIndex];
+  let changed = false;
+  touched.forEach(slot => {
+    set.indices[slot] = Math.max(0, itemsForSlot(slot).length - 1);
+    if (ensureSlot(set, slot)) changed = true;
+  });
+  saveSets();
+  renderTabs(); renderCloset();
+  changed ? renderSets() : refreshSlots();
+  pending.forEach(enqueueBg);
+  toast('Добавлено: ' + list.length + (pending.length ? ' · фон убирается в фоне' : ''));
+  updateStorageInfo();
+}
+
+/* =====================================================================
+   РЕДАКТОР: угол, зеркало, категория, фон — после добавления
+   ===================================================================== */
+const edit = { item: null, angle: 0, flip: false, cat: null, wantBg: false };
+function openEdit(item) {
+  if (item.bg === 'pending') { toast('Фон ещё обрабатывается…'); return; }
+  Object.assign(edit, { item, angle: 0, flip: false, cat: item.cat, wantBg: false });
+  $('editImg').src = item.url;
+  renderEditCats(); updateEditUI();
+  $('editModal').classList.add('open');
+}
+function updateEditUI() {
+  $('editImg').style.transform = `rotate(${edit.angle}deg) scaleX(${edit.flip ? -1 : 1})`;
+  $('angleVal').textContent = edit.angle + '°';
+  $('angleRange').value = edit.angle;
+  const b = $('btn-edit-bg');
+  b.style.display = (edit.item && !edit.item.cut) ? '' : 'none';
+  b.classList.toggle('on', edit.wantBg);
+  b.textContent = edit.wantBg ? '✂️ Фон уберу ✓' : '✂️ Убрать фон';
+}
+function renderEditCats() {
+  const g = $('editCatGrid'); g.innerHTML = '';
+  CAT_ORDER.forEach(k => {
+    const b = document.createElement('button');
+    b.textContent = CATEGORIES[k].emoji + ' ' + shortName(k);
+    if (k === edit.cat) b.classList.add('selected');
+    b.onclick = () => { edit.cat = k; renderEditCats(); };
+    g.appendChild(b);
+  });
+}
+const normAngle = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return Math.round(a); };
+$('angleRange').oninput = e => { edit.angle = parseInt(e.target.value, 10) || 0; updateEditUI(); };
+$('btn-rot-l').onclick = () => { edit.angle = normAngle(edit.angle - 90); updateEditUI(); };
+$('btn-rot-r').onclick = () => { edit.angle = normAngle(edit.angle + 90); updateEditUI(); };
+$('btn-flip').onclick = () => { edit.flip = !edit.flip; updateEditUI(); };
+$('btn-angle-reset').onclick = () => { edit.angle = 0; edit.flip = false; updateEditUI(); };
+$('btn-edit-bg').onclick = () => { edit.wantBg = !edit.wantBg; updateEditUI(); };
+$('edit-cancel').onclick = () => { $('editModal').classList.remove('open'); edit.item = null; };
+$('edit-delete').onclick = () => {
+  if (!edit.item || !confirm('Удалить это фото?')) return;
+  const id = edit.item.id;
+  $('editModal').classList.remove('open'); edit.item = null;
+  deleteItem(id);
+};
+$('edit-save').onclick = async () => {
+  const it = edit.item;
+  if (!it) return;
+  const btn = $('edit-save'); btn.disabled = true;
+  try {
+    if (edit.angle !== 0 || edit.flip) {
+      const r = await bake(it.blob, edit.angle, edit.flip, it.alpha || it.cut);
+      setImage(it, r.blob, r.thumb, r.alpha);
+    }
+    let slotChanged = false;
+    if (edit.cat !== it.cat) {
+      it.cat = edit.cat;
+      const slot = CATEGORIES[it.cat].slot;
+      const set = sets[activeSetIndex];
+      const idx = itemsForSlot(slot).findIndex(i => i.id === it.id);
+      if (idx >= 0) set.indices[slot] = idx;
+      slotChanged = ensureSlot(set, slot);
+      saveSets();
+    }
+    if (edit.wantBg && !it.cut) it.bg = 'pending';
+    await persistItem(it);
+    $('editModal').classList.remove('open');
+    edit.item = null;
+    renderTabs(); renderCloset();
+    slotChanged ? renderSets() : refreshSlots();
+    if (it.bg === 'pending') enqueueBg(it.id);
+    updateStorageInfo();
+  } catch (err) {
+    console.error(err); toast('Не получилось применить изменения');
+  } finally { btn.disabled = false; }
 };
 
-document.getElementById('btn-cancel').onclick = () => {
-  bgJobId++;                        // отменяет текущую обработку
-  setBusy(false);
-  modal.classList.remove('open');
-  pendingImages = [];
-  currentPreviewData = null;
-  currentHasAlpha = false;
-};
-
-/* ===== NEW SET ===== */
+/* =====================================================================
+   НОВЫЙ СЕТ / ЧАСТИ / ЦВЕТА
+   ===================================================================== */
+const newSetModal = $('newSetModal'), partsModal = $('partsModal'), suggestModal = $('suggestModal');
+function addSetAndShow(set) {
+  sets.push(set); saveSets();
+  activeSetIndex = sets.length - 1;
+  renderSets();
+  setTimeout(() => setsWrapper.scrollTo({ left: activeSetIndex * setsWrapper.clientWidth, behavior: 'smooth' }), 40);
+}
 function openNewSetModal() {
-  const grid = document.getElementById('themeGrid');
-  grid.innerHTML = '';
+  const grid = $('themeGrid'); grid.innerHTML = '';
   Object.entries(THEMES).forEach(([key, t]) => {
     const card = document.createElement('div');
     card.className = 'theme-card';
     card.innerHTML = `<span class="emoji">${t.emoji}</span>${t.label}`;
-    card.onclick = () => {
-      sets.push(createEmptySet(key));
-      saveSets();
-      activeSetIndex = sets.length - 1;
-      newSetModal.classList.remove('open');
-      renderSets();
-      setTimeout(() => {
-        setsWrapper.scrollTo({ left: activeSetIndex * setsWrapper.clientWidth, behavior: 'smooth' });
-      }, 40);
-    };
+    card.onclick = () => { newSetModal.classList.remove('open'); addSetAndShow(createEmptySet(key)); };
     grid.appendChild(card);
   });
   newSetModal.classList.add('open');
 }
-document.getElementById('btn-new-set').onclick = openNewSetModal;
-document.getElementById('btn-newset-cancel').onclick = () => newSetModal.classList.remove('open');
+$('btn-new-set').onclick = openNewSetModal;
+$('btn-newset-cancel').onclick = () => newSetModal.classList.remove('open');
 
-/* ===== PARTS ===== */
 function openPartsModal() {
   const set = sets[activeSetIndex];
-  if (!set.activeSlots) set.activeSlots = [...ALL_SLOTS];
-  const list = document.getElementById('partsList');
-  list.innerHTML = '';
+  const list = $('partsList'); list.innerHTML = '';
   ALL_SLOTS.forEach(slot => {
     const isOn = set.activeSlots.includes(slot);
     const el = document.createElement('div');
@@ -956,30 +1338,20 @@ function openPartsModal() {
     el.innerHTML = `<span>${SLOT_LABELS[slot]}</span><button class="toggle"></button>`;
     el.onclick = () => {
       const i = set.activeSlots.indexOf(slot);
-      if (i >= 0) {
-        if (set.activeSlots.length <= 1) return;
-        set.activeSlots.splice(i, 1);
-      } else {
-        set.activeSlots.push(slot);
-      }
-      set.activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
-      saveSets();
-      openPartsModal();
+      if (i >= 0) { if (set.activeSlots.length <= 1) return; set.activeSlots.splice(i, 1); }
+      else set.activeSlots.push(slot);
+      set.activeSlots.sort((a, b) => ALL_SLOTS.indexOf(a) - ALL_SLOTS.indexOf(b));
+      saveSets(); openPartsModal();
     };
     list.appendChild(el);
   });
   partsModal.classList.add('open');
 }
-document.getElementById('btn-parts').onclick = openPartsModal;
-document.getElementById('btn-parts-cancel').onclick = () => {
-  partsModal.classList.remove('open');
-  renderSets();
-};
+$('btn-parts').onclick = openPartsModal;
+$('btn-parts-cancel').onclick = () => { partsModal.classList.remove('open'); renderSets(); };
 
-/* ===== COLOR SUGGEST ===== */
 function openSuggestModal() {
-  const list = document.getElementById('suggestList');
-  list.innerHTML = '';
+  const list = $('suggestList'); list.innerHTML = '';
   const suggestions = [
     { title: 'Нейтральная база', colors: ['#2c2c2c', '#f5f5f5', '#8b7355'], desc: 'Чёрный + белый + беж' },
     { title: 'Свежий контраст', colors: ['#0d5c63', '#f5f0e6', '#c4a484'], desc: 'Бирюза + кремовый' },
@@ -993,102 +1365,140 @@ function openSuggestModal() {
       <h4>${s.title}</h4>
       <div class="suggest-colors">${s.colors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
       <div style="font-size:0.75rem;color:#aaa;margin-bottom:0.5rem">${s.desc}</div>
-      <button>Создать сет</button>
-    `;
+      <button>Создать сет</button>`;
     card.querySelector('button').onclick = () => {
-      const newSet = createEmptySet('color');
-      newSet.name = s.title;
-      sets.push(newSet);
-      saveSets();
-      activeSetIndex = sets.length - 1;
-      suggestModal.classList.remove('open');
-      renderSets();
-      setTimeout(() => {
-        setsWrapper.scrollTo({ left: activeSetIndex * setsWrapper.clientWidth, behavior: 'smooth' });
-      }, 40);
+      const ns = createEmptySet('color'); ns.name = s.title;
+      suggestModal.classList.remove('open'); addSetAndShow(ns);
     };
     list.appendChild(card);
   });
   suggestModal.classList.add('open');
 }
-document.getElementById('btn-suggest').onclick = openSuggestModal;
-document.getElementById('btn-suggest-cancel').onclick = () => suggestModal.classList.remove('open');
+$('btn-suggest').onclick = openSuggestModal;
+$('btn-suggest-cancel').onclick = () => suggestModal.classList.remove('open');
+$('btn-add').onclick = startAdd;
 
-/* ===== CLOSET ===== */
-function renderTabs() {
-  catTabs.innerHTML = '';
-  const order = ['bluse','hose','jacke','gurtel','tasche','schuhe','rock','pullover','tshirt','shorts'];
-  order.forEach(key => {
-    if (!CATEGORIES[key]) return;
-    const btn = document.createElement('button');
-    btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
-    const short = CATEGORIES[key].label.split('/')[0].split(' ')[0];
-    btn.textContent = CATEGORIES[key].emoji + ' ' + short;
-    btn.onclick = () => {
-      activeFilter = activeFilter === key ? null : key;
-      renderTabs();
-      renderCloset();
-    };
-    catTabs.appendChild(btn);
-  });
+/* =====================================================================
+   НАСТРОЙКИ: память, копия, очистка
+   ===================================================================== */
+async function updateStorageInfo() {
+  let own = 0;
+  wardrobe.forEach(w => { own += (w.blob ? w.blob.size : 0) + (w.thumb ? w.thumb.size : 0); });
+  const mb = x => (x / 1048576).toFixed(1);
+  let txt = 'Вещей: ' + wardrobe.length + ' · картинки: ' + mb(own) + ' МБ';
+  txt += db ? '\nХранилище: IndexedDB' : '\n⚠️ Хранилище недоступно — данные пропадут после закрытия (приватный режим?)';
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const e = await navigator.storage.estimate();
+      if (e.quota) txt += '\nЛимит браузера: ' + Math.round(e.quota / 1048576) + ' МБ';
+    }
+    if (navigator.storage && navigator.storage.persisted) {
+      txt += '\nЗащита от очистки: ' + ((await navigator.storage.persisted()) ? 'включена ✓' : 'нет (добавь на экран «Домой»)');
+    }
+  } catch (e) {}
+  const el = $('storageInfo');
+  if (el) { el.style.whiteSpace = 'pre-line'; el.textContent = txt; }
+}
+$('btn-settings').onclick = () => { $('settingsModal').classList.add('open'); updateStorageInfo(); };
+$('btn-settings-close').onclick = () => $('settingsModal').classList.remove('open');
+
+$('btn-export').onclick = async () => {
+  try {
+    toast('Готовлю файл…');
+    const items = [];
+    for (const it of wardrobe) {
+      items.push({ id: it.id, cat: it.cat, alpha: it.alpha, cut: it.cut, t: it.t, data: await blobToDataURL(it.blob) });
+    }
+    const json = JSON.stringify({ v: 1, items, sets });
+    const b = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = 'outfit-builder-backup.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch (e) { console.error(e); toast('Не удалось создать копию'); }
+};
+$('btn-import').onclick = () => { $('importInput').value = ''; $('importInput').click(); };
+$('importInput').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    let n = 0;
+    for (const o of (data.items || [])) {
+      if (!o || !o.data || getItem(o.id)) continue;
+      const blob = await (await fetch(o.data)).blob();
+      const alpha = !!o.alpha;
+      const it = { id: o.id || uid('w_'), cat: CATEGORIES[o.cat] ? o.cat : 'bluse', blob, thumb: await makeThumb(blob, alpha),
+        alpha, cut: !!o.cut, bg: 'none', t: o.t || Date.now() + n };
+      await persistItem(it);
+      wardrobe.push(hydrate(it)); n++;
+    }
+    wardrobe.sort((a, b) => a.t - b.t);
+    (data.sets || []).forEach(s => { if (s && s.id && !sets.some(x => x.id === s.id)) sets.push(s); });
+    normalizeSets(); saveSets(); renderAll(); updateStorageInfo();
+    toast('Загружено вещей: ' + n);
+  } catch (err) { console.error(err); toast('Файл не подходит'); }
+});
+$('btn-clear').onclick = async () => {
+  if (!confirm('Удалить ВСЕ вещи и сеты? Это нельзя отменить.')) return;
+  wardrobe.forEach(w => { URL.revokeObjectURL(w.url); URL.revokeObjectURL(w.turl); });
+  wardrobe = []; bg.queue.length = 0;
+  try { await dbClear('items'); await dbClear('meta'); } catch (e) { storeError(e); }
+  sets = [createEmptySet('classic')]; activeSetIndex = 0; activeFilter = null;
+  saveSets(); savePrefs(); renderAll(); updateStorageInfo();
+  toast('Всё удалено');
+};
+
+/* =====================================================================
+   ПЕРЕНОС СТАРЫХ ДАННЫХ ИЗ localStorage (v14)
+   ===================================================================== */
+async function migrateLocalStorage() {
+  let rawW = null, rawS = null;
+  try { rawW = localStorage.getItem('ob_w_v14'); rawS = localStorage.getItem('ob_s_v14'); } catch (e) { return; }
+  if (!rawW && !rawS) return;
+  try {
+    if (rawW && !wardrobe.length) {
+      const old = JSON.parse(rawW);
+      let n = 0;
+      for (const o of old) {
+        if (!o || !o.img) continue;
+        const blob = await (await fetch(o.img)).blob();
+        const alpha = blob.type === 'image/png';
+        const it = { id: o.id || uid('w_'), cat: CATEGORIES[o.category] ? o.category : 'bluse', blob,
+          thumb: await makeThumb(blob, alpha), alpha, cut: alpha, bg: 'none', t: Date.now() + n++ };
+        await dbPut('items', ser(it));
+        wardrobe.push(hydrate(it));
+      }
+    }
+    if (rawS && !sets.length) { sets = JSON.parse(rawS); await dbPut('meta', { k: 'sets', v: sets }); }
+    localStorage.removeItem('ob_w_v14'); localStorage.removeItem('ob_s_v14');
+  } catch (e) { console.error('Миграция не удалась', e); }
 }
 
-function renderCloset() {
-  closetRow.innerHTML = '';
-  const addBtn = document.createElement('div');
-  addBtn.className = 'add-thumb';
-  addBtn.textContent = '+';
-  addBtn.onclick = startAdd;
-  closetRow.appendChild(addBtn);
-
-  let list = wardrobe;
-  if (activeFilter) list = wardrobe.filter(w => w.category === activeFilter);
-
-  list.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'thumb';
-    const img = document.createElement('img');
-    img.src = item.img;
-    el.appendChild(img);
-    const del = document.createElement('button');
-    del.className = 'del';
-    del.textContent = '×';
-    del.onclick = e => {
-      e.stopPropagation();
-      if (confirm('Удалить это фото?')) {
-        wardrobe = wardrobe.filter(w => w.id !== item.id);
-        saveWardrobe();
-        renderSets();
-        renderCloset();
-      }
-    };
-    el.appendChild(del);
-    el.onclick = () => {
-      const slot = CATEGORIES[item.category]?.slot;
-      if (!slot) return;
-      const cats = SLOT_TO_CATS[slot] || [];
-      const items = wardrobe.filter(w => cats.includes(w.category));
-      const idx = items.findIndex(i => i.id === item.id);
-      if (idx >= 0) {
-        sets[activeSetIndex].indices[slot] = idx;
-        if (!sets[activeSetIndex].activeSlots.includes(slot)) {
-          sets[activeSetIndex].activeSlots.push(slot);
-          sets[activeSetIndex].activeSlots.sort((a,b) => ALL_SLOTS.indexOf(a)-ALL_SLOTS.indexOf(b));
-        }
-        saveSets();
-        renderSets();
-      }
-    };
-    closetRow.appendChild(el);
-  });
+/* =====================================================================
+   СТАРТ
+   ===================================================================== */
+async function init() {
+  try { db = await openDB(); } catch (e) { console.warn(e); db = null; }
+  if (db) {
+    try {
+      const rows = (await dbGetAll('items')) || [];
+      rows.sort((a, b) => a.t - b.t);
+      wardrobe = rows.filter(r => r && r.blob).map(hydrate);
+      const s = await dbGet('meta', 'sets'); sets = s && Array.isArray(s.v) ? s.v : [];
+      const p = await dbGet('meta', 'prefs'); if (p && p.v) prefs = Object.assign(prefs, p.v);
+      await migrateLocalStorage();
+    } catch (e) { console.error(e); }
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  } else {
+    toast('Хранилище недоступно: данные не сохранятся', 5000);
+  }
+  normalizeSets();
+  renderAll();
+  resumePending();
 }
-
-document.getElementById('btn-add').onclick = startAdd;
-
-renderSets();
-renderTabs();
-renderCloset();
-window.addEventListener('resize', () => renderSets());
+window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+init();
 </script>
 </body>
 </html>
