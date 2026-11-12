@@ -144,27 +144,43 @@
     position: relative; background: rgba(255,255,255,0.06);
     border: 1.5px solid rgba(255,255,255,0.12); border-radius: 13px; overflow: hidden;
     display: flex; align-items: center; justify-content: center; min-height: 0;
-    touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
-  .slot.active { border-color: #4ade80; background: rgba(74,222,128,0.12); }
-  .slot img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+  .slot.active { border-color: var(--accent, #4ade80); background: rgba(74,222,128,0.12); box-shadow: inset 0 0 0 1px rgba(74,222,128,0.25); }
+  .slot.swiping img { opacity: 0.85; transition: none; }
+  .slot img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; transition: opacity 0.12s; }
   .slot .placeholder { color: rgba(255,255,255,0.28); font-size: 0.72rem; font-weight: 500; text-align: center; }
   .slot .label {
     position: absolute; top: 4px; left: 6px; font-size: 0.55rem; font-weight: 600;
     color: rgba(255,255,255,0.45); background: rgba(0,0,0,0.5);
     padding: 0.08rem 0.3rem; border-radius: 5px; pointer-events: none; z-index: 2;
   }
+  .slot .counter {
+    position: absolute; top: 4px; right: 6px; z-index: 2;
+    font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.55); padding: 0.08rem 0.35rem; border-radius: 6px;
+    pointer-events: none; display: none;
+  }
+  .slot.has-many .counter { display: block; }
+  /* Крупные кнопки слева/справа по центру */
   .slot-arrows {
-    position: absolute; bottom: 4px; left: 0; right: 0;
-    display: none; justify-content: space-between; padding: 0 5px; pointer-events: none;
+    position: absolute; inset: 0;
+    display: none; align-items: center; justify-content: space-between;
+    padding: 0 4px; pointer-events: none; z-index: 3;
   }
-  .slot.active .slot-arrows { display: flex; }
+  .slot.active .slot-arrows,
+  .slot.has-many:active .slot-arrows { display: flex; }
+  .slot.active.has-many .slot-arrows { display: flex; }
   .slot-arrows button {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.25);
-    color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-    pointer-events: auto;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(0,0,0,0.72); border: 1.5px solid rgba(255,255,255,0.35);
+    color: #fff; font-size: 1.35rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: auto; backdrop-filter: blur(4px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
   }
+  .slot-arrows button:active { background: var(--accent, #4ade80); color: #062; border-color: transparent; transform: scale(0.94); }
+  .slot.bottom-item .slot-arrows button { width: 34px; height: 34px; font-size: 1.15rem; }
   .slot.flex-1 { flex: 1 1 0; }
   .slot.flex-2 { flex: 2 1 0; }
   .slot.thin   { flex: 0 0 8.5%; min-height: 34px; max-height: 48px; }
@@ -1387,7 +1403,12 @@ function ensureSlot(set, slot) {
 const itemsForSlot = slot => wardrobe.filter(w => (SLOT_TO_CATS[slot] || []).includes(w.cat));
 
 function slotHTML(s, cls, style) {
-  return `<div class="slot ${cls}" data-slot="${s}"${style ? ` style="${style}"` : ''}><div class="label">${SLOT_LABELS[s]}</div><div class="placeholder">${SLOT_LABELS[s]}</div><div class="slot-arrows"><button class="prev">‹</button><button class="next">›</button></div></div>`;
+  return `<div class="slot ${cls}" data-slot="${s}"${style ? ` style="${style}"` : ''}>` +
+    `<div class="label">${SLOT_LABELS[s]}</div>` +
+    `<div class="counter"></div>` +
+    `<div class="placeholder">${SLOT_LABELS[s]}</div>` +
+    `<div class="slot-arrows"><button type="button" class="prev" aria-label="prev">‹</button>` +
+    `<button type="button" class="next" aria-label="next">›</button></div></div>`;
 }
 function buildSlotsHTML(activeSlots) {
   const has = s => activeSlots.includes(s);
@@ -1456,7 +1477,10 @@ function fillSlots(page, set) {
     const items = itemsForSlot(slotName);
     const oldImg = slotEl.querySelector('img'); if (oldImg) oldImg.remove();
     const oldPh = slotEl.querySelector('.placeholder'); if (oldPh) oldPh.remove();
+    const counter = slotEl.querySelector('.counter');
     if (!items.length) {
+      slotEl.classList.remove('has-many');
+      if (counter) counter.textContent = '';
       const ph = document.createElement('div');
       ph.className = 'placeholder'; ph.textContent = SLOT_LABELS[slotName];
       slotEl.appendChild(ph);
@@ -1468,6 +1492,13 @@ function fillSlots(page, set) {
     const img = document.createElement('img');
     img.src = items[idx].url; img.draggable = false; img.alt = '';
     slotEl.appendChild(img);
+    if (items.length > 1) {
+      slotEl.classList.add('has-many');
+      if (counter) counter.textContent = (idx + 1) + '/' + items.length;
+    } else {
+      slotEl.classList.remove('has-many');
+      if (counter) counter.textContent = '';
+    }
   });
 }
 function refreshSlots() {
@@ -1478,32 +1509,72 @@ function refreshSlots() {
 }
 function setupSlot(slotEl, setIdx) {
   const slotName = slotEl.dataset.slot;
-  let startX = 0, longTimer = null, longPressed = false;
+  let startX = 0, startY = 0, longTimer = null, longPressed = false, tracking = false, moved = false;
+
   slotEl.addEventListener('pointerdown', e => {
     if (e.target.closest('.slot-arrows')) return;
-    startX = e.clientX; longPressed = false;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    startX = e.clientX; startY = e.clientY;
+    longPressed = false; tracking = true; moved = false;
     longTimer = setTimeout(() => {
       longPressed = true;
       sets[setIdx].indices[slotName] = 0;
       saveSets(); refreshSlots();
       if (navigator.vibrate) navigator.vibrate(25);
-    }, 600);
+    }, 650);
     try { slotEl.setPointerCapture(e.pointerId); } catch (err) {}
-  });
-  slotEl.addEventListener('pointermove', e => { if (Math.abs(e.clientX - startX) > 12) clearTimeout(longTimer); });
-  slotEl.addEventListener('pointerup', e => {
-    clearTimeout(longTimer);
-    if (longPressed) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 40) { changeVariant(setIdx, slotName, dx > 0 ? 1 : -1); return; }
+    // активируем слот сразу — видны крупные кнопки
     document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
     slotEl.classList.add('active');
     activeSetIndex = setIdx;
   });
-  slotEl.addEventListener('pointercancel', () => clearTimeout(longTimer));
+
+  slotEl.addEventListener('pointermove', e => {
+    if (!tracking) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+      clearTimeout(longTimer);
+      moved = true;
+    }
+    // горизонтальный жест — не даём листать сеты
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6) {
+      e.preventDefault();
+      e.stopPropagation();
+      slotEl.classList.add('swiping');
+    }
+  });
+
+  slotEl.addEventListener('pointerup', e => {
+    clearTimeout(longTimer);
+    tracking = false;
+    slotEl.classList.remove('swiping');
+    if (longPressed) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    // свайп влево/вправо в маленьком окне
+    if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.1) {
+      e.preventDefault();
+      e.stopPropagation();
+      // палец вправо → предыдущий, влево → следующий (как лента фото)
+      changeVariant(setIdx, slotName, dx > 0 ? -1 : 1);
+      if (navigator.vibrate) navigator.vibrate(8);
+      return;
+    }
+    if (!moved) {
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+      slotEl.classList.add('active');
+      activeSetIndex = setIdx;
+    }
+  });
+
+  slotEl.addEventListener('pointercancel', () => {
+    clearTimeout(longTimer); tracking = false; slotEl.classList.remove('swiping');
+  });
+
   const prev = slotEl.querySelector('.prev'), next = slotEl.querySelector('.next');
-  if (prev) prev.onclick = e => { e.stopPropagation(); changeVariant(setIdx, slotName, -1); };
-  if (next) next.onclick = e => { e.stopPropagation(); changeVariant(setIdx, slotName, 1); };
+  if (prev) prev.onclick = e => { e.stopPropagation(); e.preventDefault(); changeVariant(setIdx, slotName, -1); };
+  if (next) next.onclick = e => { e.stopPropagation(); e.preventDefault(); changeVariant(setIdx, slotName, 1); };
 }
 function changeVariant(setIdx, slotName, dir) {
   const set = sets[setIdx];
@@ -1513,7 +1584,14 @@ function changeVariant(setIdx, slotName, dir) {
   set.indices[slotName] = ((set.indices[slotName] || 0) + dir + items.length) % items.length;
   saveSets();
   const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
-  if (page) fillSlots(page, set);
+  if (page) {
+    fillSlots(page, set);
+    const slot = page.querySelector(`.slot[data-slot="${slotName}"]`);
+    if (slot) {
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+      slot.classList.add('active');
+    }
+  }
 }
 setsWrapper.addEventListener('scroll', () => {
   clearTimeout(setsWrapper._t);
