@@ -130,10 +130,12 @@
     padding: 0.12rem 0.45rem; border-radius: 8px; background: rgba(255,255,255,0.12);
     white-space: nowrap;
   }
-  .set-del {
-    width: 24px; height: 24px; border-radius: 8px; border: none;
-    background: rgba(255,255,255,0.1); color: #fff; font-size: 0.7rem;
+  .set-del, .set-photo {
+    width: 28px; height: 28px; border-radius: 8px; border: none;
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
+  .set-photo { background: rgba(74,222,128,0.25); }
   .slots-container {
     flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.22rem;
     min-height: 0; overflow: hidden;
@@ -166,6 +168,8 @@
   .slot.flex-1 { flex: 1 1 0; }
   .slot.flex-2 { flex: 2 1 0; }
   .slot.thin   { flex: 0 0 8.5%; min-height: 34px; max-height: 48px; }
+  .slot.bottom-item { flex: 1 1 0; min-height: 0; }
+  .row.bottom-row { flex: 0 0 16%; min-height: 64px; max-height: 22%; }
   .row { display: flex; gap: 0.22rem; min-height: 0; }
   .row.flex-1 { flex: 1 1 0; }
   .row.flex-2 { flex: 2 1 0; }
@@ -533,10 +537,12 @@
   </div>
   <div class="settings-body">
     <div class="set-card">
-      <h4>Фон приложения</h4>
-      <p>Выбери атмосферу экрана</p>
+      <h4 id="lbl-lang">Язык / Language / Sprache</h4>
+      <div class="accent-row" id="langRow" style="margin-bottom:0.6rem"></div>
+      <h4 id="lbl-bg">Фон приложения</h4>
+      <p id="lbl-bg-hint">Выбери атмосферу экрана</p>
       <div class="theme-swatches" id="themeSwatches"></div>
-      <p style="margin-top:0.55rem;margin-bottom:0.25rem">Цвет акцента (кнопки, точки)</p>
+      <p id="lbl-accent" style="margin-top:0.55rem;margin-bottom:0.25rem">Цвет акцента</p>
       <div class="accent-row" id="accentRow"></div>
     </div>
     <div class="set-card">
@@ -735,14 +741,32 @@ function applyUiTheme() {
 }
 
 function renderThemeSettings() {
+  const langRow = $('langRow');
+  if (langRow) {
+    langRow.innerHTML = '';
+    [['ru','Русский'],['de','Deutsch'],['en','English']].forEach(([code, label]) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.style.cssText = 'height:32px;padding:0 0.7rem;border-radius:8px;border:none;font-weight:700;font-size:0.75rem;' +
+        (prefs.lang === code ? 'background:var(--accent);color:#062;' : 'background:rgba(255,255,255,0.12);color:#fff;');
+      b.onclick = () => {
+        prefs.lang = code; savePrefs();
+        applyStaticI18n(); renderThemeSettings(); renderAll();
+        toast(label);
+      };
+      langRow.appendChild(b);
+    });
+  }
+  const lb = $('lbl-bg'); if (lb) lb.textContent = t('bg_app');
+  const la = $('lbl-accent'); if (la) la.textContent = t('accent');
   const box = $('themeSwatches');
   if (!box) return;
   box.innerHTML = '';
-  Object.entries(UI_THEMES).forEach(([key, t]) => {
+  Object.entries(UI_THEMES).forEach(([key, th]) => {
     const d = document.createElement('div');
     d.className = 'theme-swatch' + (prefs.uiTheme === key ? ' on' : '');
-    d.style.background = `linear-gradient(145deg, ${t.blob1}, ${t.bg0} 55%, ${t.blob2})`;
-    d.textContent = t.label;
+    d.style.background = `linear-gradient(145deg, ${th.blob1}, ${th.bg0} 55%, ${th.blob2})`;
+    d.textContent = th.label;
     d.onclick = () => { prefs.uiTheme = key; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     box.appendChild(d);
   });
@@ -846,16 +870,16 @@ function applyAutoOutfit(picks) {
 
 async function openAutoModal() {
   const list = $('autoList');
-  list.innerHTML = '<div class="auto-empty">Анализирую цвета вещей…</div>';
+  list.innerHTML = '<div class="auto-empty">' + t('analyzing') + '</div>';
   $('autoModal').classList.add('open');
   if (wardrobe.length < 2) {
-    list.innerHTML = '<div class="auto-empty">Нужно минимум 2 вещи (верх и низ).<br>Добавь фото в гардероб.</div>';
+    list.innerHTML = '<div class="auto-empty">' + t('need_items') + '</div>';
     return;
   }
   const outfits = await buildAutoOutfits();
   list.innerHTML = '';
   if (!outfits.length) {
-    list.innerHTML = '<div class="auto-empty">Пока нет сочетаний по таблице.<br>Добавь вещи разных цветов (верх + низ).</div>';
+    list.innerHTML = '<div class="auto-empty">' + t('no_match') + '</div>';
     return;
   }
   outfits.forEach((o, i) => {
@@ -868,7 +892,7 @@ async function openAutoModal() {
       <h4>${i + 1}. ${esc(o.title)}</h4>
       <div class="cols">${o.colors.map(c => `<i style="background:${c}"></i>`).join('')}</div>
       <div class="auto-previews">${previews}</div>
-      <button type="button">Выбрать этот сет</button>`;
+      <button type="button">${t('pick_set')}</button>`;
     card.querySelector('button').onclick = () => {
       $('autoModal').classList.remove('open');
       applyAutoOutfit(o.picks);
@@ -891,7 +915,7 @@ let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t,
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
-let prefs = { bgDefault: true, uiTheme: 'violet', accent: '#4ade80' };
+let prefs = { bgDefault: true, uiTheme: 'violet', accent: '#4ade80', lang: 'ru' };
 let db = null;
 
 const setsWrapper = $('setsWrapper');
@@ -1166,6 +1190,174 @@ function toast(msg, ms = 2600) {
 }
 
 /* =====================================================================
+   ЯЗЫКИ: RU / DE / EN
+   ===================================================================== */
+const I18N = {
+  ru: {
+    wardrobe: 'ГАРДЕРОБ', set: 'Сет', parts: 'Части', colors: 'Цвета', auto: 'Авто',
+    add_photo: '+ Фото', new_set: '+ Сет', settings: 'Настройки', done: 'Готово',
+    cancel: 'Отмена', close: 'Закрыть', save: 'Сохранить', delete: 'Удалить',
+    rename_hint: 'Нажми, чтобы переименовать', bg_app: 'Фон приложения',
+    accent: 'Цвет акцента (кнопки)', memory: 'Память', backup: 'Резервная копия',
+    danger: 'Опасная зона', clear_all: 'Удалить все вещи и сеты',
+    export_copy: '⬇️ Сохранить копию (файл)', import_copy: '⬆️ Загрузить копию',
+    language: 'Язык', photo_saved: 'Фото готово — сохрани в «Фото»',
+    photo_fail: 'Не удалось сохранить фото', share_photo: 'Поделиться фото сета',
+    auto_title: 'Авто-сеты', auto_hint: 'Готовые образы из твоих вещей по таблице цветов',
+    pick_set: 'Выбрать этот сет', analyzing: 'Анализирую цвета вещей…',
+    need_items: 'Нужно минимум 2 вещи (верх и низ).', no_match: 'Пока нет сочетаний. Добавь верх и низ разных цветов.',
+    classic: 'Классика', sport: 'Спорт', elegant: 'Элегант', casual: 'Кэжуал', color: 'Цвет', empty: 'Пустой',
+  },
+  de: {
+    wardrobe: 'KLEIDERSCHRANK', set: 'Set', parts: 'Teile', colors: 'Farben', auto: 'Auto',
+    add_photo: '+ Foto', new_set: '+ Set', settings: 'Einstellungen', done: 'Fertig',
+    cancel: 'Abbrechen', close: 'Schließen', save: 'Speichern', delete: 'Löschen',
+    rename_hint: 'Tippen zum Umbenennen', bg_app: 'App-Hintergrund',
+    accent: 'Akzentfarbe (Buttons)', memory: 'Speicher', backup: 'Backup',
+    danger: 'Gefahrenzone', clear_all: 'Alles löschen',
+    export_copy: '⬇️ Backup speichern', import_copy: '⬆️ Backup laden',
+    language: 'Sprache', photo_saved: 'Foto fertig — in „Fotos“ speichern',
+    photo_fail: 'Foto speichern fehlgeschlagen', share_photo: 'Outfit-Foto teilen',
+    auto_title: 'Auto-Sets', auto_hint: 'Fertige Outfits nach Farbtabelle',
+    pick_set: 'Dieses Set wählen', analyzing: 'Farben werden analysiert…',
+    need_items: 'Mindestens 2 Teile (oben + unten).', no_match: 'Keine Kombinationen. Mehr Teile hinzufügen.',
+    classic: 'Klassisch', sport: 'Sportlich', elegant: 'Elegant', casual: 'Casual', color: 'Farbe', empty: 'Leer',
+  },
+  en: {
+    wardrobe: 'WARDROBE', set: 'Set', parts: 'Parts', colors: 'Colors', auto: 'Auto',
+    add_photo: '+ Photo', new_set: '+ Set', settings: 'Settings', done: 'Done',
+    cancel: 'Cancel', close: 'Close', save: 'Save', delete: 'Delete',
+    rename_hint: 'Tap to rename', bg_app: 'App background',
+    accent: 'Accent color (buttons)', memory: 'Storage', backup: 'Backup',
+    danger: 'Danger zone', clear_all: 'Delete all items and sets',
+    export_copy: '⬇️ Save backup file', import_copy: '⬆️ Load backup',
+    language: 'Language', photo_saved: 'Photo ready — save to Photos',
+    photo_fail: 'Could not save photo', share_photo: 'Share outfit photo',
+    auto_title: 'Auto sets', auto_hint: 'Ready outfits from your clothes by color table',
+    pick_set: 'Choose this set', analyzing: 'Analyzing colors…',
+    need_items: 'Need at least 2 items (top + bottom).', no_match: 'No matches yet. Add more tops and bottoms.',
+    classic: 'Classic', sport: 'Sport', elegant: 'Elegant', casual: 'Casual', color: 'Color', empty: 'Empty',
+  }
+};
+function t(key) {
+  const lang = (prefs && prefs.lang) || 'ru';
+  return (I18N[lang] && I18N[lang][key]) || (I18N.ru[key]) || key;
+}
+function themeLabel(themeKey) {
+  const map = { classic: t('classic'), sport: t('sport'), elegant: t('elegant'), casual: t('casual'), color: t('color'), empty: t('empty') };
+  const th = THEMES[themeKey] || THEMES.empty;
+  return map[themeKey] || th.label;
+}
+function applyStaticI18n() {
+  try {
+    const ct = $('closetTitle');
+    if (ct) ct.textContent = t('wardrobe') + ' · ' + wardrobe.length;
+    const map = {
+      'btn-auto': 'auto', 'btn-suggest': 'colors', 'btn-parts': 'parts',
+      'btn-new-set': 'new_set', 'btn-add': 'add_photo'
+    };
+    Object.entries(map).forEach(([id, key]) => {
+      const el = $(id); if (el) el.textContent = t(key);
+    });
+  } catch (e) {}
+}
+
+/* Сохранить текущий сет как фото (для «Фото» на iPhone) */
+async function exportSetAsPhoto(setIdx) {
+  const set = sets[setIdx];
+  if (!set) return;
+  toast('…');
+  try {
+    const W = 900, pad = 28, gap = 16;
+    const active = (set.activeSlots || ALL_SLOTS).slice();
+    // layout mirrors on-screen: top row, hose, bottom row
+    const top = ['jacke', 'bluse'].filter(s => active.includes(s));
+    const mid = active.includes('hose') ? ['hose'] : [];
+    const bot = ['gurtel', 'schuhe', 'tasche'].filter(s => active.includes(s));
+    const rows = [];
+    if (top.length) rows.push({ slots: top, h: 280 });
+    if (mid.length) rows.push({ slots: mid, h: 340 });
+    if (bot.length) rows.push({ slots: bot, h: 200 });
+    if (!rows.length) { toast(t('photo_fail')); return; }
+
+    const totalH = rows.reduce((a, r) => a + r.h, 0) + pad * 2 + gap * (rows.length - 1) + 50;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = totalH;
+    const ctx = canvas.getContext('2d');
+    // background
+    const tTheme = UI_THEMES[prefs.uiTheme] || UI_THEMES.violet;
+    const grd = ctx.createLinearGradient(0, 0, 0, totalH);
+    grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, totalH);
+    // title
+    ctx.fillStyle = '#fff';
+    ctx.font = '600 28px -apple-system, sans-serif';
+    ctx.fillText(set.name || t('set'), pad, 36);
+
+    let y = pad + 50;
+    async function drawItem(item, x, y, w, h) {
+      if (!item) return;
+      const img = await new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i); i.onerror = rej;
+        i.src = item.url;
+      });
+      // checker bg
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath();
+      const r = 16;
+      ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill();
+      const ir = img.naturalWidth / img.naturalHeight;
+      const br = w / h;
+      let dw, dh, dx, dy;
+      if (ir > br) { dw = w * 0.9; dh = dw / ir; }
+      else { dh = h * 0.9; dw = dh * ir; }
+      dx = x + (w - dw) / 2; dy = y + (h - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+
+    for (const row of rows) {
+      const n = row.slots.length;
+      const slotW = (W - pad * 2 - gap * (n - 1)) / n;
+      for (let i = 0; i < n; i++) {
+        const slot = row.slots[i];
+        const items = itemsForSlot(slot);
+        const idx = set.indices[slot] || 0;
+        const item = items[idx];
+        const x = pad + i * (slotW + gap);
+        if (item) await drawItem(item, x, y, slotW, row.h);
+        else {
+          ctx.fillStyle = 'rgba(255,255,255,0.06)';
+          ctx.fillRect(x, y, slotW, row.h);
+        }
+      }
+      y += row.h + gap;
+    }
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('blob');
+    const file = new File([blob], (set.name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 40) + '.png', { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: set.name || t('set') });
+      toast(t('photo_saved'));
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast(t('photo_saved'));
+    }
+  } catch (e) {
+    console.error(e);
+    toast(t('photo_fail'));
+  }
+}
+
+
+/* =====================================================================
    СЕТЫ
    ===================================================================== */
 function createEmptySet(themeKey = 'empty') {
@@ -1200,14 +1392,17 @@ function slotHTML(s, cls, style) {
 function buildSlotsHTML(activeSlots) {
   const has = s => activeSlots.includes(s);
   let html = '<div class="slots-container">';
+  // Верх: куртка + блузка
   const top = ['jacke', 'bluse'].filter(has);
   if (top.length === 2) html += `<div class="row flex-2">${slotHTML('jacke','flex-1')}${slotHTML('bluse','flex-2')}</div>`;
   else if (top.length === 1) html += `<div class="row flex-2">${slotHTML(top[0],'flex-1')}</div>`;
-  if (has('gurtel')) html += `<div class="row" style="flex:0 0 auto;">${slotHTML('gurtel','thin','width:100%')}</div>`;
+  // Середина: брюки / юбка
   if (has('hose')) html += `<div class="row flex-3">${slotHTML('hose','flex-1')}</div>`;
-  const bot = ['tasche', 'schuhe'].filter(has);
-  if (bot.length === 2) html += `<div class="row flex-1">${slotHTML('tasche','flex-1')}${slotHTML('schuhe','flex-1')}</div>`;
-  else if (bot.length === 1) html += `<div class="row flex-1">${slotHTML(bot[0],'flex-1')}</div>`;
+  // Низ в один ряд: ремень · обувь · сумка
+  const bot = ['gurtel', 'schuhe', 'tasche'].filter(has);
+  if (bot.length) {
+    html += `<div class="row bottom-row">${bot.map(s => slotHTML(s, 'bottom-item')).join('')}</div>`;
+  }
   return html + '</div>';
 }
 
@@ -1221,14 +1416,17 @@ function renderSets() {
     const theme = THEMES[set.theme] || THEMES.empty;
     page.innerHTML = `
       <div class="set-header">
-        <div class="set-name" title="Нажми, чтобы переименовать">${esc(set.name || 'Сет')}</div>
-        <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${theme.label}</div>
-        ${sets.length > 1 ? '<button class="set-del" aria-label="Удалить сет">🗑</button>' : ''}
+        <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
+        <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
+        <button class="set-photo" data-idx="${idx}" aria-label="photo">📷</button>
+        ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
     setsWrapper.appendChild(page);
     fillSlots(page, set);
     page.querySelectorAll('.slot').forEach(el => setupSlot(el, idx));
+    const photoBtn = page.querySelector('.set-photo');
+    if (photoBtn) photoBtn.onclick = (e) => { e.stopPropagation(); exportSetAsPhoto(idx); };
     page.querySelector('.set-name').onclick = () => {
       const n = prompt('Название сета', set.name);
       if (n && n.trim()) { set.name = n.trim().slice(0, 40); saveSets(); renderSets(); }
@@ -1391,7 +1589,7 @@ function renderCloset() {
   });
   updateTitle();
 }
-function updateTitle() { $('closetTitle').textContent = 'ГАРДЕРОБ · ' + wardrobe.length; }
+function updateTitle() { const el = $('closetTitle'); if (el) el.textContent = t('wardrobe') + ' · ' + wardrobe.length; }
 function renderAll() { renderSets(); renderTabs(); renderCloset(); }
 
 async function deleteItem(id) {
@@ -1885,6 +2083,7 @@ async function init() {
   }
   normalizeSets();
   applyUiTheme();
+  applyStaticI18n();
   renderAll();
   resumePending();
   // Предзагрузка модели удаления фона (не блокирует UI)
