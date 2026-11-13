@@ -210,8 +210,7 @@
   }
   .piece.active { z-index: 20; outline: 2px solid var(--accent); border-radius: 8px; }
   .piece .p-del {
-    position: absolute; top: 0; right: 0; width: 24px; height: 24px;
-    transform: translate(40%, -40%);
+    position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
     border-radius: 50%; border: none; background: rgba(0,0,0,0.75); color: #fff;
     font-size: 0.7rem; display: none; align-items: center; justify-content: center;
   }
@@ -1357,7 +1356,7 @@ const I18N = {
     accent: 'Цвет акцента (кнопки)', memory: 'Память', backup: 'Резервная копия',
     danger: 'Опасная зона', clear_all: 'Удалить все вещи и сеты',
     export_copy: '⬇️ Сохранить копию (файл)', import_copy: '⬆️ Загрузить копию',
-    language: 'Язык', photo_saved: 'Выбери «Сохранить изображение» в Фото',
+    language: 'Язык', photo_saved: 'Фото готово — сохрани в «Фото»',
     photo_fail: 'Не удалось сохранить фото', share_photo: 'Поделиться фото сета',
     auto_title: 'Авто-сеты', auto_hint: 'Готовые образы из твоих вещей по таблице цветов',
     pick_set: 'Выбрать этот сет', analyzing: 'Анализирую цвета вещей…',
@@ -1419,7 +1418,6 @@ function applyStaticI18n() {
 }
 
 /* Сохранить текущий сет как фото (для «Фото» на iPhone) */
-
 async function exportSetAsPhoto(setIdx) {
   const set = sets[setIdx];
   if (!set) return;
@@ -1431,96 +1429,58 @@ async function exportSetAsPhoto(setIdx) {
     async function loadImg(url) {
       return new Promise((res, rej) => {
         const im = new Image();
+        im.crossOrigin = 'anonymous';
         im.onload = () => res(im);
         im.onerror = () => rej(new Error('img'));
         im.src = url;
       });
     }
     async function shareBlob(blob, name) {
-      // iPhone лучше сохраняет JPEG в «Фото» через Share
-      let outBlob = blob;
-      let filename = 'outfit.jpg';
+      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
+      const file = new File([blob], safe + '.png', { type: 'image/png' });
       try {
-        if (blob.type !== 'image/jpeg') {
-          const bmp = await createImageBitmap(blob);
-          const c = document.createElement('canvas');
-          c.width = bmp.width; c.height = bmp.height;
-          const cx = c.getContext('2d');
-          cx.fillStyle = '#0a0614';
-          cx.fillRect(0, 0, c.width, c.height);
-          cx.drawImage(bmp, 0, 0);
-          outBlob = await new Promise((res, rej) =>
-            c.toBlob(b => b ? res(b) : rej(new Error('jpeg')), 'image/jpeg', 0.93)
-          );
-        } else {
-          filename = 'outfit.jpg';
-        }
-      } catch (e) {
-        console.warn('jpeg convert', e);
-        outBlob = blob;
-        filename = 'outfit.png';
-      }
-      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 32) || 'outfit';
-      const file = new File([outBlob], safe + (filename.endsWith('.png') ? '.png' : '.jpg'), {
-        type: outBlob.type || 'image/jpeg',
-        lastModified: Date.now()
-      });
-
-      // Один тап → системное меню с «Сохранить изображение» (единственный способ в Safari)
-      if (navigator.share) {
-        try {
-          await navigator.share({ files: [file] });
-          toast('Сохранено — проверь «Фото»');
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: name || t('set') });
+          toast(t('photo_saved'));
           return;
-        } catch (err) {
-          if (err && err.name === 'AbortError') {
-            toast('Отменено');
-            return;
-          }
-          console.warn(err);
         }
+      } catch (err) {
+        // пользователь отменил share — не считаем ошибкой
+        if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+          toast(t('photo_saved'));
+          return;
+        }
+        console.warn('share failed', err);
       }
-
-      // Запас: показать фото на весь экран — удержание = «Добавить в Фото»
-      const url = URL.createObjectURL(outBlob);
-      let ov = document.getElementById('savePreview');
-      if (!ov) {
-        ov = document.createElement('div');
-        ov.id = 'savePreview';
-        ov.style.cssText = 'position:fixed;inset:0;z-index:600;background:#000;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);';
-        ov.innerHTML = `
-          <div style="padding:12px 16px;color:#fff;font-size:0.9rem;font-weight:600;text-align:center;">
-            Удерживай фото → «Добавить в Фото»
-          </div>
-          <img id="savePreviewImg" style="flex:1;width:100%;object-fit:contain;-webkit-touch-callout:default;" alt="">
-          <button type="button" id="savePreviewClose" style="margin:12px 16px;height:48px;border:none;border-radius:12px;background:#4ade80;color:#062;font-weight:700;font-size:1rem;">Закрыть</button>`;
-        document.body.appendChild(ov);
-        ov.querySelector('#savePreviewClose').onclick = () => {
-          ov.style.display = 'none';
-          const u = ov.dataset.url;
-          if (u) setTimeout(() => URL.revokeObjectURL(u), 2000);
-        };
-      }
-      ov.dataset.url = url;
-      ov.querySelector('#savePreviewImg').src = url;
-      ov.style.display = 'flex';
-      toast('Удерживай фото → Добавить в Фото');
+      // fallback: скачать файл
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast(t('photo_saved'));
     }
 
+    // ===== FREE COLLAGE — 1:1 как на экране =====
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
       const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
       const board = page && page.querySelector('.collage-board');
       const br = board ? board.getBoundingClientRect() : { width: 390, height: 520 };
-      const scaleOut = 2;
-      const W = Math.max(360, Math.round(br.width * scaleOut));
-      const H = Math.max(360, Math.round(br.height * scaleOut));
+      const scale = 2; // чётче на Retina
+      const W = Math.max(320, Math.round(br.width * scale));
+      const H = Math.max(320, Math.round(br.height * scale));
       const canvas = document.createElement('canvas');
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
+      // фон как на экране
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
       ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
 
+      // рисуем вещи в том же порядке и координатах, что на экране (left/top = угол, transform от центра)
       for (const pc of set.pieces) {
         const item = getItem(pc.itemId);
         if (!item) continue;
@@ -1529,12 +1489,13 @@ async function exportSetAsPhoto(setIdx) {
         const wPct = (pc.w || 36) / 100;
         const sc = pc.scale != null ? pc.scale : 1;
         const rot = (pc.rot || 0) * Math.PI / 180;
-        // layout box (до scale), как на экране: width% от ширины поля
+        // layout-box (до CSS transform scale) — как width/height элемента
         const boxW = W * wPct;
         const boxH = boxW * (img.naturalHeight / (img.naturalWidth || 1));
-        // x,y — центр
-        const cx = (pc.x / 100) * W;
-        const cy = (pc.y / 100) * H;
+        const left = (pc.x / 100) * W;
+        const top = (pc.y / 100) * H;
+        const cx = left + boxW / 2;
+        const cy = top + boxH / 2;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(rot);
@@ -1548,7 +1509,7 @@ async function exportSetAsPhoto(setIdx) {
       return;
     }
 
-    // slots layout
+    // ===== SLOT LAYOUT =====
     const W = 1080, pad = 28, gap = 16;
     const active = (set.activeSlots || ALL_SLOTS).slice();
     const top = ['jacke', 'bluse'].filter(s => active.includes(s));
@@ -1573,19 +1534,19 @@ async function exportSetAsPhoto(setIdx) {
     for (const row of rows) {
       const n = row.slots.length;
       const slotW = (W - pad * 2 - gap * (n - 1)) / n;
-      for (let si = 0; si < n; si++) {
-        const slot = row.slots[si];
+      for (let i = 0; i < n; i++) {
+        const slot = row.slots[i];
         const items = itemsForSlot(slot);
         const idx = set.indices[slot] || 0;
         const item = items[idx];
         if (!item) continue;
         let img;
         try { img = await loadImg(item.url); } catch (e) { continue; }
-        const x = pad + si * (slotW + gap);
+        const x = pad + i * (slotW + gap);
         const ir = img.naturalWidth / (img.naturalHeight || 1);
-        const bratio = slotW / row.h;
+        const br = slotW / row.h;
         let dw, dh;
-        if (ir > bratio) { dw = slotW * 0.9; dh = dw / ir; }
+        if (ir > br) { dw = slotW * 0.9; dh = dw / ir; }
         else { dh = row.h * 0.9; dw = dh * ir; }
         ctx.drawImage(img, x + (slotW - dw) / 2, y + (row.h - dh) / 2, dw, dh);
       }
@@ -1670,7 +1631,7 @@ function renderSets() {
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
         <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
         <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Save photo" style="font-size:0.95rem">💾</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save">💾</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -1754,20 +1715,18 @@ function ensurePieces(set) {
   if (!set.layout) set.layout = 'slots';
 }
 function defaultPiecePos(slot, index) {
-  /* x,y = центр вещи на поле (0..100) */
   const map = {
-    jacke: { x: 28, y: 18 }, bluse: { x: 50, y: 22 },
-    hose: { x: 50, y: 58 }, gurtel: { x: 50, y: 42 },
-    tasche: { x: 82, y: 62 }, schuhe: { x: 50, y: 88 }
+    jacke: { x: 4, y: 0 }, bluse: { x: 24, y: 0 },
+    hose: { x: 24, y: 38 }, gurtel: { x: 26, y: 34 },
+    tasche: { x: 68, y: 55 }, schuhe: { x: 30, y: 72 }
   };
-  const b = map[slot] || { x: 30 + (index % 3) * 20, y: 25 + Math.floor(index / 3) * 25 };
+  const b = map[slot] || { x: 20 + (index % 3) * 25, y: 15 + Math.floor(index / 3) * 28 };
   return { x: b.x, y: b.y, w: PIECE_W[slot] || 36, rot: 0, scale: 1 };
 }
 function applyPieceTransform(el, pc) {
   const rot = pc.rot || 0;
   const sc = pc.scale != null ? pc.scale : 1;
-  /* translate(-50%,-50%) — left/top это центр */
-  el.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${sc})`;
+  el.style.transform = `rotate(${rot}deg) scale(${sc})`;
 }
 function renderCollageBoard(page, set, setIdx) {
   ensurePieces(set);
@@ -1793,7 +1752,6 @@ function renderCollageBoard(page, set, setIdx) {
     el.style.left = pc.x + '%';
     el.style.top = pc.y + '%';
     el.style.width = (pc.w || 36) + '%';
-    el.style.margin = '0';
     el.innerHTML = `<img src="${item.url}" alt=""><button type="button" class="p-del">×</button>`;
     applyPieceTransform(el, pc);
     board.appendChild(el);
@@ -1815,14 +1773,23 @@ function renderCollageBoard(page, set, setIdx) {
   });
 }
 function bindPieceGestures(el, set, setIdx, index) {
-  const pointers = new Map();
-  let mode = null;
+  const pointers = new Map(); // id -> {x,y}
+  let mode = null; // 'drag' | 'pinch'
   let start = null;
   let changed = false;
 
   function pc() { return set.pieces[index]; }
-  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-  function angle(a, b) { return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; }
+
+  function dist(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y;
+    return Math.hypot(dx, dy);
+  }
+  function angle(a, b) {
+    return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+  }
+  function mid(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
 
   el.addEventListener('pointerdown', e => {
     if (e.target.closest('.p-del')) return;
@@ -1837,13 +1804,12 @@ function bindPieceGestures(el, set, setIdx, index) {
     const p = pc();
     if (pointers.size === 1) {
       mode = 'drag';
-      // x,y — центр вещи в %
       start = { x: e.clientX, y: e.clientY, ox: p.x, oy: p.y, br };
     } else if (pointers.size >= 2) {
       mode = 'pinch';
       const pts = [...pointers.values()];
       start = {
-        dist: dist(pts[0], pts[1]) || 1,
+        dist: dist(pts[0], pts[1]),
         angle: angle(pts[0], pts[1]),
         scale: p.scale != null ? p.scale : 1,
         rot: p.rot || 0,
@@ -1861,10 +1827,9 @@ function bindPieceGestures(el, set, setIdx, index) {
     if (mode === 'drag' && pointers.size === 1) {
       const dx = ((e.clientX - start.x) / start.br.width) * 100;
       const dy = ((e.clientY - start.y) / start.br.height) * 100;
-      if (Math.abs(dx) + Math.abs(dy) > 0.2) changed = true;
-      // центр может быть у самого края (0..100)
-      p.x = Math.max(0, Math.min(100, start.ox + dx));
-      p.y = Math.max(0, Math.min(100, start.oy + dy));
+      if (Math.abs(dx) + Math.abs(dy) > 0.3) changed = true;
+      p.x = Math.max(-25, Math.min(95, start.ox + dx));
+      p.y = Math.max(-25, Math.min(95, start.oy + dy));
       el.style.left = p.x + '%';
       el.style.top = p.y + '%';
     } else if (pointers.size >= 2) {
@@ -1873,7 +1838,7 @@ function bindPieceGestures(el, set, setIdx, index) {
       if (pts.length < 2) return;
       if (!start.dist) {
         start = {
-          dist: dist(pts[0], pts[1]) || 1,
+          dist: dist(pts[0], pts[1]),
           angle: angle(pts[0], pts[1]),
           scale: p.scale != null ? p.scale : 1,
           rot: p.rot || 0,
@@ -1883,9 +1848,13 @@ function bindPieceGestures(el, set, setIdx, index) {
       const d = dist(pts[0], pts[1]);
       const a = angle(pts[0], pts[1]);
       if (start.dist > 0) {
-        p.scale = Math.max(0.3, Math.min(3.5, start.scale * (d / start.dist)));
+        let sc = start.scale * (d / start.dist);
+        sc = Math.max(0.35, Math.min(3.2, sc));
+        p.scale = sc;
       }
+      // поворот двумя пальцами (в т.ч. по диагонали)
       let rot = start.rot + (a - start.angle);
+      // нормализуем
       while (rot > 180) rot -= 360;
       while (rot < -180) rot += 360;
       p.rot = rot;
@@ -1903,6 +1872,7 @@ function bindPieceGestures(el, set, setIdx, index) {
       mode = null; start = null;
       if (changed) { saveSets(); changed = false; }
     } else if (pointers.size === 1) {
+      // вернулись к одному пальцу — продолжаем drag от текущей позиции
       const pt = [...pointers.values()][0];
       const p = pc();
       mode = 'drag';
