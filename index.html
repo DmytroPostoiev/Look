@@ -173,6 +173,12 @@
     overflow: hidden;
     border-style: solid;
     border-color: rgba(255,255,255,0.12);
+    /* максимальная высота поля */
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .set-page.free-mode .set-header {
+    padding: 0.05rem 0.1rem 0.08rem;
   }
   /* в режиме коллажа гардероб компактнее, поле больше */
   .app.collage-focus .closet {
@@ -1417,59 +1423,84 @@ async function exportSetAsPhoto(setIdx) {
   if (!set) return;
   toast('…');
   try {
-    const W = 1080;
     const tTheme = UI_THEMES[prefs.uiTheme] || UI_THEMES.violet;
     ensurePieces(set);
 
     async function loadImg(url) {
       return new Promise((res, rej) => {
-        const i = new Image();
-        i.onload = () => res(i); i.onerror = rej;
-        i.src = url;
+        const im = new Image();
+        im.crossOrigin = 'anonymous';
+        im.onload = () => res(im);
+        im.onerror = () => rej(new Error('img'));
+        im.src = url;
       });
     }
     async function shareBlob(blob, name) {
-      const file = new File([blob], (name || 'outfit').replace(/[^\w\-а-яА-ЯёЁ]+/gi, '_').slice(0, 40) + '.png', { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: name || t('set') });
-      } else {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = file.name;
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
+      const file = new File([blob], safe + '.png', { type: 'image/png' });
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: name || t('set') });
+          toast(t('photo_saved'));
+          return;
+        }
+      } catch (err) {
+        // пользователь отменил share — не считаем ошибкой
+        if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+          toast(t('photo_saved'));
+          return;
+        }
+        console.warn('share failed', err);
       }
+      // fallback: скачать файл
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
       toast(t('photo_saved'));
     }
 
-    // ===== FREE COLLAGE =====
+    // ===== FREE COLLAGE — 1:1 как на экране =====
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
-      const H = 1440;
+      const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
+      const board = page && page.querySelector('.collage-board');
+      const br = board ? board.getBoundingClientRect() : { width: 390, height: 520 };
+      const scale = 2; // чётче на Retina
+      const W = Math.max(320, Math.round(br.width * scale));
+      const H = Math.max(320, Math.round(br.height * scale));
       const canvas = document.createElement('canvas');
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
+      // фон как на экране
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
       ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.font = '600 32px -apple-system, sans-serif';
-      ctx.fillText(set.name || t('set'), 36, 48);
 
+      // рисуем вещи в том же порядке и координатах, что на экране (left/top = угол, transform от центра)
       for (const pc of set.pieces) {
         const item = getItem(pc.itemId);
         if (!item) continue;
-        const img = await loadImg(item.url);
+        let img;
+        try { img = await loadImg(item.url); } catch (e) { continue; }
         const wPct = (pc.w || 36) / 100;
         const sc = pc.scale != null ? pc.scale : 1;
         const rot = (pc.rot || 0) * Math.PI / 180;
-        const baseW = W * wPct * sc;
-        const baseH = baseW * (img.naturalHeight / (img.naturalWidth || 1));
-        const cx = (pc.x / 100) * W + baseW / 2;
-        const cy = ((pc.y / 100) * (H - 60) + 60) + baseH / 2;
+        // layout-box (до CSS transform scale) — как width/height элемента
+        const boxW = W * wPct;
+        const boxH = boxW * (img.naturalHeight / (img.naturalWidth || 1));
+        const left = (pc.x / 100) * W;
+        const top = (pc.y / 100) * H;
+        const cx = left + boxW / 2;
+        const cy = top + boxH / 2;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(rot);
-        ctx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
+        ctx.scale(sc, sc);
+        ctx.drawImage(img, -boxW / 2, -boxH / 2, boxW, boxH);
         ctx.restore();
       }
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
@@ -1479,7 +1510,7 @@ async function exportSetAsPhoto(setIdx) {
     }
 
     // ===== SLOT LAYOUT =====
-    const pad = 28, gap = 16;
+    const W = 1080, pad = 28, gap = 16;
     const active = (set.activeSlots || ALL_SLOTS).slice();
     const top = ['jacke', 'bluse'].filter(s => active.includes(s));
     const mid = active.includes('hose') ? ['hose'] : [];
@@ -1489,7 +1520,6 @@ async function exportSetAsPhoto(setIdx) {
     if (mid.length) rows.push({ slots: mid, h: 340 });
     if (bot.length) rows.push({ slots: bot, h: 200 });
     if (!rows.length) { toast(t('photo_fail')); return; }
-
     const totalH = rows.reduce((a, r) => a + r.h, 0) + pad * 2 + gap * (rows.length - 1) + 50;
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = totalH;
@@ -1500,20 +1530,7 @@ async function exportSetAsPhoto(setIdx) {
     ctx.fillStyle = '#fff';
     ctx.font = '600 28px -apple-system, sans-serif';
     ctx.fillText(set.name || t('set'), pad, 36);
-
     let y = pad + 50;
-    async function drawItem(item, x, y, w, h) {
-      if (!item) return;
-      const img = await loadImg(item.url);
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      ctx.fillRect(x, y, w, h);
-      const ir = img.naturalWidth / img.naturalHeight;
-      const br = w / h;
-      let dw, dh;
-      if (ir > br) { dw = w * 0.9; dh = dw / ir; }
-      else { dh = h * 0.9; dw = dh * ir; }
-      ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
-    }
     for (const row of rows) {
       const n = row.slots.length;
       const slotW = (W - pad * 2 - gap * (n - 1)) / n;
@@ -1522,8 +1539,16 @@ async function exportSetAsPhoto(setIdx) {
         const items = itemsForSlot(slot);
         const idx = set.indices[slot] || 0;
         const item = items[idx];
+        if (!item) continue;
+        let img;
+        try { img = await loadImg(item.url); } catch (e) { continue; }
         const x = pad + i * (slotW + gap);
-        if (item) await drawItem(item, x, y, slotW, row.h);
+        const ir = img.naturalWidth / (img.naturalHeight || 1);
+        const br = slotW / row.h;
+        let dw, dh;
+        if (ir > br) { dw = slotW * 0.9; dh = dw / ir; }
+        else { dh = row.h * 0.9; dw = dh * ir; }
+        ctx.drawImage(img, x + (slotW - dw) / 2, y + (row.h - dh) / 2, dw, dh);
       }
       y += row.h + gap;
     }
@@ -1606,7 +1631,7 @@ function renderSets() {
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
         <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
         <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="photo">📷</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save">💾</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -1683,7 +1708,7 @@ function fillSlots(page, set) {
 /* =====================================================================
    СВОБОДНЫЙ КОЛЛАЖ: вещи как пазл, двигай куда хочешь
    ===================================================================== */
-const PIECE_W = { jacke: 42, bluse: 48, gurtel: 36, hose: 40, tasche: 28, schuhe: 30 };
+const PIECE_W = { jacke: 38, bluse: 42, gurtel: 32, hose: 36, tasche: 26, schuhe: 28 };
 
 function ensurePieces(set) {
   if (!Array.isArray(set.pieces)) set.pieces = [];
@@ -1691,9 +1716,9 @@ function ensurePieces(set) {
 }
 function defaultPiecePos(slot, index) {
   const map = {
-    jacke: { x: 5, y: 2 }, bluse: { x: 26, y: 3 },
-    hose: { x: 26, y: 40 }, gurtel: { x: 28, y: 36 },
-    tasche: { x: 70, y: 58 }, schuhe: { x: 32, y: 78 }
+    jacke: { x: 4, y: 0 }, bluse: { x: 24, y: 0 },
+    hose: { x: 24, y: 38 }, gurtel: { x: 26, y: 34 },
+    tasche: { x: 68, y: 55 }, schuhe: { x: 30, y: 72 }
   };
   const b = map[slot] || { x: 20 + (index % 3) * 25, y: 15 + Math.floor(index / 3) * 28 };
   return { x: b.x, y: b.y, w: PIECE_W[slot] || 36, rot: 0, scale: 1 };
@@ -1803,8 +1828,8 @@ function bindPieceGestures(el, set, setIdx, index) {
       const dx = ((e.clientX - start.x) / start.br.width) * 100;
       const dy = ((e.clientY - start.y) / start.br.height) * 100;
       if (Math.abs(dx) + Math.abs(dy) > 0.3) changed = true;
-      p.x = Math.max(-15, Math.min(92, start.ox + dx));
-      p.y = Math.max(-8, Math.min(92, start.oy + dy));
+      p.x = Math.max(-25, Math.min(95, start.ox + dx));
+      p.y = Math.max(-25, Math.min(95, start.oy + dy));
       el.style.left = p.x + '%';
       el.style.top = p.y + '%';
     } else if (pointers.size >= 2) {
@@ -1892,7 +1917,7 @@ function toggleSetLayout(setIdx) {
   }
   saveSets();
   renderSets();
-  toast(set.layout === 'free' ? 'Коллаж на весь экран · 📷 сохранить · свайп между сетами' : 'Слоты');
+  toast(set.layout === 'free' ? 'Коллаж · 💾 сохранить фото · свайп между сетами' : 'Слоты');
 }
 
 function refreshSlots() {
