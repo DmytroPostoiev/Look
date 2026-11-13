@@ -225,7 +225,7 @@
     width: 100%; height: 100%; object-fit: contain; pointer-events: none;
     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
   }
-  .piece.active { z-index: 20; outline: 2px solid var(--accent); border-radius: 8px; }
+  .piece.active { z-index: 20; }
   .piece .p-del {
     position: absolute; top: 0; right: 0; width: 24px; height: 24px;
     transform: translate(40%, -40%);
@@ -1497,54 +1497,83 @@ async function exportSetAsPhoto(setIdx) {
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
       const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
       const board = page && page.querySelector('.collage-board');
-      // убрать выделение и крестики, чтобы 1:1 как видно
-      if (board) {
-        board.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
-        board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = 'hidden'; });
-      }
+      if (!board) { toast(t('photo_fail')); return; }
+
+      // как на экране: без выделения и крестиков
+      const prevActive = [];
+      board.querySelectorAll('.piece').forEach(el => {
+        if (el.classList.contains('active')) { prevActive.push(el); el.classList.remove('active'); }
+      });
+      board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = 'hidden'; });
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const br = board ? board.getBoundingClientRect() : { width: 390, height: 520 };
-      const scaleOut = 2;
-      const W = Math.max(360, Math.round(br.width * scaleOut));
-      const H = Math.max(360, Math.round(br.height * scaleOut));
+
+      const br = board.getBoundingClientRect();
+      const dpr = 2;
+      const W = Math.max(2, Math.round(br.width * dpr));
+      const H = Math.max(2, Math.round(br.height * dpr));
       const canvas = document.createElement('canvas');
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
+
+      // фон
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
-      ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, W, H);
+
+      // жёсткая обрезка по рамке поля (как overflow:hidden)
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, 0, W, H);
-      ctx.clip(); // как overflow:hidden на экране — ничего за рамкой
+      ctx.clip();
 
-      // рисуем по данным, но размер берём как на экране (width% поля)
-      for (const pc of set.pieces) {
-        const item = getItem(pc.itemId);
-        if (!item) continue;
+      // рисуем каждую вещь по реальному положению на экране
+      const pieceEls = [...board.querySelectorAll('.piece')];
+      for (const el of pieceEls) {
+        const imgEl = el.querySelector('img');
+        if (!imgEl || !imgEl.src) continue;
         let img;
-        try { img = await loadImg(item.url); } catch (e) { continue; }
-        const wPct = (pc.w || 36) / 100;
+        try { img = await loadImg(imgEl.src); } catch (e) { continue; }
+
+        const pi = parseInt(el.dataset.pi, 10);
+        const pc = set.pieces[pi] || {};
+        const rotDeg = pc.rot || 0;
         const sc = pc.scale != null ? pc.scale : 1;
-        const rot = (pc.rot || 0) * Math.PI / 180;
-        const boxW = W * wPct;
-        const boxH = boxW * (img.naturalHeight / (img.naturalWidth || 1));
-        const cx = (Number(pc.x) / 100) * W;
-        const cy = (Number(pc.y) / 100) * H;
+
+        // центр визуального элемента относительно board
+        const er = el.getBoundingClientRect();
+        const cx = ((er.left + er.right) / 2 - br.left) * dpr;
+        const cy = ((er.top + er.bottom) / 2 - br.top) * dpr;
+
+        // размер layout-коробки (до rotate; scale учитываем отдельно)
+        // offsetWidth/Height — до transform
+        let layoutW = el.offsetWidth || 0;
+        let layoutH = el.offsetHeight || 0;
+        if (!layoutW) layoutW = (br.width * ((pc.w || 36) / 100));
+        if (!layoutH && img.naturalWidth) {
+          layoutH = layoutW * (img.naturalHeight / img.naturalWidth);
+        }
+        const drawW = layoutW * sc * dpr;
+        const drawH = layoutH * sc * dpr;
+        const rot = rotDeg * Math.PI / 180;
+
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(rot);
-        ctx.scale(sc, sc);
-        ctx.drawImage(img, -boxW / 2, -boxH / 2, boxW, boxH);
+        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
         ctx.restore();
       }
       ctx.restore();
-      if (board) board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = ''; });
+
+      board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = ''; });
+      prevActive.forEach(el => el.classList.add('active'));
+
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (!blob) throw new Error('blob');
       await shareBlob(blob, set.name);
       return;
     }
+
 
     // slots layout
     const W = 1080, pad = 28, gap = 16;
