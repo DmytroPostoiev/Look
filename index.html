@@ -117,10 +117,15 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 0.95rem;
   }
-  .top-bar button.green { background: var(--accent); color: #062; }
-  .top-bar button.blue  { background: #60a5fa; color: #fff; }
-  .top-bar button.purple { background: #a78bfa; color: #fff; }
-  .top-bar button.orange { background: #fb923c; color: #fff; }
+  .top-bar button.green,
+  .top-bar button.blue,
+  .top-bar button.purple,
+  .top-bar button.orange {
+    background: var(--accent); color: #0a1628;
+  }
+  .top-bar button.icon-btn {
+    background: color-mix(in srgb, var(--accent) 35%, rgba(255,255,255,0.12));
+  }
   .top-bar .spacer { flex: 1 1 auto; min-width: 0.3rem; }
   .top-bar .ward-label {
     flex: 0 0 auto;
@@ -139,18 +144,54 @@
 
   /* ---------- Сеты ---------- */
   .sets-wrapper {
-    flex: 1 1 auto; display: flex;
-    overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory;
+    flex: 1 1 auto; display: flex; flex-direction: column;
+    overflow-x: hidden; overflow-y: auto;
+    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch; min-height: 0;
   }
   .sets-wrapper::-webkit-scrollbar { display: none; }
   .set-page {
-    flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always;
+    flex: 0 0 100%; min-height: 100%; height: 100%;
+    scroll-snap-align: start; scroll-snap-stop: always;
     display: flex; flex-direction: column;
-    padding: 0.3rem 0.55rem 0.1rem; gap: 0.2rem;
-    height: 100%; overflow: hidden;
+    padding: 0.25rem 0.55rem 0.1rem; gap: 0.2rem;
+    overflow: hidden; position: relative;
   }
+  /* free collage canvas */
+  .collage-board {
+    flex: 1 1 auto; min-height: 0; position: relative;
+    border-radius: 14px; overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px dashed rgba(255,255,255,0.18);
+    touch-action: none;
+  }
+  .collage-board .hint-free {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.35); font-size: 0.78rem; text-align: center;
+    padding: 1rem; pointer-events: none;
+  }
+  .piece {
+    position: absolute; touch-action: none; user-select: none;
+    cursor: grab; z-index: 1;
+  }
+  .piece img {
+    width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+  }
+  .piece.active { z-index: 20; outline: 2px solid var(--accent); border-radius: 8px; }
+  .piece .p-del {
+    position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
+    border-radius: 50%; border: none; background: rgba(0,0,0,0.75); color: #fff;
+    font-size: 0.7rem; display: none; align-items: center; justify-content: center;
+  }
+  .piece.active .p-del { display: flex; }
+  .set-dots { writing-mode: horizontal-tb; }
+  .set-mode-btn {
+    width: 28px; height: 28px; border-radius: 8px; border: none;
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .set-mode-btn.on { background: color-mix(in srgb, var(--accent) 55%, #000); }
   .set-header {
     flex: 0 0 auto; display: flex; align-items: center;
     padding: 0.1rem 0.15rem 0.2rem; gap: 0.35rem;
@@ -646,7 +687,7 @@ const THEMES = {
 const PREP_MAX = 640;     // макс. сторона сохранённого фото
 const THUMB_MAX = 160;    // макс. сторона миниатюры
 const ROT_MAX = 760;      // макс. сторона после поворота
-const BG_INFER_MAX = 480; // сторона для нейросети (меньше = быстрее)
+const BG_INFER_MAX = 720; // сторона для нейросети (баланс качество/скорость)
 
 /* =====================================================================
    ТАБЛИЦА СОЧЕТАНИЯ ЦВЕТОВ (как на картинке) + тема UI
@@ -827,70 +868,110 @@ function renderThemeSettings() {
 }
 
 /** Собрать готовые сеты из гардероба по гармонии цветов */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickMatching(list, usedColors, usedIds, offset) {
+  const cand = list.filter(s => !usedIds.has(s.id) && usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
+  if (!cand.length) return null;
+  return cand[(offset || 0) % cand.length];
+}
 async function buildAutoOutfits() {
-  // Определяем цвета всех вещей
   for (const it of wardrobe) await detectItemColor(it);
-
   const bySlot = {};
   ALL_SLOTS.forEach(s => { bySlot[s] = itemsForSlot(s); });
-
-  const tops = [...(bySlot.bluse || [])];
-  const bottoms = [...(bySlot.hose || [])];
-  const shoes = [...(bySlot.schuhe || [])];
-  const bags = [...(bySlot.tasche || [])];
-  const jackets = [...(bySlot.jacke || [])];
-  const belts = [...(bySlot.gurtel || [])];
-
+  const tops = shuffle(bySlot.bluse || []);
+  const bottoms = shuffle(bySlot.hose || []);
+  const shoes = shuffle(bySlot.schuhe || []);
+  const bags = shuffle(bySlot.tasche || []);
+  const jackets = shuffle(bySlot.jacke || []);
+  const belts = shuffle(bySlot.gurtel || []);
   const results = [];
   const seen = new Set();
+  const usedTopIds = new Set();
+  const usedBotIds = new Set();
+  let variant = 0;
 
-  function keyOf(parts) {
-    return parts.map(p => p.id).sort().join('|');
-  }
+  function keyOf(parts) { return parts.map(p => p.id).sort().join('|'); }
 
-  // Основная логика: топ + низ, затем обувь/сумка/куртка если подходят
+  // Проходим в случайном порядке; для каждой пары берём разные аксессуары (offset)
   for (const top of tops) {
     for (const bottom of bottoms) {
       if (!colorsMatch(top.colorName, bottom.colorName) && !colorsMatch(bottom.colorName, top.colorName)) continue;
+      // не повторяем одну и ту же первую пару слишком часто
+      const pairKey = top.id + '+' + bottom.id;
+      if (seen.has(pairKey)) continue;
 
-      const primary = top.colorName;
-      const picks = { bluse: top, hose: bottom };
-      const usedColors = [top.colorName, bottom.colorName];
+      for (let tryN = 0; tryN < 3; tryN++) {
+        const picks = { bluse: top, hose: bottom };
+        const usedColors = [top.colorName, bottom.colorName];
+        const usedIds = new Set([top.id, bottom.id]);
+        const off = variant + tryN;
 
-      // обувь
-      const shoe = shoes.find(s => usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
-      if (shoe) { picks.schuhe = shoe; usedColors.push(shoe.colorName); }
+        const shoe = pickMatching(shoes, usedColors, usedIds, off);
+        if (shoe) { picks.schuhe = shoe; usedColors.push(shoe.colorName); usedIds.add(shoe.id); }
+        const bag = pickMatching(bags, usedColors, usedIds, off + 1);
+        if (bag) { picks.tasche = bag; usedColors.push(bag.colorName); usedIds.add(bag.id); }
+        const jack = pickMatching(jackets, usedColors, usedIds, off + 2);
+        if (jack) { picks.jacke = jack; usedColors.push(jack.colorName); usedIds.add(jack.id); }
+        const belt = pickMatching(belts, usedColors, usedIds, off + 3);
+        if (belt) { picks.gurtel = belt; usedIds.add(belt.id); }
 
-      // сумка
-      const bag = bags.find(s => usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
-      if (bag) { picks.tasche = bag; usedColors.push(bag.colorName); }
+        const parts = Object.values(picks);
+        const k = keyOf(parts);
+        if (seen.has(k)) continue;
+        seen.add(k); seen.add(pairKey);
+        usedTopIds.add(top.id); usedBotIds.add(bottom.id);
 
-      // куртка (опционально)
-      const jack = jackets.find(s => usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
-      if (jack) picks.jacke = jack;
-
-      // ремень
-      const belt = belts.find(s => usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
-      if (belt) picks.gurtel = belt;
-
-      const parts = Object.values(picks);
-      const k = keyOf(parts);
-      if (seen.has(k)) continue;
-      seen.add(k);
-
-      const titleColors = [...new Set(usedColors)].slice(0, 4);
-      const title = titleColors.map(c => COLOR_LABEL_RU[c] || c).join(' + ');
-      results.push({
-        title: title || 'Образ',
-        colors: titleColors.map(c => COLOR_HEX[c] || '#888'),
-        picks,
-        score: parts.length * 10 + (shoe ? 3 : 0) + (bag ? 2 : 0) + (jack ? 2 : 0)
-      });
+        const titleColors = [...new Set(usedColors)].slice(0, 4);
+        results.push({
+          title: titleColors.map(c => COLOR_LABEL_RU[c] || c).join(' + ') || 'Образ',
+          colors: titleColors.map(c => COLOR_HEX[c] || '#888'),
+          picks,
+          score: parts.length * 12 + (shoe ? 4 : 0) + (bag ? 3 : 0) + (jack ? 3 : 0) + (belt ? 2 : 0)
+            + (usedTopIds.has(top.id) ? 0 : 2)
+        });
+        variant++;
+        break;
+      }
+      if (results.length >= 16) break;
     }
+    if (results.length >= 16) break;
   }
 
-  results.sort((a, b) => b.score - a.score);
-  return results.slice(0, 12);
+  // Дополнительно: образы, которые покрывают ещё не использованные вещи
+  const leftoverTops = tops.filter(t => !usedTopIds.has(t.id));
+  const leftoverBots = bottoms.filter(b => !usedBotIds.has(b.id));
+  for (const top of leftoverTops) {
+    for (const bottom of leftoverBots) {
+      if (!colorsMatch(top.colorName, bottom.colorName) && !colorsMatch(bottom.colorName, top.colorName)) continue;
+      const picks = { bluse: top, hose: bottom };
+      const usedColors = [top.colorName, bottom.colorName];
+      const usedIds = new Set([top.id, bottom.id]);
+      const shoe = pickMatching(shoes, usedColors, usedIds, variant++);
+      if (shoe) picks.schuhe = shoe;
+      const bag = pickMatching(bags, usedColors, usedIds, variant++);
+      if (bag) picks.tasche = bag;
+      const k = keyOf(Object.values(picks));
+      if (seen.has(k)) continue;
+      seen.add(k);
+      results.push({
+        title: [top.colorName, bottom.colorName].map(c => COLOR_LABEL_RU[c] || c).join(' + '),
+        colors: [COLOR_HEX[top.colorName], COLOR_HEX[bottom.colorName]],
+        picks,
+        score: 20
+      });
+      if (results.length >= 20) break;
+    }
+    if (results.length >= 20) break;
+  }
+
+  return shuffle(results).sort((a, b) => b.score - a.score).slice(0, 12);
 }
 
 function applyAutoOutfit(picks) {
@@ -1093,7 +1174,7 @@ async function makeThumb(blob, alpha) {
 async function prepare(file) {
   const c = await toCanvas(file, PREP_MAX);
   const alpha = /png|webp|gif/i.test(file.type) && canvasHasAlpha(c);
-  const blob = alpha ? await canvasToBlob(c, 'image/png') : await canvasToBlob(c, 'image/jpeg', 0.85);
+  const blob = alpha ? await canvasToBlob(c, 'image/png') : await canvasToBlob(c, 'image/jpeg', 0.92);
   if (!blob) throw new Error('blob');
   return { blob, alpha };
 }
@@ -1147,17 +1228,17 @@ function updateChip() {
 }
 async function cutout(blob) {
   const rm = await loadBackgroundRemover();
-  // Уменьшаем до 480px — модель работает быстрее, для коллажа качества хватает
-  const smallC = await toCanvas(blob, BG_INFER_MAX);
-  const inputBlob = await canvasToBlob(smallC, 'image/jpeg', 0.92);
+  // Больше сторона + PNG на входе → меньше артефактов и сдвига цвета
+  const srcC = await toCanvas(blob, Math.max(BG_INFER_MAX, 640));
+  const inputBlob = await canvasToBlob(srcC, 'image/png');
   const out = await rm(inputBlob, {
     model: 'isnet_quint8',
-    output: { format: 'image/png' },
+    output: { format: 'image/png', quality: 1 },
     progress: onModelProgress
   });
   let c = await toCanvas(out, 0);
+  // не трогаем цвета — только обрезка прозрачных краёв
   c = trimCanvas(c);
-  // Финальный размер не больше PREP_MAX
   if (Math.max(c.width, c.height) > PREP_MAX) {
     const k = PREP_MAX / Math.max(c.width, c.height);
     const n = document.createElement('canvas');
@@ -1463,17 +1544,26 @@ function renderSets() {
     page.className = 'set-page';
     page.dataset.index = idx;
     const theme = THEMES[set.theme] || THEMES.empty;
+    ensurePieces(set);
+    const isFree = set.layout === 'free';
     page.innerHTML = `
       <div class="set-header">
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
         <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
+        <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
         <button class="set-photo" data-idx="${idx}" aria-label="photo">📷</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
-      ${buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
+      ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
     setsWrapper.appendChild(page);
-    fillSlots(page, set);
-    page.querySelectorAll('.slot').forEach(el => setupSlot(el, idx));
+    if (isFree) {
+      renderCollageBoard(page, set, idx);
+    } else {
+      fillSlots(page, set);
+      page.querySelectorAll('.slot').forEach(el => setupSlot(el, idx));
+    }
+    const modeBtn = page.querySelector('.set-mode-btn');
+    if (modeBtn) modeBtn.onclick = (e) => { e.stopPropagation(); toggleSetLayout(idx); };
     const photoBtn = page.querySelector('.set-photo');
     if (photoBtn) photoBtn.onclick = (e) => { e.stopPropagation(); exportSetAsPhoto(idx); };
     page.querySelector('.set-name').onclick = () => {
@@ -1492,11 +1582,11 @@ function renderSets() {
     dot.onclick = () => goToSet(idx);
     setDots.appendChild(dot);
   });
-  requestAnimationFrame(() => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+  requestAnimationFrame(() => { setsWrapper.scrollTop = activeSetIndex * (setsWrapper.clientHeight || 1); });
 }
 function goToSet(idx) {
   activeSetIndex = idx;
-  setsWrapper.scrollTo({ left: idx * setsWrapper.clientWidth, behavior: 'smooth' });
+  setsWrapper.scrollTo({ top: idx * setsWrapper.clientHeight, behavior: 'smooth' });
   setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 function fillSlots(page, set) {
@@ -1529,6 +1619,137 @@ function fillSlots(page, set) {
     }
   });
 }
+
+/* =====================================================================
+   СВОБОДНЫЙ КОЛЛАЖ: вещи как пазл, двигай куда хочешь
+   ===================================================================== */
+const PIECE_W = { jacke: 42, bluse: 48, gurtel: 36, hose: 40, tasche: 28, schuhe: 30 };
+
+function ensurePieces(set) {
+  if (!Array.isArray(set.pieces)) set.pieces = [];
+  if (!set.layout) set.layout = 'slots';
+}
+function defaultPiecePos(slot, index) {
+  const map = {
+    jacke: { x: 8, y: 6 }, bluse: { x: 28, y: 8 },
+    hose: { x: 28, y: 42 }, gurtel: { x: 30, y: 38 },
+    tasche: { x: 68, y: 55 }, schuhe: { x: 35, y: 72 }
+  };
+  const b = map[slot] || { x: 20 + (index % 3) * 25, y: 15 + Math.floor(index / 3) * 28 };
+  return { x: b.x, y: b.y, w: PIECE_W[slot] || 36 };
+}
+function renderCollageBoard(page, set, setIdx) {
+  ensurePieces(set);
+  let board = page.querySelector('.collage-board');
+  if (!board) {
+    board = document.createElement('div');
+    board.className = 'collage-board checker';
+    page.appendChild(board);
+  }
+  board.innerHTML = '';
+  if (!set.pieces.length) {
+    board.innerHTML = '<div class="hint-free">Нажми вещь в гардеробе —<br>она появится здесь.<br>Двигай пальцем как пазл.</div>';
+    return;
+  }
+  set.pieces.forEach((pc, i) => {
+    const item = getItem(pc.itemId);
+    if (!item) return;
+    const el = document.createElement('div');
+    el.className = 'piece';
+    el.dataset.pi = i;
+    el.style.left = pc.x + '%';
+    el.style.top = pc.y + '%';
+    el.style.width = (pc.w || 36) + '%';
+    el.style.height = 'auto';
+    el.innerHTML = `<img src="${item.url}" alt=""><button type="button" class="p-del">×</button>`;
+    // keep aspect via height from width
+    board.appendChild(el);
+    const img = el.querySelector('img');
+    img.onload = () => {
+      const ratio = img.naturalHeight / (img.naturalWidth || 1);
+      el.style.height = ((pc.w || 36) * ratio * (board.clientWidth / (board.clientHeight || 1))) + '%';
+      if (!pc._hSet) {
+        // height as % of board based on width% * aspect * board aspect
+        const boardR = board.clientWidth / (board.clientHeight || 1);
+        el.style.height = ((pc.w || 36) * ratio / boardR) + '%';
+      }
+    };
+    bindPieceDrag(el, set, setIdx, i);
+    el.querySelector('.p-del').onclick = e => {
+      e.stopPropagation();
+      set.pieces.splice(i, 1);
+      saveSets();
+      renderCollageBoard(page, set, setIdx);
+    };
+  });
+}
+function bindPieceDrag(el, set, setIdx, index) {
+  let sx, sy, ox, oy, moved;
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('.p-del')) return;
+    e.preventDefault(); e.stopPropagation();
+    const board = el.parentElement;
+    const br = board.getBoundingClientRect();
+    sx = e.clientX; sy = e.clientY;
+    ox = set.pieces[index].x; oy = set.pieces[index].y;
+    moved = false;
+    document.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    el.setPointerCapture(e.pointerId);
+    const onMove = ev => {
+      const dx = ((ev.clientX - sx) / br.width) * 100;
+      const dy = ((ev.clientY - sy) / br.height) * 100;
+      if (Math.abs(dx) + Math.abs(dy) > 0.5) moved = true;
+      let nx = Math.max(-5, Math.min(85, ox + dx));
+      let ny = Math.max(-5, Math.min(85, oy + dy));
+      set.pieces[index].x = nx; set.pieces[index].y = ny;
+      el.style.left = nx + '%'; el.style.top = ny + '%';
+    };
+    const onUp = () => {
+      el.releasePointerCapture(e.pointerId);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      if (moved) saveSets();
+    };
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+  });
+}
+function addItemToCollage(setIdx, item) {
+  const set = sets[setIdx];
+  ensurePieces(set);
+  set.layout = 'free';
+  const slot = CATEGORIES[item.cat] ? CATEGORIES[item.cat].slot : 'bluse';
+  const pos = defaultPiecePos(slot, set.pieces.length);
+  // slight jitter so stack not identical
+  pos.x = Math.min(80, pos.x + (set.pieces.length % 3) * 4);
+  pos.y = Math.min(80, pos.y + (set.pieces.length % 2) * 5);
+  set.pieces.push({ itemId: item.id, x: pos.x, y: pos.y, w: pos.w, slot });
+  saveSets();
+  renderSets();
+  toast('Добавлено на коллаж — двигай пальцем');
+}
+function toggleSetLayout(setIdx) {
+  const set = sets[setIdx];
+  ensurePieces(set);
+  set.layout = set.layout === 'free' ? 'slots' : 'free';
+  // при первом входе в free — перенести текущие слоты как стартовые позиции
+  if (set.layout === 'free' && !set.pieces.length) {
+    ALL_SLOTS.forEach(slot => {
+      if (!(set.activeSlots || []).includes(slot)) return;
+      const items = itemsForSlot(slot);
+      const idx = set.indices[slot] || 0;
+      const it = items[idx];
+      if (!it) return;
+      const pos = defaultPiecePos(slot, set.pieces.length);
+      set.pieces.push({ itemId: it.id, x: pos.x, y: pos.y, w: pos.w, slot });
+    });
+  }
+  saveSets();
+  renderSets();
+  toast(set.layout === 'free' ? 'Коллаж: двигай вещи' : 'Слоты');
+}
+
 function refreshSlots() {
   sets.forEach((set, i) => {
     const page = setsWrapper.querySelector(`.set-page[data-index="${i}"]`);
@@ -1624,8 +1845,8 @@ function changeVariant(setIdx, slotName, dir) {
 setsWrapper.addEventListener('scroll', () => {
   clearTimeout(setsWrapper._t);
   setsWrapper._t = setTimeout(() => {
-    const w = setsWrapper.clientWidth || 1;
-    activeSetIndex = Math.max(0, Math.min(sets.length - 1, Math.round(setsWrapper.scrollLeft / w)));
+    const h = setsWrapper.clientHeight || 1;
+    activeSetIndex = Math.max(0, Math.min(sets.length - 1, Math.round(setsWrapper.scrollTop / h)));
     setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === activeSetIndex));
   }, 60);
 });
@@ -1680,11 +1901,16 @@ function renderCloset() {
     el.addEventListener('contextmenu', e => e.preventDefault());
     el.onclick = () => {
       if (drag.suppress) return;
+      const set = sets[activeSetIndex];
+      ensurePieces(set);
+      if (set.layout === 'free') {
+        addItemToCollage(activeSetIndex, item);
+        return;
+      }
       const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
       if (!slot) return;
       const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
       if (idx < 0) return;
-      const set = sets[activeSetIndex];
       set.indices[slot] = idx;
       const changed = ensureSlot(set, slot);
       saveSets();
@@ -2004,7 +2230,7 @@ function addSetAndShow(set) {
   sets.push(set); saveSets();
   activeSetIndex = sets.length - 1;
   renderSets();
-  setTimeout(() => setsWrapper.scrollTo({ left: activeSetIndex * setsWrapper.clientWidth, behavior: 'smooth' }), 40);
+  setTimeout(() => setsWrapper.scrollTo({ top: activeSetIndex * setsWrapper.clientHeight, behavior: 'smooth' }), 40);
 }
 function openNewSetModal() {
   const grid = $('themeGrid'); grid.innerHTML = '';
@@ -2202,7 +2428,7 @@ async function init() {
     }, 800);
   }
 }
-window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+window.addEventListener('resize', () => { setsWrapper.scrollTop = activeSetIndex * (setsWrapper.clientHeight || 1); });
 init();
 </script>
 </body>
