@@ -1357,7 +1357,7 @@ const I18N = {
     accent: 'Цвет акцента (кнопки)', memory: 'Память', backup: 'Резервная копия',
     danger: 'Опасная зона', clear_all: 'Удалить все вещи и сеты',
     export_copy: '⬇️ Сохранить копию (файл)', import_copy: '⬆️ Загрузить копию',
-    language: 'Язык', photo_saved: 'Выбери «Сохранить изображение» в Фото',
+    language: 'Язык', photo_saved: 'Сохранено в Фото',
     photo_fail: 'Не удалось сохранить фото', share_photo: 'Поделиться фото сета',
     auto_title: 'Авто-сеты', auto_hint: 'Готовые образы из твоих вещей по таблице цветов',
     pick_set: 'Выбрать этот сет', analyzing: 'Анализирую цвета вещей…',
@@ -1437,55 +1437,44 @@ async function exportSetAsPhoto(setIdx) {
       });
     }
     async function shareBlob(blob, name) {
-      // Короткий путь: сразу системное меню → «Сохранить изображение»
-      let outBlob = blob;
+      // Как в рабочей версии: PNG → Share → «Сохранить изображение»
+      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
+      const file = new File([blob], safe + '.png', { type: 'image/png' });
       try {
-        if (blob.type !== 'image/jpeg') {
-          const bmp = await createImageBitmap(blob);
-          const c = document.createElement('canvas');
-          c.width = bmp.width; c.height = bmp.height;
-          const cx = c.getContext('2d');
-          cx.fillStyle = '#0a0614';
-          cx.fillRect(0, 0, c.width, c.height);
-          cx.drawImage(bmp, 0, 0);
-          outBlob = await new Promise((res, rej) =>
-            c.toBlob(b => b ? res(b) : rej(new Error('jpeg')), 'image/jpeg', 0.93)
-          );
-        }
-      } catch (e) {
-        outBlob = blob;
-      }
-      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 32) || 'outfit';
-      const ext = (outBlob.type === 'image/png') ? '.png' : '.jpg';
-      const file = new File([outBlob], safe + ext, {
-        type: outBlob.type || 'image/jpeg',
-        lastModified: Date.now()
-      });
-
-      try {
-        if (navigator.share) {
-          await navigator.share({ files: [file] });
-          toast('Готово');
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: name || t('set') });
+          toast(t('photo_saved'));
           return;
         }
       } catch (err) {
-        if (err && err.name === 'AbortError') {
-          toast('Отменено');
+        if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+          toast(t('photo_saved'));
           return;
         }
-        console.warn(err);
+        console.warn('share failed', err);
       }
-
-      // если Share недоступен — скачать файл
-      const url = URL.createObjectURL(outBlob);
+      // fallback
+      try {
+        if (navigator.share) {
+          await navigator.share({ files: [file] });
+          toast(t('photo_saved'));
+          return;
+        }
+      } catch (err2) {
+        if (err2 && err2.name === 'AbortError') {
+          toast(t('photo_saved'));
+          return;
+        }
+      }
       const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
       a.href = url;
       a.download = file.name;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
-      toast('Фото сохранено');
+      toast(t('photo_saved'));
     }
 
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
