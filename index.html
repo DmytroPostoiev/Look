@@ -1420,33 +1420,6 @@ function applyStaticI18n() {
 
 /* Сохранить текущий сет как фото (для «Фото» на iPhone) */
 
-function showSavePreview(url, name) {
-  let ov = document.getElementById('savePreview');
-  if (!ov) {
-    ov = document.createElement('div');
-    ov.id = 'savePreview';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);';
-    ov.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 4px;gap:8px;">
-        <div style="color:#fff;font-size:0.85rem;font-weight:600;flex:1;">Удерживай фото → «Сохранить в Фото»</div>
-        <button type="button" id="savePreviewClose" style="height:36px;padding:0 14px;border-radius:10px;border:none;background:var(--accent,#4ade80);color:#062;font-weight:700;">OK</button>
-      </div>
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;min-height:0;">
-        <img id="savePreviewImg" alt="" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;-webkit-touch-callout:default;user-select:auto;">
-      </div>`;
-    document.body.appendChild(ov);
-    ov.querySelector('#savePreviewClose').onclick = () => {
-      const u = ov.dataset.url;
-      ov.style.display = 'none';
-      if (u) setTimeout(() => URL.revokeObjectURL(u), 3000);
-    };
-  }
-  ov.dataset.url = url;
-  ov.querySelector('#savePreviewImg').src = url;
-  ov.style.display = 'flex';
-  toast('Удерживай фото → Сохранить в Фото');
-}
-
 async function exportSetAsPhoto(setIdx) {
   const set = sets[setIdx];
   if (!set) return;
@@ -1464,31 +1437,74 @@ async function exportSetAsPhoto(setIdx) {
       });
     }
     async function shareBlob(blob, name) {
-      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
-      const file = new File([blob], safe + '.png', { type: 'image/png' });
-      const url = URL.createObjectURL(blob);
-
-      // iPhone: системное «Поделиться» → «Сохранить изображение» в «Фото»
+      // iPhone лучше сохраняет JPEG в «Фото» через Share
+      let outBlob = blob;
+      let filename = 'outfit.jpg';
       try {
-        if (navigator.share) {
-          if (!navigator.canShare || navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: name || t('set') });
-            toast(t('photo_saved'));
-            setTimeout(() => URL.revokeObjectURL(url), 8000);
+        if (blob.type !== 'image/jpeg') {
+          const bmp = await createImageBitmap(blob);
+          const c = document.createElement('canvas');
+          c.width = bmp.width; c.height = bmp.height;
+          const cx = c.getContext('2d');
+          cx.fillStyle = '#0a0614';
+          cx.fillRect(0, 0, c.width, c.height);
+          cx.drawImage(bmp, 0, 0);
+          outBlob = await new Promise((res, rej) =>
+            c.toBlob(b => b ? res(b) : rej(new Error('jpeg')), 'image/jpeg', 0.93)
+          );
+        } else {
+          filename = 'outfit.jpg';
+        }
+      } catch (e) {
+        console.warn('jpeg convert', e);
+        outBlob = blob;
+        filename = 'outfit.png';
+      }
+      const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 32) || 'outfit';
+      const file = new File([outBlob], safe + (filename.endsWith('.png') ? '.png' : '.jpg'), {
+        type: outBlob.type || 'image/jpeg',
+        lastModified: Date.now()
+      });
+
+      // Один тап → системное меню с «Сохранить изображение» (единственный способ в Safari)
+      if (navigator.share) {
+        try {
+          await navigator.share({ files: [file] });
+          toast('Сохранено — проверь «Фото»');
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') {
+            toast('Отменено');
             return;
           }
+          console.warn(err);
         }
-      } catch (err) {
-        if (err && err.name === 'AbortError') {
-          toast(t('photo_saved'));
-          setTimeout(() => URL.revokeObjectURL(url), 8000);
-          return;
-        }
-        console.warn('share', err);
       }
 
-      // Запасной путь для iPhone: открыть картинку → удерживать палец → «Сохранить в Фото»
-      showSavePreview(url, name);
+      // Запас: показать фото на весь экран — удержание = «Добавить в Фото»
+      const url = URL.createObjectURL(outBlob);
+      let ov = document.getElementById('savePreview');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'savePreview';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:600;background:#000;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);';
+        ov.innerHTML = `
+          <div style="padding:12px 16px;color:#fff;font-size:0.9rem;font-weight:600;text-align:center;">
+            Удерживай фото → «Добавить в Фото»
+          </div>
+          <img id="savePreviewImg" style="flex:1;width:100%;object-fit:contain;-webkit-touch-callout:default;" alt="">
+          <button type="button" id="savePreviewClose" style="margin:12px 16px;height:48px;border:none;border-radius:12px;background:#4ade80;color:#062;font-weight:700;font-size:1rem;">Закрыть</button>`;
+        document.body.appendChild(ov);
+        ov.querySelector('#savePreviewClose').onclick = () => {
+          ov.style.display = 'none';
+          const u = ov.dataset.url;
+          if (u) setTimeout(() => URL.revokeObjectURL(u), 2000);
+        };
+      }
+      ov.dataset.url = url;
+      ov.querySelector('#savePreviewImg').src = url;
+      ov.style.display = 'flex';
+      toast('Удерживай фото → Добавить в Фото');
     }
 
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
