@@ -133,6 +133,23 @@
     color: rgba(255,255,255,0.45);
     padding-right: 0.15rem;
   }
+
+  .sets-wrapper.drop-target {
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+    border-radius: 12px;
+  }
+  .sets-wrapper.drop-target::after {
+    content: 'Отпусти — добавить на сет';
+    position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+    z-index: 50; pointer-events: none;
+    background: rgba(0,0,0,0.75); color: var(--accent);
+    font-size: 0.85rem; font-weight: 700;
+    padding: 0.55rem 1rem; border-radius: 12px;
+    white-space: nowrap;
+  }
+  .app { position: relative; }
+  .sets-wrapper { position: relative; }
   .checker {
     background-color: #241a38;
     background-image:
@@ -210,7 +227,8 @@
   }
   .piece.active { z-index: 20; outline: 2px solid var(--accent); border-radius: 8px; }
   .piece .p-del {
-    position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
+    position: absolute; top: 0; right: 0; width: 24px; height: 24px;
+    transform: translate(40%, -40%);
     border-radius: 50%; border: none; background: rgba(0,0,0,0.75); color: #fff;
     font-size: 0.7rem; display: none; align-items: center; justify-content: center;
   }
@@ -1356,7 +1374,7 @@ const I18N = {
     accent: 'Цвет акцента (кнопки)', memory: 'Память', backup: 'Резервная копия',
     danger: 'Опасная зона', clear_all: 'Удалить все вещи и сеты',
     export_copy: '⬇️ Сохранить копию (файл)', import_copy: '⬆️ Загрузить копию',
-    language: 'Язык', photo_saved: 'Фото готово — сохрани в «Фото»',
+    language: 'Язык', photo_saved: 'Сохранено в Фото',
     photo_fail: 'Не удалось сохранить фото', share_photo: 'Поделиться фото сета',
     auto_title: 'Авто-сеты', auto_hint: 'Готовые образы из твоих вещей по таблице цветов',
     pick_set: 'Выбрать этот сет', analyzing: 'Анализирую цвета вещей…',
@@ -1418,6 +1436,7 @@ function applyStaticI18n() {
 }
 
 /* Сохранить текущий сет как фото (для «Фото» на iPhone) */
+
 async function exportSetAsPhoto(setIdx) {
   const set = sets[setIdx];
   if (!set) return;
@@ -1429,13 +1448,13 @@ async function exportSetAsPhoto(setIdx) {
     async function loadImg(url) {
       return new Promise((res, rej) => {
         const im = new Image();
-        im.crossOrigin = 'anonymous';
         im.onload = () => res(im);
         im.onerror = () => rej(new Error('img'));
         im.src = url;
       });
     }
     async function shareBlob(blob, name) {
+      // Как в рабочей версии: PNG → Share → «Сохранить изображение»
       const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
       const file = new File([blob], safe + '.png', { type: 'image/png' });
       try {
@@ -1445,14 +1464,25 @@ async function exportSetAsPhoto(setIdx) {
           return;
         }
       } catch (err) {
-        // пользователь отменил share — не считаем ошибкой
         if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
           toast(t('photo_saved'));
           return;
         }
         console.warn('share failed', err);
       }
-      // fallback: скачать файл
+      // fallback
+      try {
+        if (navigator.share) {
+          await navigator.share({ files: [file] });
+          toast(t('photo_saved'));
+          return;
+        }
+      } catch (err2) {
+        if (err2 && err2.name === 'AbortError') {
+          toast(t('photo_saved'));
+          return;
+        }
+      }
       const a = document.createElement('a');
       const url = URL.createObjectURL(blob);
       a.href = url;
@@ -1464,23 +1494,20 @@ async function exportSetAsPhoto(setIdx) {
       toast(t('photo_saved'));
     }
 
-    // ===== FREE COLLAGE — 1:1 как на экране =====
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
       const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
       const board = page && page.querySelector('.collage-board');
       const br = board ? board.getBoundingClientRect() : { width: 390, height: 520 };
-      const scale = 2; // чётче на Retina
-      const W = Math.max(320, Math.round(br.width * scale));
-      const H = Math.max(320, Math.round(br.height * scale));
+      const scaleOut = 2;
+      const W = Math.max(360, Math.round(br.width * scaleOut));
+      const H = Math.max(360, Math.round(br.height * scaleOut));
       const canvas = document.createElement('canvas');
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
-      // фон как на экране
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
       ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
 
-      // рисуем вещи в том же порядке и координатах, что на экране (left/top = угол, transform от центра)
       for (const pc of set.pieces) {
         const item = getItem(pc.itemId);
         if (!item) continue;
@@ -1489,13 +1516,12 @@ async function exportSetAsPhoto(setIdx) {
         const wPct = (pc.w || 36) / 100;
         const sc = pc.scale != null ? pc.scale : 1;
         const rot = (pc.rot || 0) * Math.PI / 180;
-        // layout-box (до CSS transform scale) — как width/height элемента
+        // layout box (до scale), как на экране: width% от ширины поля
         const boxW = W * wPct;
         const boxH = boxW * (img.naturalHeight / (img.naturalWidth || 1));
-        const left = (pc.x / 100) * W;
-        const top = (pc.y / 100) * H;
-        const cx = left + boxW / 2;
-        const cy = top + boxH / 2;
+        // x,y — центр
+        const cx = (pc.x / 100) * W;
+        const cy = (pc.y / 100) * H;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(rot);
@@ -1509,7 +1535,7 @@ async function exportSetAsPhoto(setIdx) {
       return;
     }
 
-    // ===== SLOT LAYOUT =====
+    // slots layout
     const W = 1080, pad = 28, gap = 16;
     const active = (set.activeSlots || ALL_SLOTS).slice();
     const top = ['jacke', 'bluse'].filter(s => active.includes(s));
@@ -1534,19 +1560,19 @@ async function exportSetAsPhoto(setIdx) {
     for (const row of rows) {
       const n = row.slots.length;
       const slotW = (W - pad * 2 - gap * (n - 1)) / n;
-      for (let i = 0; i < n; i++) {
-        const slot = row.slots[i];
+      for (let si = 0; si < n; si++) {
+        const slot = row.slots[si];
         const items = itemsForSlot(slot);
         const idx = set.indices[slot] || 0;
         const item = items[idx];
         if (!item) continue;
         let img;
         try { img = await loadImg(item.url); } catch (e) { continue; }
-        const x = pad + i * (slotW + gap);
+        const x = pad + si * (slotW + gap);
         const ir = img.naturalWidth / (img.naturalHeight || 1);
-        const br = slotW / row.h;
+        const bratio = slotW / row.h;
         let dw, dh;
-        if (ir > br) { dw = slotW * 0.9; dh = dw / ir; }
+        if (ir > bratio) { dw = slotW * 0.9; dh = dw / ir; }
         else { dh = row.h * 0.9; dw = dh * ir; }
         ctx.drawImage(img, x + (slotW - dw) / 2, y + (row.h - dh) / 2, dw, dh);
       }
@@ -1631,7 +1657,7 @@ function renderSets() {
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
         <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
         <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="save">💾</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Save photo" style="font-size:0.95rem">💾</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -1715,18 +1741,20 @@ function ensurePieces(set) {
   if (!set.layout) set.layout = 'slots';
 }
 function defaultPiecePos(slot, index) {
+  /* x,y = центр вещи на поле (0..100) */
   const map = {
-    jacke: { x: 4, y: 0 }, bluse: { x: 24, y: 0 },
-    hose: { x: 24, y: 38 }, gurtel: { x: 26, y: 34 },
-    tasche: { x: 68, y: 55 }, schuhe: { x: 30, y: 72 }
+    jacke: { x: 28, y: 18 }, bluse: { x: 50, y: 22 },
+    hose: { x: 50, y: 58 }, gurtel: { x: 50, y: 42 },
+    tasche: { x: 82, y: 62 }, schuhe: { x: 50, y: 88 }
   };
-  const b = map[slot] || { x: 20 + (index % 3) * 25, y: 15 + Math.floor(index / 3) * 28 };
+  const b = map[slot] || { x: 30 + (index % 3) * 20, y: 25 + Math.floor(index / 3) * 25 };
   return { x: b.x, y: b.y, w: PIECE_W[slot] || 36, rot: 0, scale: 1 };
 }
 function applyPieceTransform(el, pc) {
   const rot = pc.rot || 0;
   const sc = pc.scale != null ? pc.scale : 1;
-  el.style.transform = `rotate(${rot}deg) scale(${sc})`;
+  /* translate(-50%,-50%) — left/top это центр */
+  el.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${sc})`;
 }
 function renderCollageBoard(page, set, setIdx) {
   ensurePieces(set);
@@ -1752,6 +1780,7 @@ function renderCollageBoard(page, set, setIdx) {
     el.style.left = pc.x + '%';
     el.style.top = pc.y + '%';
     el.style.width = (pc.w || 36) + '%';
+    el.style.margin = '0';
     el.innerHTML = `<img src="${item.url}" alt=""><button type="button" class="p-del">×</button>`;
     applyPieceTransform(el, pc);
     board.appendChild(el);
@@ -1773,23 +1802,14 @@ function renderCollageBoard(page, set, setIdx) {
   });
 }
 function bindPieceGestures(el, set, setIdx, index) {
-  const pointers = new Map(); // id -> {x,y}
-  let mode = null; // 'drag' | 'pinch'
+  const pointers = new Map();
+  let mode = null;
   let start = null;
   let changed = false;
 
   function pc() { return set.pieces[index]; }
-
-  function dist(a, b) {
-    const dx = a.x - b.x, dy = a.y - b.y;
-    return Math.hypot(dx, dy);
-  }
-  function angle(a, b) {
-    return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
-  }
-  function mid(a, b) {
-    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-  }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function angle(a, b) { return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; }
 
   el.addEventListener('pointerdown', e => {
     if (e.target.closest('.p-del')) return;
@@ -1804,12 +1824,13 @@ function bindPieceGestures(el, set, setIdx, index) {
     const p = pc();
     if (pointers.size === 1) {
       mode = 'drag';
+      // x,y — центр вещи в %
       start = { x: e.clientX, y: e.clientY, ox: p.x, oy: p.y, br };
     } else if (pointers.size >= 2) {
       mode = 'pinch';
       const pts = [...pointers.values()];
       start = {
-        dist: dist(pts[0], pts[1]),
+        dist: dist(pts[0], pts[1]) || 1,
         angle: angle(pts[0], pts[1]),
         scale: p.scale != null ? p.scale : 1,
         rot: p.rot || 0,
@@ -1827,9 +1848,10 @@ function bindPieceGestures(el, set, setIdx, index) {
     if (mode === 'drag' && pointers.size === 1) {
       const dx = ((e.clientX - start.x) / start.br.width) * 100;
       const dy = ((e.clientY - start.y) / start.br.height) * 100;
-      if (Math.abs(dx) + Math.abs(dy) > 0.3) changed = true;
-      p.x = Math.max(-25, Math.min(95, start.ox + dx));
-      p.y = Math.max(-25, Math.min(95, start.oy + dy));
+      if (Math.abs(dx) + Math.abs(dy) > 0.2) changed = true;
+      // центр может быть у самого края (0..100)
+      p.x = Math.max(0, Math.min(100, start.ox + dx));
+      p.y = Math.max(0, Math.min(100, start.oy + dy));
       el.style.left = p.x + '%';
       el.style.top = p.y + '%';
     } else if (pointers.size >= 2) {
@@ -1838,7 +1860,7 @@ function bindPieceGestures(el, set, setIdx, index) {
       if (pts.length < 2) return;
       if (!start.dist) {
         start = {
-          dist: dist(pts[0], pts[1]),
+          dist: dist(pts[0], pts[1]) || 1,
           angle: angle(pts[0], pts[1]),
           scale: p.scale != null ? p.scale : 1,
           rot: p.rot || 0,
@@ -1848,13 +1870,9 @@ function bindPieceGestures(el, set, setIdx, index) {
       const d = dist(pts[0], pts[1]);
       const a = angle(pts[0], pts[1]);
       if (start.dist > 0) {
-        let sc = start.scale * (d / start.dist);
-        sc = Math.max(0.35, Math.min(3.2, sc));
-        p.scale = sc;
+        p.scale = Math.max(0.3, Math.min(3.5, start.scale * (d / start.dist)));
       }
-      // поворот двумя пальцами (в т.ч. по диагонали)
       let rot = start.rot + (a - start.angle);
-      // нормализуем
       while (rot > 180) rot -= 360;
       while (rot < -180) rot += 360;
       p.rot = rot;
@@ -1872,7 +1890,6 @@ function bindPieceGestures(el, set, setIdx, index) {
       mode = null; start = null;
       if (changed) { saveSets(); changed = false; }
     } else if (pointers.size === 1) {
-      // вернулись к одному пальцу — продолжаем drag от текущей позиции
       const pt = [...pointers.values()][0];
       const p = pc();
       mode = 'drag';
@@ -1891,13 +1908,16 @@ function addItemToCollage(setIdx, item) {
   set.layout = 'free';
   const slot = CATEGORIES[item.cat] ? CATEGORIES[item.cat].slot : 'bluse';
   const pos = defaultPiecePos(slot, set.pieces.length);
-  // slight jitter so stack not identical
-  pos.x = Math.min(80, pos.x + (set.pieces.length % 3) * 4);
-  pos.y = Math.min(80, pos.y + (set.pieces.length % 2) * 5);
+  pos.x = Math.min(90, pos.x + (set.pieces.length % 3) * 4);
+  pos.y = Math.min(90, pos.y + (set.pieces.length % 2) * 5);
   set.pieces.push({ itemId: item.id, x: pos.x, y: pos.y, w: pos.w, slot, rot: 0, scale: 1 });
+  const items = itemsForSlot(slot);
+  const idx = items.findIndex(i => i.id === item.id);
+  if (idx >= 0) set.indices[slot] = idx;
+  ensureSlot(set, slot);
   saveSets();
   renderSets();
-  toast('Добавлено на коллаж — двигай пальцем');
+  toast('На сете · 1 палец — двигать · 2 — размер/поворот');
 }
 function toggleSetLayout(setIdx) {
   const set = sets[setIdx];
@@ -2121,11 +2141,16 @@ function moveItem(item, newCat) {
 }
 
 /* =====================================================================
-   DRAG & DROP (долгое нажатие на миниатюру → отпустить на категории)
+   DRAG: из гардероба вверх на сет (коллаж) или на категорию / корзину
    ===================================================================== */
-const drag = { timer: null, active: false, item: null, el: null, ghost: null, x: 0, y: 0, sx: 0, sy: 0, suppress: false };
+const drag = {
+  timer: null, active: false, item: null, el: null, ghost: null,
+  x: 0, y: 0, sx: 0, sy: 0, suppress: false,
+  target: null, onSet: false
+};
 (function buildDropbar() {
   const g = $('dropGrid');
+  if (!g || g.children.length) return;
   CAT_ORDER.forEach(k => {
     const d = document.createElement('div');
     d.className = 'drop-chip'; d.dataset.drop = k;
@@ -2143,11 +2168,13 @@ function bindThumbDrag(el, item) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     drag.sx = drag.x = e.clientX; drag.sy = drag.y = e.clientY;
     clearTimeout(drag.timer);
-    drag.timer = setTimeout(() => beginDrag(item, el), 350);
+    // быстрее: 220 мс — удобнее тянуть вверх на сет
+    drag.timer = setTimeout(() => beginDrag(item, el), 220);
   });
 }
 function beginDrag(item, el) {
   drag.timer = null; drag.active = true; drag.item = item; drag.el = el;
+  drag.onSet = false; drag.target = null;
   el.classList.add('dragging');
   const g = document.createElement('div');
   g.className = 'ghost checker';
@@ -2160,38 +2187,101 @@ function beginDrag(item, el) {
     c.classList.toggle('current', c.dataset.drop === item.cat);
   });
   $('dropbar').classList.add('show');
-  if (navigator.vibrate) navigator.vibrate(20);
+  if (navigator.vibrate) navigator.vibrate(15);
 }
 function moveGhost() {
   if (!drag.ghost) return;
   drag.ghost.style.left = drag.x + 'px';
   drag.ghost.style.top = drag.y + 'px';
+  // временно прячем ghost, чтобы elementFromPoint видел то, что под пальцем
+  drag.ghost.style.pointerEvents = 'none';
   const under = document.elementFromPoint(drag.x, drag.y);
   const chip = under && under.closest ? under.closest('.drop-chip') : null;
   document.querySelectorAll('.drop-chip.hover').forEach(c => { if (c !== chip) c.classList.remove('hover'); });
   if (chip) chip.classList.add('hover');
   drag.target = chip ? chip.dataset.drop : null;
+
+  // зона сета / коллажа
+  const page = under && under.closest ? under.closest('.set-page') : null;
+  const board = under && under.closest ? under.closest('.collage-board') : null;
+  const slots = under && under.closest ? under.closest('.slots-container') : null;
+  drag.onSet = !!(page || board || slots);
+  setsWrapper.classList.toggle('drop-target', drag.onSet && !drag.target);
+}
+function addItemToCollageAt(setIdx, item, clientX, clientY) {
+  const set = sets[setIdx];
+  ensurePieces(set);
+  set.layout = 'free';
+  const slot = CATEGORIES[item.cat] ? CATEGORIES[item.cat].slot : 'bluse';
+  let x = 50, y = 40;
+  const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
+  let board = page && page.querySelector('.collage-board');
+  // если ещё не free — renderSets создаст board; координаты от set-page
+  const rectEl = board || page || setsWrapper;
+  const br = rectEl.getBoundingClientRect();
+  if (br.width > 0 && br.height > 0) {
+    x = ((clientX - br.left) / br.width) * 100;
+    y = ((clientY - br.top) / br.height) * 100;
+    x = Math.max(5, Math.min(95, x));
+    y = Math.max(5, Math.min(95, y));
+  }
+  const w = PIECE_W[slot] || 36;
+  set.pieces.push({ itemId: item.id, x, y, w, slot, rot: 0, scale: 1 });
+  // если вещь ещё не в слотах — тоже обновим индекс
+  const items = itemsForSlot(slot);
+  const idx = items.findIndex(i => i.id === item.id);
+  if (idx >= 0) set.indices[slot] = idx;
+  ensureSlot(set, slot);
+  saveSets();
+  renderSets();
+  toast('На сете · двигай · 2 пальца — размер/поворот');
 }
 function finishDrag(drop) {
   clearTimeout(drag.timer); drag.timer = null;
   if (!drag.active) return;
-  const item = drag.item, target = drag.target;
+  const item = drag.item, target = drag.target, onSet = drag.onSet;
+  const cx = drag.x, cy = drag.y;
   drag.active = false;
   if (drag.ghost) drag.ghost.remove();
   if (drag.el) drag.el.classList.remove('dragging');
   $('dropbar').classList.remove('show');
-  drag.ghost = null; drag.el = null; drag.item = null; drag.target = null;
-  drag.suppress = true; setTimeout(() => { drag.suppress = false; }, 80);
-  if (!drop || !target || !item) return;
-  if (target === '__trash') { if (confirm('Удалить это фото?')) deleteItem(item.id); }
-  else if (CATEGORIES[target]) moveItem(item, target);
+  setsWrapper.classList.remove('drop-target');
+  drag.ghost = null; drag.el = null; drag.item = null; drag.target = null; drag.onSet = false;
+  drag.suppress = true; setTimeout(() => { drag.suppress = false; }, 100);
+  if (!drop || !item) return;
+  if (target === '__trash') {
+    if (confirm('Удалить это фото?')) deleteItem(item.id);
+    return;
+  }
+  if (target && CATEGORIES[target]) {
+    moveItem(item, target);
+    return;
+  }
+  // отпустили на область сета → коллаж
+  if (onSet) {
+    addItemToCollageAt(activeSetIndex, item, cx, cy);
+  }
 }
 window.addEventListener('pointermove', e => {
   drag.x = e.clientX; drag.y = e.clientY;
-  if (drag.timer && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 10) { clearTimeout(drag.timer); drag.timer = null; }
+  // тянем вверх с миниатюры — начинаем drag сразу (не ждать 220мс)
+  if (drag.timer && !drag.active && (drag.sy - e.clientY) > 16) {
+    const thumb = document.elementFromPoint(drag.sx, drag.sy);
+    const el = thumb && thumb.closest ? thumb.closest('.thumb') : null;
+    const id = el && el.dataset.id;
+    const item = id && getItem(id);
+    if (item && el) {
+      clearTimeout(drag.timer); drag.timer = null;
+      beginDrag(item, el);
+    }
+  }
   if (drag.active) moveGhost();
 }, { passive: true });
-window.addEventListener('pointerup', e => { drag.x = e.clientX; drag.y = e.clientY; if (drag.active) moveGhost(); finishDrag(true); });
+window.addEventListener('pointerup', e => {
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (drag.active) moveGhost();
+  finishDrag(true);
+});
 window.addEventListener('pointercancel', () => finishDrag(false));
 window.addEventListener('touchmove', e => { if (drag.active) e.preventDefault(); }, { passive: false });
 
