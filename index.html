@@ -1497,6 +1497,12 @@ async function exportSetAsPhoto(setIdx) {
     if (set.layout === 'free' && set.pieces && set.pieces.length) {
       const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
       const board = page && page.querySelector('.collage-board');
+      // убрать выделение и крестики, чтобы 1:1 как видно
+      if (board) {
+        board.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
+        board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = 'hidden'; });
+      }
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       const br = board ? board.getBoundingClientRect() : { width: 390, height: 520 };
       const scaleOut = 2;
       const W = Math.max(360, Math.round(br.width * scaleOut));
@@ -1507,7 +1513,12 @@ async function exportSetAsPhoto(setIdx) {
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
       ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, W, H);
+      ctx.clip(); // как overflow:hidden на экране — ничего за рамкой
 
+      // рисуем по данным, но размер берём как на экране (width% поля)
       for (const pc of set.pieces) {
         const item = getItem(pc.itemId);
         if (!item) continue;
@@ -1516,12 +1527,10 @@ async function exportSetAsPhoto(setIdx) {
         const wPct = (pc.w || 36) / 100;
         const sc = pc.scale != null ? pc.scale : 1;
         const rot = (pc.rot || 0) * Math.PI / 180;
-        // layout box (до scale), как на экране: width% от ширины поля
         const boxW = W * wPct;
         const boxH = boxW * (img.naturalHeight / (img.naturalWidth || 1));
-        // x,y — центр
-        const cx = (pc.x / 100) * W;
-        const cy = (pc.y / 100) * H;
+        const cx = (Number(pc.x) / 100) * W;
+        const cy = (Number(pc.y) / 100) * H;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(rot);
@@ -1529,6 +1538,8 @@ async function exportSetAsPhoto(setIdx) {
         ctx.drawImage(img, -boxW / 2, -boxH / 2, boxW, boxH);
         ctx.restore();
       }
+      ctx.restore();
+      if (board) board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = ''; });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (!blob) throw new Error('blob');
       await shareBlob(blob, set.name);
@@ -1780,18 +1791,11 @@ function renderCollageBoard(page, set, setIdx) {
     el.style.left = pc.x + '%';
     el.style.top = pc.y + '%';
     el.style.width = (pc.w || 36) + '%';
+    el.style.height = 'auto';
     el.style.margin = '0';
-    el.innerHTML = `<img src="${item.url}" alt=""><button type="button" class="p-del">×</button>`;
+    el.innerHTML = `<img src="${item.url}" alt="" style="width:100%;height:auto;display:block;"><button type="button" class="p-del">×</button>`;
     applyPieceTransform(el, pc);
     board.appendChild(el);
-    const img = el.querySelector('img');
-    const setH = () => {
-      if (!img.naturalWidth) return;
-      const ratio = img.naturalHeight / img.naturalWidth;
-      const boardR = board.clientWidth / (board.clientHeight || 1);
-      el.style.height = ((pc.w || 36) * ratio / boardR) + '%';
-    };
-    if (img.complete) setH(); else img.onload = setH;
     bindPieceGestures(el, set, setIdx, i);
     el.querySelector('.p-del').onclick = e => {
       e.stopPropagation();
@@ -2081,32 +2085,8 @@ function renderCloset() {
     const img = document.createElement('img');
     img.src = item.turl; img.draggable = false; img.alt = '';
     el.appendChild(img);
-    const del = document.createElement('button');
-    del.className = 'del'; del.textContent = '×';
-    del.onclick = e => { e.stopPropagation(); if (confirm('Удалить это фото?')) deleteItem(item.id); };
-    el.appendChild(del);
-    const ed = document.createElement('button');
-    ed.className = 'edit'; ed.textContent = '✎';
-    ed.onclick = e => { e.stopPropagation(); openEdit(item); };
-    el.appendChild(ed);
+    // без × / ✎ — изменить/удалить через долгое нажатие
     el.addEventListener('contextmenu', e => e.preventDefault());
-    el.onclick = () => {
-      if (drag.suppress) return;
-      const set = sets[activeSetIndex];
-      ensurePieces(set);
-      if (set.layout === 'free') {
-        addItemToCollage(activeSetIndex, item);
-        return;
-      }
-      const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
-      if (!slot) return;
-      const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
-      if (idx < 0) return;
-      set.indices[slot] = idx;
-      const changed = ensureSlot(set, slot);
-      saveSets();
-      changed ? renderSets() : refreshSlots();
-    };
     bindThumbDrag(el, item);
     closetRow.appendChild(el);
   });
@@ -2162,14 +2142,63 @@ const drag = {
   t.innerHTML = '<span class="e">🗑</span>Удалить';
   g.appendChild(t);
 })();
+function showThumbMenu(item) {
+  drag.menuOpen = true;
+  const choice = window.prompt('1 — изменить · 2 — удалить · пусто — отмена', '');
+  drag.menuOpen = false;
+  if (choice === '1') openEdit(item);
+  else if (choice === '2') {
+    if (confirm('Удалить это фото?')) deleteItem(item.id);
+  }
+}
+function showThumbMenuUI(item) {
+  drag.menuOpen = true;
+  let ov = document.getElementById('thumbMenu');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'thumbMenu';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:550;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom));';
+    ov.innerHTML = `
+      <div style="width:100%;max-width:420px;background:#1a1228;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);">
+        <button type="button" data-act="edit" style="width:100%;height:52px;border:none;background:transparent;color:#fff;font-size:1rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.1);">✎  Изменить</button>
+        <button type="button" data-act="del" style="width:100%;height:52px;border:none;background:transparent;color:#f87171;font-size:1rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.1);">🗑  Удалить</button>
+        <button type="button" data-act="cancel" style="width:100%;height:52px;border:none;background:transparent;color:rgba(255,255,255,0.7);font-size:1rem;font-weight:600;">Отмена</button>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => {
+      if (e.target === ov) { ov.style.display = 'none'; drag.menuOpen = false; return; }
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const act = btn.dataset.act;
+      const it = ov._item;
+      ov.style.display = 'none';
+      drag.menuOpen = false;
+      if (!it) return;
+      if (act === 'edit') openEdit(it);
+      if (act === 'del' && confirm('Удалить это фото?')) deleteItem(it.id);
+    });
+  }
+  ov._item = item;
+  ov.style.display = 'flex';
+}
 function bindThumbDrag(el, item) {
   el.addEventListener('pointerdown', e => {
     if (e.target.closest('button')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     drag.sx = drag.x = e.clientX; drag.sy = drag.y = e.clientY;
+    drag.moved = false;
+    drag._pendingItem = item;
+    drag._pendingEl = el;
     clearTimeout(drag.timer);
-    // быстрее: 220 мс — удобнее тянуть вверх на сет
-    drag.timer = setTimeout(() => beginDrag(item, el), 220);
+    clearTimeout(drag.menuTimer);
+    // удержание на месте → меню изменить/удалить
+    drag.menuTimer = setTimeout(() => {
+      if (!drag.active && !drag.moved) {
+        drag.timer = null;
+        drag._pendingItem = null;
+        showThumbMenuUI(item);
+      }
+    }, 480);
   });
 }
 function beginDrag(item, el) {
@@ -2264,23 +2293,40 @@ function finishDrag(drop) {
 }
 window.addEventListener('pointermove', e => {
   drag.x = e.clientX; drag.y = e.clientY;
-  // тянем вверх с миниатюры — начинаем drag сразу (не ждать 220мс)
-  if (drag.timer && !drag.active && (drag.sy - e.clientY) > 16) {
-    const thumb = document.elementFromPoint(drag.sx, drag.sy);
-    const el = thumb && thumb.closest ? thumb.closest('.thumb') : null;
-    const id = el && el.dataset.id;
-    const item = id && getItem(id);
-    if (item && el) {
+  const dist = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy);
+  if (dist > 10) {
+    drag.moved = true;
+    clearTimeout(drag.menuTimer); drag.menuTimer = null;
+  }
+  // движение — начинаем перетаскивание (на сет или категорию)
+  if (!drag.active && !drag.menuOpen && dist > 14 && (drag.sx || drag.sy)) {
+    const el0 = document.elementFromPoint(drag.sx, drag.sy);
+    // use last known thumb under start point — dataset from any active tracking
+    // recover item from start coordinates
+    const el = el0 && el0.closest ? el0.closest('.thumb') : null;
+    // fallback: find thumb that is being pressed
+    let item = null, elThumb = el;
+    if (elThumb && elThumb.dataset.id) item = getItem(elThumb.dataset.id);
+    if (!item) {
+      // pointer may already be away from thumb — search by drag start via document.elementFromPoint was wrong
+    }
+  }
+  if (!drag.active && !drag.menuOpen && dist > 14) {
+    // find item: store on pointerdown
+    if (drag._pendingItem && drag._pendingEl) {
+      clearTimeout(drag.menuTimer); drag.menuTimer = null;
       clearTimeout(drag.timer); drag.timer = null;
-      beginDrag(item, el);
+      beginDrag(drag._pendingItem, drag._pendingEl);
     }
   }
   if (drag.active) moveGhost();
 }, { passive: true });
 window.addEventListener('pointerup', e => {
   drag.x = e.clientX; drag.y = e.clientY;
+  clearTimeout(drag.menuTimer); drag.menuTimer = null;
   if (drag.active) moveGhost();
   finishDrag(true);
+  drag._pendingItem = null; drag._pendingEl = null;
 });
 window.addEventListener('pointercancel', () => finishDrag(false));
 window.addEventListener('touchmove', e => { if (drag.active) e.preventDefault(); }, { passive: false });
