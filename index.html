@@ -157,14 +157,36 @@
     padding: 0.25rem 0.55rem 0.1rem; gap: 0.2rem;
     overflow: hidden; position: relative;
   }
-  /* free collage canvas */
+  /* free collage canvas — почти весь экран */
   .collage-board {
     flex: 1 1 auto; min-height: 0; position: relative;
-    border-radius: 14px; overflow: hidden;
+    border-radius: 12px; overflow: visible;
     background: rgba(255,255,255,0.05);
     border: 1.5px dashed rgba(255,255,255,0.18);
     touch-action: none;
   }
+  .set-page.free-mode {
+    padding: 0.15rem 0.25rem 0.05rem;
+  }
+  .set-page.free-mode .collage-board {
+    border-radius: 10px;
+    overflow: hidden;
+    border-style: solid;
+    border-color: rgba(255,255,255,0.12);
+  }
+  /* в режиме коллажа гардероб компактнее, поле больше */
+  .app.collage-focus .closet {
+    margin: 0.05rem 0.35rem 0.12rem;
+    padding: 0.22rem;
+  }
+  .app.collage-focus .items-row { min-height: 44px; }
+  .app.collage-focus .thumb,
+  .app.collage-focus .add-thumb { width: 44px; height: 44px; }
+  .app.collage-focus .set-page {
+    padding-left: 0.2rem; padding-right: 0.2rem;
+  }
+  .app.collage-focus .top-bar { padding-top: 0.15rem; padding-bottom: 0.1rem; }
+  .app.collage-focus .set-dots { padding: 0.05rem 0; }
   .collage-board .hint-free {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     color: rgba(255,255,255,0.35); font-size: 0.78rem; text-align: center;
@@ -1395,9 +1417,70 @@ async function exportSetAsPhoto(setIdx) {
   if (!set) return;
   toast('…');
   try {
-    const W = 900, pad = 28, gap = 16;
+    const W = 1080;
+    const tTheme = UI_THEMES[prefs.uiTheme] || UI_THEMES.violet;
+    ensurePieces(set);
+
+    async function loadImg(url) {
+      return new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i); i.onerror = rej;
+        i.src = url;
+      });
+    }
+    async function shareBlob(blob, name) {
+      const file = new File([blob], (name || 'outfit').replace(/[^\w\-а-яА-ЯёЁ]+/gi, '_').slice(0, 40) + '.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: name || t('set') });
+      } else {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+      toast(t('photo_saved'));
+    }
+
+    // ===== FREE COLLAGE =====
+    if (set.layout === 'free' && set.pieces && set.pieces.length) {
+      const H = 1440;
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const grd = ctx.createLinearGradient(0, 0, 0, H);
+      grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '600 32px -apple-system, sans-serif';
+      ctx.fillText(set.name || t('set'), 36, 48);
+
+      for (const pc of set.pieces) {
+        const item = getItem(pc.itemId);
+        if (!item) continue;
+        const img = await loadImg(item.url);
+        const wPct = (pc.w || 36) / 100;
+        const sc = pc.scale != null ? pc.scale : 1;
+        const rot = (pc.rot || 0) * Math.PI / 180;
+        const baseW = W * wPct * sc;
+        const baseH = baseW * (img.naturalHeight / (img.naturalWidth || 1));
+        const cx = (pc.x / 100) * W + baseW / 2;
+        const cy = ((pc.y / 100) * (H - 60) + 60) + baseH / 2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rot);
+        ctx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
+        ctx.restore();
+      }
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      if (!blob) throw new Error('blob');
+      await shareBlob(blob, set.name);
+      return;
+    }
+
+    // ===== SLOT LAYOUT =====
+    const pad = 28, gap = 16;
     const active = (set.activeSlots || ALL_SLOTS).slice();
-    // layout mirrors on-screen: top row, hose, bottom row
     const top = ['jacke', 'bluse'].filter(s => active.includes(s));
     const mid = active.includes('hose') ? ['hose'] : [];
     const bot = ['gurtel', 'schuhe', 'tasche'].filter(s => active.includes(s));
@@ -1411,12 +1494,9 @@ async function exportSetAsPhoto(setIdx) {
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = totalH;
     const ctx = canvas.getContext('2d');
-    // background
-    const tTheme = UI_THEMES[prefs.uiTheme] || UI_THEMES.violet;
     const grd = ctx.createLinearGradient(0, 0, 0, totalH);
     grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
     ctx.fillStyle = grd; ctx.fillRect(0, 0, W, totalH);
-    // title
     ctx.fillStyle = '#fff';
     ctx.font = '600 28px -apple-system, sans-serif';
     ctx.fillText(set.name || t('set'), pad, 36);
@@ -1424,26 +1504,16 @@ async function exportSetAsPhoto(setIdx) {
     let y = pad + 50;
     async function drawItem(item, x, y, w, h) {
       if (!item) return;
-      const img = await new Promise((res, rej) => {
-        const i = new Image();
-        i.onload = () => res(i); i.onerror = rej;
-        i.src = item.url;
-      });
-      // checker bg
+      const img = await loadImg(item.url);
       ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      ctx.beginPath();
-      const r = 16;
-      ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill();
+      ctx.fillRect(x, y, w, h);
       const ir = img.naturalWidth / img.naturalHeight;
       const br = w / h;
-      let dw, dh, dx, dy;
+      let dw, dh;
       if (ir > br) { dw = w * 0.9; dh = dw / ir; }
       else { dh = h * 0.9; dw = dh * ir; }
-      dx = x + (w - dw) / 2; dy = y + (h - dh) / 2;
-      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
     }
-
     for (const row of rows) {
       const n = row.slots.length;
       const slotW = (W - pad * 2 - gap * (n - 1)) / n;
@@ -1454,29 +1524,12 @@ async function exportSetAsPhoto(setIdx) {
         const item = items[idx];
         const x = pad + i * (slotW + gap);
         if (item) await drawItem(item, x, y, slotW, row.h);
-        else {
-          ctx.fillStyle = 'rgba(255,255,255,0.06)';
-          ctx.fillRect(x, y, slotW, row.h);
-        }
       }
       y += row.h + gap;
     }
-
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
     if (!blob) throw new Error('blob');
-    const file = new File([blob], (set.name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 40) + '.png', { type: 'image/png' });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: set.name || t('set') });
-      toast(t('photo_saved'));
-    } else {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = file.name;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      toast(t('photo_saved'));
-    }
+    await shareBlob(blob, set.name);
   } catch (e) {
     console.error(e);
     toast(t('photo_fail'));
@@ -1543,7 +1596,7 @@ function renderSets() {
   setDots.innerHTML = '';
   sets.forEach((set, idx) => {
     const page = document.createElement('div');
-    page.className = 'set-page';
+    page.className = 'set-page' + (set.layout === 'free' ? ' free-mode' : '');
     page.dataset.index = idx;
     const theme = THEMES[set.theme] || THEMES.empty;
     ensurePieces(set);
@@ -1585,6 +1638,11 @@ function renderSets() {
     setDots.appendChild(dot);
   });
   requestAnimationFrame(() => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+  updateCollageFocus();
+}
+function updateCollageFocus() {
+  const set = sets[activeSetIndex];
+  document.querySelector('.app')?.classList.toggle('collage-focus', !!(set && set.layout === 'free'));
 }
 function goToSet(idx) {
   activeSetIndex = idx;
@@ -1633,9 +1691,9 @@ function ensurePieces(set) {
 }
 function defaultPiecePos(slot, index) {
   const map = {
-    jacke: { x: 8, y: 6 }, bluse: { x: 28, y: 8 },
-    hose: { x: 28, y: 42 }, gurtel: { x: 30, y: 38 },
-    tasche: { x: 68, y: 55 }, schuhe: { x: 35, y: 72 }
+    jacke: { x: 5, y: 2 }, bluse: { x: 26, y: 3 },
+    hose: { x: 26, y: 40 }, gurtel: { x: 28, y: 36 },
+    tasche: { x: 70, y: 58 }, schuhe: { x: 32, y: 78 }
   };
   const b = map[slot] || { x: 20 + (index % 3) * 25, y: 15 + Math.floor(index / 3) * 28 };
   return { x: b.x, y: b.y, w: PIECE_W[slot] || 36, rot: 0, scale: 1 };
@@ -1745,8 +1803,8 @@ function bindPieceGestures(el, set, setIdx, index) {
       const dx = ((e.clientX - start.x) / start.br.width) * 100;
       const dy = ((e.clientY - start.y) / start.br.height) * 100;
       if (Math.abs(dx) + Math.abs(dy) > 0.3) changed = true;
-      p.x = Math.max(-10, Math.min(90, start.ox + dx));
-      p.y = Math.max(-10, Math.min(90, start.oy + dy));
+      p.x = Math.max(-15, Math.min(92, start.ox + dx));
+      p.y = Math.max(-8, Math.min(92, start.oy + dy));
       el.style.left = p.x + '%';
       el.style.top = p.y + '%';
     } else if (pointers.size >= 2) {
@@ -1834,7 +1892,7 @@ function toggleSetLayout(setIdx) {
   }
   saveSets();
   renderSets();
-  toast(set.layout === 'free' ? 'Коллаж: 1 палец — двигать, 2 — размер/поворот' : 'Слоты');
+  toast(set.layout === 'free' ? 'Коллаж на весь экран · 📷 сохранить · свайп между сетами' : 'Слоты');
 }
 
 function refreshSlots() {
@@ -1935,6 +1993,7 @@ setsWrapper.addEventListener('scroll', () => {
     const w = setsWrapper.clientWidth || 1;
     activeSetIndex = Math.max(0, Math.min(sets.length - 1, Math.round(setsWrapper.scrollLeft / w)));
     setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === activeSetIndex));
+    updateCollageFocus();
   }, 60);
 });
 
