@@ -885,6 +885,35 @@
     color: rgba(42,36,48,0.35);
   }
 
+
+  .top-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.45rem !important;
+    padding: 0.4rem 0.55rem 0.3rem !important;
+  }
+  .top-bar .tb-center { margin-left: auto; margin-right: auto; }
+  .top-bar .ward-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0;
+  }
+  .overflow-menu.ov-left {
+    left: 0; transform: none;
+  }
+  .ov-color {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35);
+    flex: 0 0 auto; padding: 0;
+  }
+  .ov-color:active { transform: scale(0.92); }
+  body.theme-light .ov-color { border-color: rgba(0,0,0,0.12); }
+  .set-header .set-name,
+  .set-header .set-theme { display: none !important; }
+  .set-header {
+    justify-content: flex-end !important;
+    gap: 0.35rem !important;
+  }
+
 </style>
 </head>
 <body>
@@ -893,21 +922,30 @@
 
 <div class="app">
   <div class="top-bar" id="topBar">
-    <button id="btn-settings" class="tb" type="button" title="Настройки"><span class="tb-ic">◇</span></button>
-    <button id="btn-add" class="tb tb-accent" type="button" title="Фото"><span class="tb-ic">＋</span></button>
-    <button id="btn-gallery" class="tb" type="button" title="Галерея"><span class="tb-ic">▦</span></button>
-    <button id="btn-new-set" class="tb" type="button" title="Сет"><span class="tb-ic">▣</span></button>
     <div class="overflow-wrap">
-      <button id="btn-more" class="tb" type="button" title="Ещё"><span class="tb-ic">⋯</span></button>
-      <div class="overflow-menu" id="overflowMenu">
+      <button id="btn-add" class="tb tb-accent" type="button" title="Добавить"><span class="tb-ic">＋</span></button>
+      <div class="overflow-menu ov-left" id="addMenu">
         <div class="ov-carousel">
-          <button type="button" id="btn-auto" class="ov-item"><span class="ov-ic">✦</span><span class="ov-lab">Авто</span></button>
-          <button type="button" id="btn-suggest" class="ov-item"><span class="ov-ic">◐</span><span class="ov-lab">Цвет</span></button>
-          <button type="button" id="btn-parts" class="ov-item"><span class="ov-ic">▤</span><span class="ov-lab">Части</span></button>
+          <button type="button" id="btn-add-photo" class="ov-item"><span class="ov-ic">📷</span><span class="ov-lab">Фото</span></button>
+          <button type="button" id="btn-new-set" class="ov-item"><span class="ov-ic">▣</span><span class="ov-lab">Сет</span></button>
         </div>
       </div>
     </div>
-    <div class="ward-label" id="closetTitle">Мои вещи</div>
+    <div class="overflow-wrap tb-center">
+      <button id="btn-color" class="tb" type="button" title="Цвет"><span class="tb-ic">◐</span></button>
+      <div class="overflow-menu" id="colorMenu">
+        <div class="ov-carousel" id="colorCarousel"></div>
+      </div>
+    </div>
+    <button id="btn-mode" class="tb" type="button" title="Режим"><span class="tb-ic" id="modeIcon">🧩</span></button>
+    <button id="btn-gallery" class="tb" type="button" title="Вещи"><span class="tb-ic">▦</span></button>
+    <button id="btn-settings" class="tb" type="button" title="Настройки"><span class="tb-ic">⚙</span></button>
+    <span class="ward-label" id="closetTitle"></span>
+    <!-- hidden legacy ids for wiring -->
+    <button id="btn-auto" type="button" style="display:none"></button>
+    <button id="btn-suggest" type="button" style="display:none"></button>
+    <button id="btn-parts" type="button" style="display:none"></button>
+    <button id="btn-more" type="button" style="display:none"></button>
   </div>
   <div class="sets-wrapper" id="setsWrapper"></div>
   <div class="set-dots" id="setDots"></div>
@@ -1230,17 +1268,22 @@ function colorsMatch(primary, secondary) {
 }
 
 function applyUiTheme() {
-  const t = UI_THEMES[prefs.uiTheme] || UI_THEMES.violet;
+  const t = UI_THEMES[prefs.uiTheme] || UI_THEMES.pearl;
   const root = document.documentElement;
   root.style.setProperty('--bg0', t.bg0);
   root.style.setProperty('--bg1', t.bg1);
   root.style.setProperty('--blob1', t.blob1);
   root.style.setProperty('--blob2', t.blob2);
   root.style.setProperty('--blob3', t.blob3);
-  root.style.setProperty('--accent', prefs.accent || '#4ade80');
+  root.style.setProperty('--accent', prefs.accent || '#c4a574');
+  const autoText = t.light ? '#2a2430' : '#ffffff';
+  const textCol = prefs.text || autoText;
+  root.style.setProperty('--text', textCol);
+  document.body.style.color = textCol;
   document.body.classList.toggle('theme-light', !!t.light);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', t.bg0);
+  updateModeIcon();
 }
 
 function renderThemeSettings() {
@@ -1283,6 +1326,39 @@ function renderThemeSettings() {
     d.onclick = () => { prefs.accent = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     row.appendChild(d);
   });
+  // цвет текста
+  let tr = $('textRow');
+  if (!tr) {
+    const card = row.parentElement;
+    if (card) {
+      const h = document.createElement('h4');
+      h.id = 'lbl-text';
+      h.textContent = 'Текст';
+      h.style.marginTop = '0.75rem';
+      tr = document.createElement('div');
+      tr.id = 'textRow';
+      tr.className = 'accent-row';
+      card.appendChild(h);
+      card.appendChild(tr);
+    }
+  }
+  if (tr) {
+    tr.innerHTML = '';
+    const auto = document.createElement('button');
+    auto.className = 'accent-dot' + (!prefs.text ? ' on' : '');
+    auto.style.background = 'conic-gradient(#fff, #888, #111, #fff)';
+    auto.title = 'Авто';
+    auto.onclick = () => { prefs.text = ''; savePrefs(); applyUiTheme(); renderThemeSettings(); };
+    tr.appendChild(auto);
+    ['#ffffff','#f5f0e8','#2a2430','#1a1228','#e8e0f0','#c4a574'].forEach(c => {
+      const d = document.createElement('button');
+      d.className = 'accent-dot' + (prefs.text === c ? ' on' : '');
+      d.style.background = c;
+      d.style.border = '1px solid rgba(128,128,128,0.35)';
+      d.onclick = () => { prefs.text = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
+      tr.appendChild(d);
+    });
+  }
 }
 
 /** Собрать готовые сеты из гардероба по гармонии цветов */
@@ -1458,7 +1534,7 @@ let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t,
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
-let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', lang: 'ru' };
+let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', text: '', lang: 'ru' };
 let db = null;
 
 const setsWrapper = $('setsWrapper');
@@ -2064,10 +2140,8 @@ function renderSets() {
     const isFree = set.layout === 'free';
     page.innerHTML = `
       <div class="set-header">
-        <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
-        <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
         <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Save">💾</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save">💾</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -3084,7 +3158,7 @@ $('btn-suggest').onclick = openSuggestModal;
 $('btn-suggest-cancel').onclick = () => suggestModal.classList.remove('open');
 $('btn-auto').onclick = openAutoModal;
 $('btn-auto-cancel').onclick = () => $('autoModal').classList.remove('open');
-$('btn-add').onclick = startAdd;
+// add via submenu
 
 /* =====================================================================
    НАСТРОЙКИ: память, копия, очистка
@@ -3109,22 +3183,129 @@ async function updateStorageInfo() {
 }
 $('btn-settings').onclick = () => { $('settingsModal').classList.add('open'); updateStorageInfo(); renderThemeSettings(); };
 
+
+function closeAllMenus() {
+  document.querySelectorAll('.overflow-menu').forEach(m => m.classList.remove('open'));
+}
+function updateModeIcon() {
+  const ic = $('modeIcon');
+  if (!ic) return;
+  const set = sets[activeSetIndex];
+  if (set && set.layout === 'free') ic.textContent = '🧩';
+  else ic.textContent = '▤';
+}
+function buildColorCarousel() {
+  const box = $('colorCarousel');
+  if (!box) return;
+  box.innerHTML = '';
+  const colors = [
+    { id: 'black', hex: '#111' }, { id: 'white', hex: '#f5f5f5' },
+    { id: 'beige', hex: '#e5d3b3' }, { id: 'gray', hex: '#9ca3af' },
+    { id: 'blue', hex: '#2563eb' }, { id: 'darkblue', hex: '#1e3a8a' },
+    { id: 'pink', hex: '#f9a8d4' }, { id: 'red', hex: '#ef4444' },
+    { id: 'green', hex: '#22c55e' }, { id: 'brown', hex: '#7c4a1a' }
+  ];
+  colors.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'ov-color';
+    b.style.background = c.hex;
+    b.title = (COLOR_LABEL_RU && COLOR_LABEL_RU[c.id]) || c.id;
+    b.onclick = () => {
+      closeAllMenus();
+      openColorSuggest(c.id);
+    };
+    box.appendChild(b);
+  });
+}
+async function openColorSuggest(colorId) {
+  // фильтруем авто-сеты по выбранному цвету
+  $('autoModal').classList.add('open');
+  const list = $('autoList');
+  if (list) list.innerHTML = '<div class="auto-empty">' + t('analyzing') + '</div>';
+  try {
+    const all = await buildAutoOutfits();
+    const filtered = all.filter(r => {
+      const cols = r.colors || [];
+      const names = Object.keys(r.picks || {}).map(k => r.picks[k]).map(it => it && it.colorName).filter(Boolean);
+      return names.includes(colorId) || cols.some(hex => {
+        const entry = Object.entries(COLOR_HEX || {}).find(([, h]) => h.toLowerCase() === String(hex).toLowerCase());
+        return entry && entry[0] === colorId;
+      });
+    });
+    const use = filtered.length ? filtered : all;
+    if (typeof renderAutoList === 'function') renderAutoList(use);
+    else {
+      // fallback: reuse openAutoModal content path
+      list.innerHTML = '';
+      if (!use.length) {
+        list.innerHTML = '<div class="auto-empty">' + t('no_match') + '</div>';
+        return;
+      }
+      use.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'auto-card';
+        const prev = Object.values(r.picks || {}).map(it =>
+          '<div class="ap"><img src="' + (it.turl || it.url) + '"></div>'
+        ).join('');
+        card.innerHTML = '<div class="auto-previews">' + prev + '</div><button type="button">' + t('pick_set') + '</button>';
+        card.querySelector('button').onclick = () => {
+          const ns = createEmptySet('color');
+          ns.name = r.title || 'Сет';
+          Object.entries(r.picks || {}).forEach(([slot, it]) => {
+            ensureSlot(ns, slot);
+            const items = itemsForSlot(slot);
+            const idx = items.findIndex(i => i.id === it.id);
+            if (idx >= 0) ns.indices[slot] = idx;
+          });
+          $('autoModal').classList.remove('open');
+          addSetAndShow(ns);
+        };
+        list.appendChild(card);
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    if (list) list.innerHTML = '<div class="auto-empty">' + t('photo_fail') + '</div>';
+  }
+}
 $('btn-gallery') && ($('btn-gallery').onclick = () => openGallery(activeFilter));
 $('gallery-close') && ($('gallery-close').onclick = () => $('galleryModal').classList.remove('open'));
-$('btn-more') && ($('btn-more').onclick = e => {
+$('btn-add') && ($('btn-add').onclick = e => {
   e.stopPropagation();
-  $('overflowMenu').classList.toggle('open');
+  const m = $('addMenu');
+  const open = m && m.classList.contains('open');
+  closeAllMenus();
+  if (m && !open) m.classList.add('open');
 });
-$('overflowMenu') && ($('overflowMenu').onclick = e => e.stopPropagation());
-document.addEventListener('click', () => {
-  const m = $('overflowMenu');
-  if (m) m.classList.remove('open');
+$('btn-add-photo') && ($('btn-add-photo').onclick = () => { closeAllMenus(); startAdd(); });
+$('btn-color') && ($('btn-color').onclick = e => {
+  e.stopPropagation();
+  buildColorCarousel();
+  const m = $('colorMenu');
+  const open = m && m.classList.contains('open');
+  closeAllMenus();
+  if (m && !open) m.classList.add('open');
 });
-// close overflow when choosing action
-['btn-auto','btn-suggest','btn-parts'].forEach(id => {
-  const el = $(id);
-  if (el) el.addEventListener('click', () => { const m = $('overflowMenu'); if (m) m.classList.remove('open'); });
+$('btn-mode') && ($('btn-mode').onclick = () => {
+  const set = sets[activeSetIndex];
+  if (!set) return;
+  // цикл: слоты → коллаж → галерея
+  if (set.layout === 'free') {
+    set.layout = 'slots';
+    saveSets(); renderSets();
+    updateModeIcon();
+  } else {
+    toggleSetLayout(activeSetIndex);
+    updateModeIcon();
+  }
 });
+document.querySelectorAll('.overflow-menu').forEach(m => {
+  m.addEventListener('click', e => e.stopPropagation());
+});
+document.addEventListener('click', () => closeAllMenus());
+buildColorCarousel();
+
 
 $('btn-settings-close').onclick = () => $('settingsModal').classList.remove('open');
 
