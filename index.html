@@ -914,6 +914,34 @@
     gap: 0.35rem !important;
   }
 
+
+  .set-header {
+    position: absolute !important;
+    top: 0.25rem; right: 0.35rem;
+    left: auto !important;
+    z-index: 15;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    gap: 0.3rem !important;
+    pointer-events: none;
+  }
+  .set-header button { pointer-events: auto; }
+  .set-photo {
+    width: 36px !important; height: 36px !important;
+    border-radius: 50% !important;
+    font-size: 1.15rem !important; font-weight: 700 !important;
+    background: rgba(0,0,0,0.45) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+  }
+  body.theme-light .set-photo {
+    background: rgba(255,255,255,0.85) !important;
+    color: #2a2430 !important;
+    border-color: rgba(0,0,0,0.08) !important;
+  }
+  .set-page { position: relative; }
+  .piece .p-del { display: none !important; }
+
 </style>
 </head>
 <body>
@@ -926,8 +954,8 @@
       <button id="btn-add" class="tb tb-accent" type="button" title="Добавить"><span class="tb-ic">＋</span></button>
       <div class="overflow-menu ov-left" id="addMenu">
         <div class="ov-carousel">
-          <button type="button" id="btn-add-photo" class="ov-item"><span class="ov-ic">📷</span><span class="ov-lab">Фото</span></button>
-          <button type="button" id="btn-new-set" class="ov-item"><span class="ov-ic">▣</span><span class="ov-lab">Сет</span></button>
+          <button type="button" id="btn-add-photo" class="ov-item"><span class="ov-ic">＋</span><span class="ov-lab">＋</span></button>
+          <button type="button" id="btn-new-set" class="ov-item"><span class="ov-ic">▣</span><span class="ov-lab">▣</span></button>
         </div>
       </div>
     </div>
@@ -1280,6 +1308,12 @@ function applyUiTheme() {
   const textCol = prefs.text || autoText;
   root.style.setProperty('--text', textCol);
   document.body.style.color = textCol;
+  const btnText = prefs.btnText || textCol;
+  root.style.setProperty('--btn-text', btnText);
+  document.querySelectorAll('.top-bar .tb, .ov-item, .cat-tab, .set-photo, .set-del').forEach(el => {
+    if (el.classList.contains('tb-accent')) return;
+    el.style.color = btnText;
+  });
   document.body.classList.toggle('theme-light', !!t.light);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', t.bg0);
@@ -1357,6 +1391,35 @@ function renderThemeSettings() {
       d.style.border = '1px solid rgba(128,128,128,0.35)';
       d.onclick = () => { prefs.text = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
       tr.appendChild(d);
+    });
+  }
+  // цвет текста на кнопках
+  let br = $('btnTextRow');
+  if (!br && tr && tr.parentElement) {
+    const h = document.createElement('h4');
+    h.textContent = 'Текст кнопок';
+    h.style.marginTop = '0.75rem';
+    br = document.createElement('div');
+    br.id = 'btnTextRow';
+    br.className = 'accent-row';
+    tr.parentElement.appendChild(h);
+    tr.parentElement.appendChild(br);
+  }
+  if (br) {
+    br.innerHTML = '';
+    const auto = document.createElement('button');
+    auto.className = 'accent-dot' + (!prefs.btnText ? ' on' : '');
+    auto.style.background = 'conic-gradient(#fff, #888, #111, #fff)';
+    auto.title = 'Авто';
+    auto.onclick = () => { prefs.btnText = ''; savePrefs(); applyUiTheme(); renderThemeSettings(); };
+    br.appendChild(auto);
+    ['#ffffff','#f5f0e8','#2a2430','#1a1228','#c4a574','#4ade80'].forEach(c => {
+      const d = document.createElement('button');
+      d.className = 'accent-dot' + (prefs.btnText === c ? ' on' : '');
+      d.style.background = c;
+      d.style.border = '1px solid rgba(128,128,128,0.35)';
+      d.onclick = () => { prefs.btnText = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
+      br.appendChild(d);
     });
   }
 }
@@ -1534,7 +1597,7 @@ let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t,
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
-let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', text: '', lang: 'ru' };
+let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', text: '', btnText: '', lang: 'ru' };
 let db = null;
 
 const setsWrapper = $('setsWrapper');
@@ -2140,8 +2203,7 @@ function renderSets() {
     const isFree = set.layout === 'free';
     page.innerHTML = `
       <div class="set-header">
-        <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="save">💾</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Сохранить">↓</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -2152,8 +2214,6 @@ function renderSets() {
       fillSlots(page, set);
       page.querySelectorAll('.slot').forEach(el => setupSlot(el, idx));
     }
-    const modeBtn = page.querySelector('.set-mode-btn');
-    if (modeBtn) modeBtn.onclick = (e) => { e.stopPropagation(); toggleSetLayout(idx); };
     const photoBtn = page.querySelector('.set-photo');
     if (photoBtn) photoBtn.onclick = (e) => { e.stopPropagation(); exportSetAsPhoto(idx); };
     page.querySelector('.set-name').onclick = () => {
@@ -2266,18 +2326,42 @@ function renderCollageBoard(page, set, setIdx) {
     el.style.width = (pc.w || 36) + '%';
     el.style.height = 'auto';
     el.style.margin = '0';
-    el.innerHTML = `<img src="${item.url}" alt="" style="width:100%;height:auto;display:block;"><button type="button" class="p-del">×</button>`;
+    el.innerHTML = `<img src="${item.url}" alt="" style="width:100%;height:auto;display:block;">`;
     applyPieceTransform(el, pc);
     board.appendChild(el);
     bindPieceGestures(el, set, setIdx, i);
-    el.querySelector('.p-del').onclick = e => {
-      e.stopPropagation();
-      set.pieces.splice(i, 1);
-      saveSets();
-      renderCollageBoard(page, set, setIdx);
-    };
   });
 }
+function showPieceMenu(set, setIdx, index, page) {
+  let ov = document.getElementById('pieceMenu');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'pieceMenu';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:560;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom));';
+    ov.innerHTML = `<div style="width:100%;max-width:400px;background:#1a1228;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.12)">
+      <button type="button" data-act="del" style="width:100%;height:52px;border:none;background:transparent;color:#f87171;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.1)">Удалить с сета</button>
+      <button type="button" data-act="cancel" style="width:100%;height:52px;border:none;background:transparent;color:rgba(255,255,255,0.7);font-size:1rem;font-weight:600">Отмена</button>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => {
+      if (e.target === ov) { ov.style.display = 'none'; return; }
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const act = btn.dataset.act;
+      const ctx = ov._ctx;
+      ov.style.display = 'none';
+      if (!ctx || act === 'cancel') return;
+      if (act === 'del') {
+        ctx.set.pieces.splice(ctx.index, 1);
+        saveSets();
+        renderCollageBoard(ctx.page, ctx.set, ctx.setIdx);
+      }
+    });
+  }
+  ov._ctx = { set, setIdx, index, page };
+  ov.style.display = 'flex';
+}
+
 function bindPieceGestures(el, set, setIdx, index) {
   const pointers = new Map();
   let mode = null;
@@ -2288,8 +2372,10 @@ function bindPieceGestures(el, set, setIdx, index) {
   function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
   function angle(a, b) { return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; }
 
+  let longTimer = null;
+  let longFired = false;
+  const page = el.closest('.set-page');
   el.addEventListener('pointerdown', e => {
-    if (e.target.closest('.p-del')) return;
     e.preventDefault();
     e.stopPropagation();
     el.setPointerCapture(e.pointerId);
@@ -2299,11 +2385,20 @@ function bindPieceGestures(el, set, setIdx, index) {
     const board = el.parentElement;
     const br = board.getBoundingClientRect();
     const p = pc();
+    longFired = false;
+    clearTimeout(longTimer);
     if (pointers.size === 1) {
+      longTimer = setTimeout(() => {
+        if (pointers.size === 1 && !changed) {
+          longFired = true;
+          mode = null;
+          showPieceMenu(set, setIdx, index, page);
+        }
+      }, 480);
       mode = 'drag';
-      // x,y — центр вещи в %
       start = { x: e.clientX, y: e.clientY, ox: p.x, oy: p.y, br };
     } else if (pointers.size >= 2) {
+      clearTimeout(longTimer);
       mode = 'pinch';
       const pts = [...pointers.values()];
       start = {
@@ -2325,7 +2420,10 @@ function bindPieceGestures(el, set, setIdx, index) {
     if (mode === 'drag' && pointers.size === 1) {
       const dx = ((e.clientX - start.x) / start.br.width) * 100;
       const dy = ((e.clientY - start.y) / start.br.height) * 100;
-      if (Math.abs(dx) + Math.abs(dy) > 0.2) changed = true;
+      if (Math.abs(dx) + Math.abs(dy) > 0.2) {
+        changed = true;
+        clearTimeout(longTimer);
+      }
       // центр может быть у самого края (0..100)
       p.x = Math.max(0, Math.min(100, start.ox + dx));
       p.y = Math.max(0, Math.min(100, start.oy + dy));
@@ -2359,12 +2457,14 @@ function bindPieceGestures(el, set, setIdx, index) {
   });
 
   function endPointer(e) {
+    clearTimeout(longTimer);
     if (pointers.has(e.pointerId)) {
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       pointers.delete(e.pointerId);
     }
     if (pointers.size === 0) {
       mode = null; start = null;
+      if (longFired) { longFired = false; changed = false; return; }
       if (changed) { saveSets(); changed = false; }
     } else if (pointers.size === 1) {
       const pt = [...pointers.values()][0];
