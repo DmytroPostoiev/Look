@@ -709,6 +709,103 @@
     opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; max-width: 90vw; text-align: center;
   }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ===== Top bar: ровный ряд ===== */
+  .top-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding: 0.35rem 0.55rem 0.3rem;
+    overflow: visible;
+  }
+  .top-bar .tb {
+    flex: 0 0 auto;
+    width: 40px; height: 40px;
+    padding: 0; margin: 0;
+    border-radius: 12px; border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+  .top-bar .tb .tb-ic { pointer-events: none; }
+  .top-bar .tb.tb-accent {
+    background: var(--accent);
+    color: #1a1220;
+  }
+  .top-bar .tb:active { transform: scale(0.94); opacity: 0.9; }
+  .top-bar .ward-label {
+    margin-left: auto;
+    font-size: 0.68rem; font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+    padding-left: 0.25rem;
+  }
+  .overflow-wrap { position: relative; flex: 0 0 auto; }
+  .overflow-menu {
+    display: none;
+    position: absolute;
+    left: 50%; top: calc(100% + 8px);
+    transform: translateX(-50%);
+    z-index: 90;
+    padding: 0.45rem;
+    border-radius: 16px;
+    background: rgba(22,16,36,0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .overflow-menu.open { display: block; }
+  .ov-carousel {
+    display: flex; flex-direction: row; gap: 0.4rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    max-width: min(86vw, 320px);
+    padding: 0.1rem;
+  }
+  .ov-carousel::-webkit-scrollbar { display: none; }
+  .ov-item {
+    flex: 0 0 auto;
+    width: 64px; height: 64px;
+    border: none; border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0.2rem;
+    padding: 0;
+  }
+  .ov-item .ov-ic { font-size: 1.15rem; line-height: 1; }
+  .ov-item .ov-lab { font-size: 0.58rem; font-weight: 700; opacity: 0.8; letter-spacing: 0.02em; }
+  .ov-item:active { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+  body.theme-light .top-bar .tb {
+    background: rgba(255,255,255,0.65);
+    color: #2a2430;
+    border: 1px solid rgba(255,255,255,0.85);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  body.theme-light .top-bar .tb.tb-accent {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+  body.theme-light .top-bar .ward-label { color: rgba(42,36,48,0.45); }
+  body.theme-light .overflow-menu {
+    background: rgba(255,255,255,0.95);
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+  }
+  body.theme-light .ov-item {
+    background: rgba(0,0,0,0.04);
+    color: #2a2430;
+  }
+  body.theme-light .ov-item:active {
+    background: color-mix(in srgb, var(--accent) 25%, #fff);
+  }
+
 </style>
 </head>
 <body>
@@ -717,19 +814,20 @@
 
 <div class="app">
   <div class="top-bar" id="topBar">
-    <button id="btn-settings" class="icon-btn" aria-label="settings" title="Настройки">◇</button>
-    <button id="btn-add" class="green">＋ Фото</button>
-    <button id="btn-gallery" class="icon-btn" aria-label="gallery" title="Галерея">▦</button>
-    <button id="btn-new-set" class="purple">＋ Сет</button>
+    <button id="btn-settings" class="tb" type="button" title="Настройки"><span class="tb-ic">◇</span></button>
+    <button id="btn-add" class="tb tb-accent" type="button" title="Фото"><span class="tb-ic">＋</span></button>
+    <button id="btn-gallery" class="tb" type="button" title="Галерея"><span class="tb-ic">▦</span></button>
+    <button id="btn-new-set" class="tb" type="button" title="Сет"><span class="tb-ic">▣</span></button>
     <div class="overflow-wrap">
-      <button id="btn-more" class="icon-btn" aria-label="more">⋯</button>
+      <button id="btn-more" class="tb" type="button" title="Ещё"><span class="tb-ic">⋯</span></button>
       <div class="overflow-menu" id="overflowMenu">
-        <button type="button" id="btn-auto">✦ Авто-сеты</button>
-        <button type="button" id="btn-suggest">◐ Цвета</button>
-        <button type="button" id="btn-parts">▤ Части</button>
+        <div class="ov-carousel">
+          <button type="button" id="btn-auto" class="ov-item"><span class="ov-ic">✦</span><span class="ov-lab">Авто</span></button>
+          <button type="button" id="btn-suggest" class="ov-item"><span class="ov-ic">◐</span><span class="ov-lab">Цвет</span></button>
+          <button type="button" id="btn-parts" class="ov-item"><span class="ov-ic">▤</span><span class="ov-lab">Части</span></button>
+        </div>
       </div>
     </div>
-    <div class="spacer"></div>
     <div class="ward-label" id="closetTitle">Мои вещи</div>
   </div>
   <div class="sets-wrapper" id="setsWrapper"></div>
@@ -2318,7 +2416,7 @@ function renderCloset() {
 function updateTitle() {
   const el = $('closetTitle');
   if (!el) return;
-  el.innerHTML = 'Мои вещи <span class="count-pill">' + wardrobe.length + '</span>';
+  el.innerHTML = '<span class="count-pill">' + wardrobe.length + '</span>';
 }
 
 /* Gallery + overflow */
