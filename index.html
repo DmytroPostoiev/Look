@@ -129,7 +129,7 @@
     background: rgba(255,255,255,0.4);
   }
   body.theme-light .modal {
-    background: rgba(250,247,242,0.96);
+    background: var(--bg0);
   }
   body.theme-light .modal-header h3 { color: #2a2430; }
   body.theme-light .modal-header button {
@@ -544,8 +544,8 @@
 
   /* ---------- Модальные окна ---------- */
   .modal {
-    position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
-    background: rgba(8,5,18,0.97);
+    position: fixed; inset: 0; z-index: 200; display: none; flex-direction: column;
+    background: var(--bg0);
     padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
   }
   .modal.open { display: flex; }
@@ -804,6 +804,85 @@
   }
   body.theme-light .ov-item:active {
     background: color-mix(in srgb, var(--accent) 25%, #fff);
+  }
+
+
+  /* Модалки полностью закрывают сет — только фон */
+  .modal {
+    background: var(--bg0) !important;
+  }
+  .modal.open ~ .app,
+  body.modal-open .app .sets-wrapper,
+  body.modal-open .app .set-dots,
+  body.modal-open .app .closet {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  body.modal-open .app .top-bar {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  body.modal-open::before {
+    /* фон остаётся */
+  }
+  .modal {
+    z-index: 200;
+  }
+
+  /* Карусель категорий — понятный выбор */
+  .cat-tabs {
+    display: flex; gap: 0.35rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    margin-bottom: 0.35rem;
+    padding: 0.1rem 0.1rem 0.25rem;
+    scroll-snap-type: x mandatory;
+  }
+  .cat-tabs::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    height: 34px;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.45);
+    font-size: 0.72rem; font-weight: 650;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    white-space: nowrap;
+  }
+  .cat-tab.active {
+    background: var(--accent);
+    color: #1a1220;
+    border-color: transparent;
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .cat-tab .count-pill {
+    background: rgba(0,0,0,0.12);
+    color: inherit;
+  }
+  .cat-tab.active .count-pill {
+    background: rgba(0,0,0,0.18);
+  }
+  body.theme-light .cat-tab {
+    background: rgba(255,255,255,0.55);
+    color: rgba(42,36,48,0.4);
+    border-color: rgba(255,255,255,0.8);
+  }
+  body.theme-light .cat-tab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+  .closet-filter-label {
+    font-size: 0.62rem; font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    padding: 0 0.15rem 0.2rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  body.theme-light .closet-filter-label {
+    color: rgba(42,36,48,0.35);
   }
 
 </style>
@@ -2371,6 +2450,21 @@ setsWrapper.addEventListener('scroll', () => {
    ===================================================================== */
 function renderTabs() {
   catTabs.innerHTML = '';
+  // подпись что смотрим сейчас
+  let label = catTabs.previousElementSibling;
+  if (!label || !label.classList.contains('closet-filter-label')) {
+    label = document.createElement('div');
+    label.className = 'closet-filter-label';
+    catTabs.parentNode.insertBefore(label, catTabs);
+  }
+  const curName = activeFilter && CATEGORIES[activeFilter]
+    ? (CATEGORIES[activeFilter].emoji + ' ' + CATEGORIES[activeFilter].label)
+    : 'Все вещи';
+  const curN = activeFilter
+    ? wardrobe.filter(w => w.cat === activeFilter).length
+    : wardrobe.length;
+  label.textContent = curName + ' · ' + curN;
+
   const all = document.createElement('button');
   all.className = 'cat-tab' + (activeFilter === null ? ' active' : '');
   all.innerHTML = 'Все <span class="count-pill">' + wardrobe.length + '</span>';
@@ -2378,12 +2472,24 @@ function renderTabs() {
   catTabs.appendChild(all);
   CAT_ORDER.forEach(key => {
     const n = wardrobe.filter(w => w.cat === key).length;
-    if (!n && activeFilter !== key) return; // hide empty cats for cleaner UI
+    if (!n && activeFilter !== key) return;
     const btn = document.createElement('button');
     btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
     btn.innerHTML = CATEGORIES[key].emoji + ' ' + shortName(key) + (n ? ' <span class="count-pill">' + n + '</span>' : '');
-    btn.onclick = () => { activeFilter = activeFilter === key ? null : key; renderTabs(); renderCloset(); };
+    btn.onclick = () => {
+      activeFilter = activeFilter === key ? null : key;
+      renderTabs(); renderCloset();
+      // прокрутить активный чип в центр карусели
+      requestAnimationFrame(() => {
+        const act = catTabs.querySelector('.cat-tab.active');
+        if (act) act.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+      });
+    };
     catTabs.appendChild(btn);
+  });
+  requestAnimationFrame(() => {
+    const act = catTabs.querySelector('.cat-tab.active');
+    if (act) act.scrollIntoView({ inline: 'center', block: 'nearest' });
   });
 }
 function renderCloset() {
@@ -3129,6 +3235,19 @@ async function init() {
   }
 }
 window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+
+(function watchModals() {
+  const sync = () => {
+    const any = document.querySelector('.modal.open');
+    document.body.classList.toggle('modal-open', !!any);
+  };
+  const obs = new MutationObserver(sync);
+  document.querySelectorAll('.modal').forEach(m => {
+    obs.observe(m, { attributes: true, attributeFilter: ['class'] });
+  });
+  sync();
+})();
+
 init();
 </script>
 </body>
