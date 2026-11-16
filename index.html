@@ -51,6 +51,180 @@
   }
   body.theme-light .dot { background: rgba(0,0,0,0.2); }
   body.theme-light .add-thumb { border-color: rgba(0,0,0,0.25); color: #16a34a; }
+
+  /* ===== Glass / iOS polish ===== */
+  body.theme-light {
+    --glass: rgba(255,255,255,0.55);
+    --glass-border: rgba(255,255,255,0.65);
+    --glass-text: #2a2430;
+    --glass-muted: rgba(42,36,48,0.45);
+    --glass-soft: rgba(255,255,255,0.35);
+  }
+  body.theme-light .top-bar button {
+    background: rgba(255,255,255,0.55);
+    color: #2a2430;
+    border: 1px solid rgba(255,255,255,0.7);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  body.theme-light .top-bar button.green,
+  body.theme-light .top-bar button.blue,
+  body.theme-light .top-bar button.purple,
+  body.theme-light .top-bar button.orange {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+  body.theme-light .top-bar button.icon-btn {
+    background: rgba(255,255,255,0.65);
+  }
+  body.theme-light .top-bar .ward-label {
+    color: rgba(42,36,48,0.5);
+  }
+  body.theme-light .closet {
+    background: rgba(255,255,255,0.45);
+    border: 1px solid rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  }
+  body.theme-light .slot {
+    background: rgba(255,255,255,0.4);
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  body.theme-light .collage-board {
+    background: rgba(255,255,255,0.35);
+    border-color: rgba(255,255,255,0.75);
+  }
+  body.theme-light .set-name { color: #2a2430; }
+  body.theme-light .set-mode-btn,
+  body.theme-light .set-del,
+  body.theme-light .set-photo {
+    background: rgba(255,255,255,0.6);
+    color: #2a2430;
+    border: 1px solid rgba(255,255,255,0.8);
+  }
+  body.theme-light .set-photo { background: color-mix(in srgb, var(--accent) 35%, #fff); }
+  body.theme-light .cat-tab {
+    color: rgba(42,36,48,0.45);
+    background: transparent;
+  }
+  body.theme-light .cat-tab.active {
+    color: #2a2430;
+    background: rgba(255,255,255,0.75);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  body.theme-light .count-pill {
+    background: rgba(42,36,48,0.1);
+    color: #2a2430;
+  }
+  body.theme-light .thumb {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  body.theme-light .add-thumb {
+    border-color: rgba(42,36,48,0.2);
+    color: var(--accent);
+    background: rgba(255,255,255,0.4);
+  }
+  body.theme-light .modal {
+    background: rgba(250,247,242,0.96);
+  }
+  body.theme-light .modal-header h3 { color: #2a2430; }
+  body.theme-light .modal-header button {
+    background: rgba(255,255,255,0.7);
+    color: #2a2430;
+    border-color: rgba(0,0,0,0.08);
+  }
+  body.theme-light #toast {
+    background: rgba(42,36,48,0.9);
+    color: #fff;
+  }
+  .count-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.25rem; height: 1.15rem; padding: 0 0.35rem;
+    border-radius: 999px; font-size: 0.58rem; font-weight: 700;
+    background: rgba(255,255,255,0.18); color: #fff;
+    margin-left: 0.25rem; vertical-align: middle;
+  }
+  .ward-label .count-pill { margin-left: 0.35rem; }
+  .top-bar {
+    gap: 0.35rem;
+  }
+  .top-bar button {
+    height: 34px; border-radius: 11px;
+    font-size: 0.7rem; letter-spacing: 0.01em;
+  }
+  .top-bar button.icon-btn { width: 34px; font-size: 1rem; }
+  .overflow-wrap { position: relative; flex: 0 0 auto; }
+  .overflow-menu {
+    display: none; position: absolute; right: 0; top: calc(100% + 6px);
+    min-width: 180px; z-index: 80;
+    background: rgba(30,22,45,0.94);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 14px; padding: 0.35rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  }
+  body.theme-light .overflow-menu {
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  }
+  .overflow-menu.open { display: block; }
+  .overflow-menu button {
+    width: 100%; height: 42px; border: none; border-radius: 10px;
+    background: transparent; color: #fff; font-size: 0.82rem; font-weight: 600;
+    text-align: left; padding: 0 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  body.theme-light .overflow-menu button { color: #2a2430; }
+  .overflow-menu button:active { background: rgba(255,255,255,0.1); }
+  body.theme-light .overflow-menu button:active { background: rgba(0,0,0,0.05); }
+
+  /* Gallery modal */
+  #galleryModal .gal-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem;
+    padding: 0.5rem 0.85rem 1rem; overflow-y: auto; flex: 1; min-height: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  #galleryModal .gal-item {
+    aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    position: relative;
+  }
+  body.theme-light #galleryModal .gal-item {
+    background: rgba(255,255,255,0.55);
+    border-color: rgba(255,255,255,0.85);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  #galleryModal .gal-item img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  #galleryModal .gal-chips {
+    display: flex; gap: 0.35rem; overflow-x: auto; padding: 0.4rem 0.85rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  #galleryModal .gal-chips::-webkit-scrollbar { display: none; }
+  #galleryModal .gal-chip {
+    flex: 0 0 auto; height: 32px; padding: 0 0.75rem; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.1);
+    color: #fff; font-size: 0.72rem; font-weight: 600;
+  }
+  body.theme-light #galleryModal .gal-chip {
+    background: rgba(255,255,255,0.7); color: #2a2430; border-color: rgba(0,0,0,0.06);
+  }
+  #galleryModal .gal-chip.on {
+    background: var(--accent); color: #fff; border-color: transparent;
+  }
+  .closet {
+    border-radius: 18px;
+  }
+  .thumb {
+    border-radius: 12px;
+  }
+  .set-page { padding: 0.3rem 0.6rem 0.15rem; }
+  .slot { border-radius: 16px; }
+
   .theme-swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
   .theme-swatch {
     height: 52px; border-radius: 12px; border: 2px solid transparent;
@@ -543,14 +717,20 @@
 
 <div class="app">
   <div class="top-bar" id="topBar">
-    <button id="btn-settings" class="icon-btn" aria-label="settings">⚙️</button>
-    <button id="btn-add" class="green">+ Фото</button>
-    <button id="btn-auto" class="orange">Авто</button>
-    <button id="btn-suggest" class="orange">Цвета</button>
-    <button id="btn-parts" class="blue">Части</button>
-    <button id="btn-new-set" class="purple">+ Сет</button>
+    <button id="btn-settings" class="icon-btn" aria-label="settings" title="Настройки">◇</button>
+    <button id="btn-add" class="green">＋ Фото</button>
+    <button id="btn-gallery" class="icon-btn" aria-label="gallery" title="Галерея">▦</button>
+    <button id="btn-new-set" class="purple">＋ Сет</button>
+    <div class="overflow-wrap">
+      <button id="btn-more" class="icon-btn" aria-label="more">⋯</button>
+      <div class="overflow-menu" id="overflowMenu">
+        <button type="button" id="btn-auto">✦ Авто-сеты</button>
+        <button type="button" id="btn-suggest">◐ Цвета</button>
+        <button type="button" id="btn-parts">▤ Части</button>
+      </div>
+    </div>
     <div class="spacer"></div>
-    <div class="ward-label" id="closetTitle">ГАРДЕРОБ</div>
+    <div class="ward-label" id="closetTitle">Мои вещи</div>
   </div>
   <div class="sets-wrapper" id="setsWrapper"></div>
   <div class="set-dots" id="setDots"></div>
@@ -564,6 +744,14 @@
   </div>
 </div>
 
+<div class="modal" id="galleryModal">
+  <div class="modal-header">
+    <h3 id="galleryTitle">Мои вещи</h3>
+    <button type="button" id="gallery-close">Готово</button>
+  </div>
+  <div class="gal-chips" id="galleryChips"></div>
+  <div class="gal-grid" id="galleryGrid"></div>
+</div>
 <div id="bgChip"></div>
 <div id="toast"></div>
 
@@ -741,14 +929,19 @@ const BG_INFER_MAX = 720; // сторона для нейросети (бала�
    ТАБЛИЦА СОЧЕТАНИЯ ЦВЕТОВ (как на картинке) + тема UI
    ===================================================================== */
 const UI_THEMES = {
+  pearl:   { bg0:'#f7f4ef', bg1:'#efe8df', blob1:'#e8d5c4', blob2:'#d4c4b0', blob3:'#c9b8a8', light:true,  label:'Жемчуг' },
+  ivory:   { bg0:'#faf8f5', bg1:'#f0ebe3', blob1:'#f5e6d3', blob2:'#e8d4c4', blob3:'#ddd0c0', light:true,  label:'Слоновая' },
+  mist:    { bg0:'#f2f5f8', bg1:'#e6ebf0', blob1:'#d0dce8', blob2:'#c5d0dc', blob3:'#b8c4d0', light:true,  label:'Туман' },
+  blush:   { bg0:'#faf3f5', bg1:'#f3e6ea', blob1:'#f0d0d8', blob2:'#e8c4d0', blob3:'#e0b8c8', light:true,  label:'Пудра' },
+  sage:    { bg0:'#f2f5f2', bg1:'#e6ece6', blob1:'#c8d8c8', blob2:'#b8ccb8', blob3:'#a8c0a8', light:true,  label:'Шалфей' },
+  light:   { bg0:'#f3eef8', bg1:'#e8e0f0', blob1:'#c4b5fd', blob2:'#f9a8d4', blob3:'#a5f3fc', light:true,  label:'Лаванда' },
   violet:  { bg0:'#120b1f', bg1:'#0a0614', blob1:'#6d28d9', blob2:'#db2777', blob3:'#0891b2', light:false, label:'Фиолет' },
   midnight:{ bg0:'#0b1220', bg1:'#060a12', blob1:'#1e3a8a', blob2:'#0e7490', blob3:'#334155', light:false, label:'Ночь' },
   warm:    { bg0:'#1c120c', bg1:'#120a06', blob1:'#b45309', blob2:'#9a3412', blob3:'#a16207', light:false, label:'Тёплый' },
-  forest:  { bg0:'#0c1612', bg1:'#06100c', blob1:'#166534', blob2:'#0f766e', blob3:'#3f6212', light:false, label:'Лес' },
   rose:    { bg0:'#1a0e14', bg1:'#12080e', blob1:'#9d174d', blob2:'#be185d', blob3:'#7c3aed', light:false, label:'Роза' },
-  light:   { bg0:'#f3eef8', bg1:'#e8e0f0', blob1:'#c4b5fd', blob2:'#f9a8d4', blob3:'#a5f3fc', light:true,  label:'Светлый' },
 };
-const ACCENT_COLORS = ['#4ade80','#60a5fa','#f472b6','#fbbf24','#a78bfa','#fb923c','#2dd4bf','#f87171'];
+const ACCENT_COLORS_EXTRA = ['#c4a574','#8b7355','#a78bfa','#f472b6','#60a5fa','#4ade80','#fbbf24','#2dd4bf','#f87171','#e8b4b8'];
+const ACCENT_COLORS = ['#c4a574','#8b7355','#a78bfa','#f472b6','#60a5fa','#4ade80','#fbbf24','#2dd4bf','#f87171','#e8b4b8'];
 
 /* Основной цвет → допустимые вторичные (имена корзин) */
 const COLOR_HARMONY = {
@@ -1088,7 +1281,7 @@ let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t,
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
-let prefs = { bgDefault: true, uiTheme: 'violet', accent: '#4ade80', lang: 'ru' };
+let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', lang: 'ru' };
 let db = null;
 
 const setsWrapper = $('setsWrapper');
@@ -1697,7 +1890,7 @@ function renderSets() {
         <div class="set-theme" style="border:1px solid ${theme.color}55;color:${theme.color}">${theme.emoji} ${themeLabel(set.theme)}</div>
         <div class="set-name" title="${esc(t('rename_hint'))}">${esc(set.name || t('set'))}</div>
         <button class="set-mode-btn${isFree ? ' on' : ''}" data-idx="${idx}" title="collage">🧩</button>
-        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Save photo" style="font-size:0.95rem">💾</button>
+        <button class="set-photo" data-idx="${idx}" aria-label="save" title="Save">💾</button>
         ${sets.length > 1 ? '<button class="set-del" aria-label="del">🗑</button>' : ''}
       </div>
       ${isFree ? '' : buildSlotsHTML(set.activeSlots || ALL_SLOTS)}`;
@@ -2082,14 +2275,15 @@ function renderTabs() {
   catTabs.innerHTML = '';
   const all = document.createElement('button');
   all.className = 'cat-tab' + (activeFilter === null ? ' active' : '');
-  all.textContent = 'Все ' + wardrobe.length;
+  all.innerHTML = 'Все <span class="count-pill">' + wardrobe.length + '</span>';
   all.onclick = () => { activeFilter = null; renderTabs(); renderCloset(); };
   catTabs.appendChild(all);
   CAT_ORDER.forEach(key => {
     const n = wardrobe.filter(w => w.cat === key).length;
+    if (!n && activeFilter !== key) return; // hide empty cats for cleaner UI
     const btn = document.createElement('button');
     btn.className = 'cat-tab' + (activeFilter === key ? ' active' : '');
-    btn.textContent = CATEGORIES[key].emoji + ' ' + shortName(key) + (n ? ' ' + n : '');
+    btn.innerHTML = CATEGORIES[key].emoji + ' ' + shortName(key) + (n ? ' <span class="count-pill">' + n + '</span>' : '');
     btn.onclick = () => { activeFilter = activeFilter === key ? null : key; renderTabs(); renderCloset(); };
     catTabs.appendChild(btn);
   });
@@ -2121,7 +2315,61 @@ function renderCloset() {
   });
   updateTitle();
 }
-function updateTitle() { const el = $('closetTitle'); if (el) el.textContent = t('wardrobe') + ' · ' + wardrobe.length; }
+function updateTitle() {
+  const el = $('closetTitle');
+  if (!el) return;
+  el.innerHTML = 'Мои вещи <span class="count-pill">' + wardrobe.length + '</span>';
+}
+
+/* Gallery + overflow */
+function openGallery(filter) {
+  const chips = $('galleryChips');
+  const grid = $('galleryGrid');
+  if (!chips || !grid) return;
+  let f = filter === undefined ? activeFilter : filter;
+  chips.innerHTML = '';
+  const mk = (key, label, n) => {
+    const b = document.createElement('button');
+    b.className = 'gal-chip' + (f === key ? ' on' : '');
+    b.innerHTML = label + (n != null ? ' <span class="count-pill">' + n + '</span>' : '');
+    b.onclick = () => openGallery(key);
+    chips.appendChild(b);
+  };
+  mk(null, 'Все', wardrobe.length);
+  CAT_ORDER.forEach(k => {
+    const n = wardrobe.filter(w => w.cat === k).length;
+    if (n) mk(k, CATEGORIES[k].emoji + ' ' + shortName(k), n);
+  });
+  const list = f ? wardrobe.filter(w => w.cat === f) : wardrobe.slice();
+  $('galleryTitle').textContent = f && CATEGORIES[f] ? (CATEGORIES[f].emoji + ' ' + CATEGORIES[f].label) : 'Мои вещи';
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML = '<div class="auto-empty" style="grid-column:1/-1">Пока пусто — добавь фото</div>';
+  }
+  list.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'gal-item checker';
+    d.innerHTML = '<img src="' + item.turl + '" alt="">';
+    d.onclick = () => {
+      $('galleryModal').classList.remove('open');
+      const set = sets[activeSetIndex];
+      ensurePieces(set);
+      if (set.layout === 'free') addItemToCollage(activeSetIndex, item);
+      else {
+        const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
+        if (!slot) return;
+        const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
+        if (idx < 0) return;
+        set.indices[slot] = idx;
+        ensureSlot(set, slot);
+        saveSets(); renderSets();
+      }
+    };
+    grid.appendChild(d);
+  });
+  $('galleryModal').classList.add('open');
+}
+
 function renderAll() { renderSets(); renderTabs(); renderCloset(); }
 
 async function deleteItem(id) {
@@ -2656,6 +2904,24 @@ async function updateStorageInfo() {
   if (el) { el.style.whiteSpace = 'pre-line'; el.textContent = txt; }
 }
 $('btn-settings').onclick = () => { $('settingsModal').classList.add('open'); updateStorageInfo(); renderThemeSettings(); };
+
+$('btn-gallery') && ($('btn-gallery').onclick = () => openGallery(activeFilter));
+$('gallery-close') && ($('gallery-close').onclick = () => $('galleryModal').classList.remove('open'));
+$('btn-more') && ($('btn-more').onclick = e => {
+  e.stopPropagation();
+  $('overflowMenu').classList.toggle('open');
+});
+$('overflowMenu') && ($('overflowMenu').onclick = e => e.stopPropagation());
+document.addEventListener('click', () => {
+  const m = $('overflowMenu');
+  if (m) m.classList.remove('open');
+});
+// close overflow when choosing action
+['btn-auto','btn-suggest','btn-parts'].forEach(id => {
+  const el = $(id);
+  if (el) el.addEventListener('click', () => { const m = $('overflowMenu'); if (m) m.classList.remove('open'); });
+});
+
 $('btn-settings-close').onclick = () => $('settingsModal').classList.remove('open');
 
 $('btn-export').onclick = async () => {
