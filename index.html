@@ -60,27 +60,6 @@
     --glass-muted: rgba(42,36,48,0.45);
     --glass-soft: rgba(255,255,255,0.35);
   }
-  body.theme-light .top-bar button {
-    background: rgba(255,255,255,0.55);
-    color: #2a2430;
-    border: 1px solid rgba(255,255,255,0.7);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  }
-  body.theme-light .top-bar button.green,
-  body.theme-light .top-bar button.blue,
-  body.theme-light .top-bar button.purple,
-  body.theme-light .top-bar button.orange {
-    background: var(--accent);
-    color: #fff;
-    border-color: transparent;
-  }
-  body.theme-light .top-bar button.icon-btn {
-    background: rgba(255,255,255,0.65);
-  }
-  body.theme-light .top-bar .ward-label {
-    color: rgba(42,36,48,0.5);
-  }
   body.theme-light .closet {
     background: rgba(255,255,255,0.45);
     border: 1px solid rgba(255,255,255,0.7);
@@ -149,39 +128,6 @@
     margin-left: 0.25rem; vertical-align: middle;
   }
   .ward-label .count-pill { margin-left: 0.35rem; }
-  .top-bar {
-    gap: 0.35rem;
-  }
-  .top-bar button {
-    height: 34px; border-radius: 11px;
-    font-size: 0.7rem; letter-spacing: 0.01em;
-  }
-  .top-bar button.icon-btn { width: 34px; font-size: 1rem; }
-  .overflow-wrap { position: relative; flex: 0 0 auto; }
-  .overflow-menu {
-    display: none; position: absolute; right: 0; top: calc(100% + 6px);
-    min-width: 180px; z-index: 80;
-    background: rgba(30,22,45,0.94);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 14px; padding: 0.35rem;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  }
-  body.theme-light .overflow-menu {
-    background: rgba(255,255,255,0.92);
-    border-color: rgba(0,0,0,0.06);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-  }
-  .overflow-menu.open { display: block; }
-  .overflow-menu button {
-    width: 100%; height: 42px; border: none; border-radius: 10px;
-    background: transparent; color: #fff; font-size: 0.82rem; font-weight: 600;
-    text-align: left; padding: 0 0.75rem;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
-  body.theme-light .overflow-menu button { color: #2a2430; }
-  .overflow-menu button:active { background: rgba(255,255,255,0.1); }
-  body.theme-light .overflow-menu button:active { background: rgba(0,0,0,0.05); }
 
   /* Gallery modal */
   #galleryModal .gal-grid {
@@ -193,13 +139,14 @@
     aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
     background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
     position: relative;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
   body.theme-light #galleryModal .gal-item {
     background: rgba(255,255,255,0.55);
     border-color: rgba(255,255,255,0.85);
     box-shadow: 0 4px 16px rgba(0,0,0,0.06);
   }
-  #galleryModal .gal-item img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  #galleryModal .gal-item img { width: 100%; height: 100%; object-fit: contain; padding: 4px; pointer-events: none; -webkit-touch-callout: none; }
   #galleryModal .gal-chips {
     display: flex; gap: 0.35rem; overflow-x: auto; padding: 0.4rem 0.85rem;
     -webkit-overflow-scrolling: touch;
@@ -265,47 +212,14 @@
     background: var(--accent); color: #062; font-weight: 700; font-size: 0.85rem;
   }
   .auto-empty { text-align: center; padding: 1.5rem 1rem; color: rgba(255,255,255,0.5); font-size: 0.85rem; line-height: 1.45; }
+  body.theme-light .auto-empty { color: rgba(42,36,48,0.55); }
+  body.theme-light .auto-card { background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.06); }
   .app {
     height: 100vh; height: 100dvh;
     display: flex; flex-direction: column;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-  }
-  .top-bar {
-    flex: 0 0 auto;
-    display: flex; align-items: center; gap: 0.28rem;
-    padding: 0.28rem 0.5rem 0.2rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-  }
-  .top-bar::-webkit-scrollbar { display: none; }
-  .top-bar button {
-    flex: 0 0 auto;
-    height: 32px; padding: 0 0.55rem;
-    border-radius: 9px; border: none;
-    font-size: 0.68rem; font-weight: 700;
-    background: rgba(255,255,255,0.12); color: #fff;
-    white-space: nowrap;
-  }
-  .top-bar button.icon-btn {
-    width: 32px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.95rem;
-  }
-  .top-bar button.green,
-  .top-bar button.blue,
-  .top-bar button.purple,
-  .top-bar button.orange {
-    background: var(--accent); color: #0a1628;
-  }
-  .top-bar button.icon-btn {
-    background: color-mix(in srgb, var(--accent) 35%, rgba(255,255,255,0.12));
-  }
-  .top-bar .spacer { flex: 1 1 auto; min-width: 0.3rem; }
-  .top-bar .ward-label {
-    flex: 0 0 auto;
-    font-size: 0.62rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    padding-right: 0.15rem;
+    position: relative;
   }
 
   .sets-wrapper.drop-target {
@@ -322,7 +236,6 @@
     padding: 0.55rem 1rem; border-radius: 12px;
     white-space: nowrap;
   }
-  .app { position: relative; }
   .sets-wrapper { position: relative; }
   .checker {
     background-color: #241a38;
@@ -348,7 +261,6 @@
     padding: 0.25rem 0.55rem 0.1rem; gap: 0.2rem;
     overflow: hidden; position: relative;
   }
-  /* free collage canvas — почти весь экран */
   .collage-board {
     flex: 1 1 auto; min-height: 0; position: relative;
     border-radius: 12px; overflow: visible;
@@ -364,14 +276,9 @@
     overflow: hidden;
     border-style: solid;
     border-color: rgba(255,255,255,0.12);
-    /* максимальная высота поля */
     flex: 1 1 auto;
     min-height: 0;
   }
-  .set-page.free-mode .set-header {
-    padding: 0.05rem 0.1rem 0.08rem;
-  }
-  /* в режиме коллажа гардероб компактнее, поле больше */
   .app.collage-focus .closet {
     margin: 0.05rem 0.35rem 0.12rem;
     padding: 0.22rem;
@@ -382,13 +289,13 @@
   .app.collage-focus .set-page {
     padding-left: 0.2rem; padding-right: 0.2rem;
   }
-  .app.collage-focus .top-bar { padding-top: 0.15rem; padding-bottom: 0.1rem; }
   .app.collage-focus .set-dots { padding: 0.05rem 0; }
   .collage-board .hint-free {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     color: rgba(255,255,255,0.35); font-size: 0.78rem; text-align: center;
     padding: 1rem; pointer-events: none;
   }
+  body.theme-light .collage-board .hint-free { color: rgba(42,36,48,0.4); }
   .piece {
     position: absolute; touch-action: none; user-select: none;
     cursor: grab; z-index: 1;
@@ -399,14 +306,8 @@
     width: 100%; height: 100%; object-fit: contain; pointer-events: none;
     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
   }
-  .piece.active { z-index: 20; }
-  .piece .p-del {
-    position: absolute; top: 0; right: 0; width: 24px; height: 24px;
-    transform: translate(40%, -40%);
-    border-radius: 50%; border: none; background: rgba(0,0,0,0.75); color: #fff;
-    font-size: 0.7rem; display: none; align-items: center; justify-content: center;
-  }
-  .piece.active .p-del { display: flex; }
+  .piece.active { z-index: 20; outline: 1.5px dashed color-mix(in srgb, var(--accent) 80%, transparent); outline-offset: 2px; }
+  .piece.sel { z-index: 20; outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
   .set-dots { writing-mode: horizontal-tb; }
   .set-mode-btn {
     width: 28px; height: 28px; border-radius: 8px; border: none;
@@ -417,16 +318,6 @@
   .set-header {
     flex: 0 0 auto; display: flex; align-items: center;
     padding: 0.1rem 0.15rem 0.2rem; gap: 0.35rem;
-  }
-  .set-name {
-    font-size: 0.85rem; font-weight: 700; flex: 1; min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    text-align: center;
-  }
-  .set-theme {
-    font-size: 0.62rem; font-weight: 600;
-    padding: 0.12rem 0.45rem; border-radius: 8px; background: rgba(255,255,255,0.12);
-    white-space: nowrap;
   }
   .set-del, .set-photo {
     width: 28px; height: 28px; border-radius: 8px; border: none;
@@ -460,7 +351,6 @@
     pointer-events: none; display: none;
   }
   .slot.has-many .counter { display: block; }
-  /* Крупные кнопки слева/справа по центру */
   .slot-arrows {
     position: absolute; inset: 0;
     display: none; align-items: center; justify-content: space-between;
@@ -503,13 +393,6 @@
   .closet-header { display: none; }
   .closet-title { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.5); }
 
-  .cat-tabs { display: flex; gap: 0.2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 0.22rem; }
-  .cat-tabs::-webkit-scrollbar { display: none; }
-  .cat-tab {
-    flex: 0 0 auto; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.65rem; font-weight: 600;
-    color: rgba(255,255,255,0.45); background: transparent; border: none;
-  }
-  .cat-tab.active { background: rgba(255,255,255,0.16); color: #fff; }
   .items-row { display: flex; gap: 0.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch; min-height: 52px; }
   .items-row::-webkit-scrollbar { display: none; }
   .thumb {
@@ -520,13 +403,6 @@
   }
   .thumb.dragging { opacity: 0.25; }
   .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; pointer-events: none; -webkit-touch-callout: none; }
-  .thumb .del, .thumb .edit {
-    position: absolute; width: 16px; height: 16px; border-radius: 50%;
-    background: rgba(0,0,0,0.75); color: #fff; border: none; font-size: 0.55rem;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .thumb .del { top: 1px; right: 1px; }
-  .thumb .edit { bottom: 1px; right: 1px; }
   .thumb.pending::after {
     content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 10px;
   }
@@ -541,6 +417,7 @@
     color: #4ade80; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
   }
   .empty-hint { align-self: center; font-size: 0.68rem; color: rgba(255,255,255,0.4); padding: 0 0.4rem; }
+  body.theme-light .empty-hint { color: rgba(42,36,48,0.45); }
 
   /* ---------- Модальные окна ---------- */
   .modal {
@@ -556,6 +433,7 @@
     border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.1); color: #fff; font-weight: 600;
   }
   .hint { text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.5); padding: 0.2rem 1rem 0.35rem; }
+  body.theme-light .hint { color: rgba(42,36,48,0.55); }
   .modal-bottom { padding: 0.4rem 1rem 1rem; display: flex; gap: 0.5rem; }
   .modal-bottom button {
     flex: 1; height: 52px; border-radius: 13px; border: none;
@@ -610,6 +488,8 @@
   .angle-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 1rem 0; }
   .angle-row input[type=range] { flex: 1; accent-color: #4ade80; height: 30px; }
   .angle-row .angle-val { width: 46px; text-align: right; font-weight: 700; font-size: 0.85rem; }
+  .angle-row .row-lab { width: 54px; font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+  body.theme-light .angle-row .row-lab { color: rgba(42,36,48,0.6); }
   .edit-tools { display: flex; justify-content: center; gap: 0.4rem; padding: 0.35rem 1rem; flex-wrap: wrap; }
   .edit-tools button {
     height: 38px; padding: 0 0.75rem; border-radius: 11px; border: 1px solid rgba(255,255,255,0.2);
@@ -623,6 +503,10 @@
     border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 0.7rem; font-weight: 600;
   }
   .cat-grid button.selected { background: var(--accent); color: #062; border-color: transparent; }
+  body.theme-light .edit-tools button,
+  body.theme-light .cat-grid button { color: #2a2430; background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.08); }
+  body.theme-light .cat-grid button.selected { background: var(--accent); color: #fff; }
+  body.theme-light .edit-tools button.bg-btn.on { color: #fff; }
 
   /* настройки */
   .settings-body { flex: 1; overflow-y: auto; padding: 0.4rem 1rem 1rem; }
@@ -634,6 +518,10 @@
     background: rgba(255,255,255,0.14); color: #fff; font-weight: 700; font-size: 0.82rem;
   }
   .set-card button.danger { background: rgba(239,68,68,0.3); color: #fecaca; }
+  body.theme-light .set-card { background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.06); }
+  body.theme-light .set-card p { color: rgba(42,36,48,0.65); }
+  body.theme-light .set-card button { background: rgba(0,0,0,0.07); color: #2a2430; }
+  body.theme-light .set-card button.danger { background: rgba(239,68,68,0.15); color: #b91c1c; }
 
   .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.5rem 1rem 1rem; }
   .theme-card {
@@ -673,7 +561,7 @@
   .drop-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; }
   .drop-chip {
     padding: 0.45rem 0.05rem; border-radius: 10px; background: rgba(255,255,255,0.09);
-    border: 1.5px solid rgba(255,255,255,0.15); text-align: center; font-size: 0.6rem; font-weight: 600;
+    border: 1.5px solid rgba(255,255,255,0.15); text-align: center; font-size: 0.6rem; font-weight: 600; color: #fff;
   }
   .drop-chip .e { font-size: 1.05rem; display: block; margin-bottom: 1px; }
   .drop-chip.hover { background: var(--accent); color: #062; border-color: transparent; }
@@ -695,7 +583,7 @@
 
   #bgChip {
     position: fixed; z-index: 250; left: 50%; transform: translateX(-50%);
-    top: calc(env(safe-area-inset-top) + 42px);
+    top: calc(env(safe-area-inset-top) + 50px);
     background: rgba(124,58,237,0.95); color: #fff; font-size: 0.72rem; font-weight: 700;
     padding: 0.35rem 0.8rem; border-radius: 999px; display: none; box-shadow: 0 4px 14px rgba(0,0,0,0.4);
     pointer-events: none; white-space: nowrap;
@@ -710,108 +598,8 @@
   }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-  /* ===== Top bar: ровный ряд ===== */
-  .top-bar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.4rem;
-    padding: 0.35rem 0.55rem 0.3rem;
-    overflow: visible;
-  }
-  .top-bar .tb {
-    flex: 0 0 auto;
-    width: 40px; height: 40px;
-    padding: 0; margin: 0;
-    border-radius: 12px; border: none;
-    display: inline-flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    font-size: 1.05rem;
-    line-height: 1;
-  }
-  .top-bar .tb .tb-ic { pointer-events: none; }
-  .top-bar .tb.tb-accent {
-    background: var(--accent);
-    color: #1a1220;
-  }
-  .top-bar .tb:active { transform: scale(0.94); opacity: 0.9; }
-  .top-bar .ward-label {
-    margin-left: auto;
-    font-size: 0.68rem; font-weight: 600;
-    color: rgba(255,255,255,0.45);
-    white-space: nowrap;
-    padding-left: 0.25rem;
-  }
-  .overflow-wrap { position: relative; flex: 0 0 auto; }
-  .overflow-menu {
-    display: none;
-    position: absolute;
-    left: 50%; top: calc(100% + 8px);
-    transform: translateX(-50%);
-    z-index: 90;
-    padding: 0.45rem;
-    border-radius: 16px;
-    background: rgba(22,16,36,0.96);
-    border: 1px solid rgba(255,255,255,0.12);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.4);
-    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  }
-  .overflow-menu.open { display: block; }
-  .ov-carousel {
-    display: flex; flex-direction: row; gap: 0.4rem;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    max-width: min(86vw, 320px);
-    padding: 0.1rem;
-  }
-  .ov-carousel::-webkit-scrollbar { display: none; }
-  .ov-item {
-    flex: 0 0 auto;
-    width: 64px; height: 64px;
-    border: none; border-radius: 14px;
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 0.2rem;
-    padding: 0;
-  }
-  .ov-item .ov-ic { font-size: 1.15rem; line-height: 1; }
-  .ov-item .ov-lab { font-size: 0.58rem; font-weight: 700; opacity: 0.8; letter-spacing: 0.02em; }
-  .ov-item:active { background: color-mix(in srgb, var(--accent) 45%, transparent); }
-
-  body.theme-light .top-bar .tb {
-    background: rgba(255,255,255,0.65);
-    color: #2a2430;
-    border: 1px solid rgba(255,255,255,0.85);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-  body.theme-light .top-bar .tb.tb-accent {
-    background: var(--accent);
-    color: #fff;
-    border-color: transparent;
-  }
-  body.theme-light .top-bar .ward-label { color: rgba(42,36,48,0.45); }
-  body.theme-light .overflow-menu {
-    background: rgba(255,255,255,0.95);
-    border-color: rgba(0,0,0,0.06);
-    box-shadow: 0 12px 36px rgba(0,0,0,0.12);
-  }
-  body.theme-light .ov-item {
-    background: rgba(0,0,0,0.04);
-    color: #2a2430;
-  }
-  body.theme-light .ov-item:active {
-    background: color-mix(in srgb, var(--accent) 25%, #fff);
-  }
-
-
-  /* Модалки полностью закрывают сет — только фон */
-  .modal {
-    background: var(--bg0) !important;
-  }
-  .modal.open ~ .app,
+  /* Модалки полностью закрывают сет */
+  .modal { background: var(--bg0) !important; z-index: 200; }
   body.modal-open .app .sets-wrapper,
   body.modal-open .app .set-dots,
   body.modal-open .app .closet {
@@ -822,14 +610,8 @@
     opacity: 0.35;
     pointer-events: none;
   }
-  body.modal-open::before {
-    /* фон остаётся */
-  }
-  .modal {
-    z-index: 200;
-  }
 
-  /* Карусель категорий — понятный выбор */
+  /* ===== Нижняя полоска категорий ===== */
   .cat-tabs {
     display: flex; gap: 0.35rem;
     overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -857,13 +639,8 @@
     border-color: transparent;
     box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 40%, transparent);
   }
-  .cat-tab .count-pill {
-    background: rgba(0,0,0,0.12);
-    color: inherit;
-  }
-  .cat-tab.active .count-pill {
-    background: rgba(0,0,0,0.18);
-  }
+  .cat-tab .count-pill { background: rgba(0,0,0,0.12); color: inherit; }
+  .cat-tab.active .count-pill { background: rgba(0,0,0,0.18); }
   body.theme-light .cat-tab {
     background: rgba(255,255,255,0.55);
     color: rgba(42,36,48,0.4);
@@ -874,47 +651,100 @@
     color: #fff;
     border-color: transparent;
   }
-  .closet-filter-label {
-    font-size: 0.62rem; font-weight: 600;
-    color: rgba(255,255,255,0.35);
-    padding: 0 0.15rem 0.2rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  body.theme-light .closet-filter-label {
-    color: rgba(42,36,48,0.35);
-  }
+  .closet-filter-label { display: none !important; }
 
-
+  /* ===== Верхняя полоска (в стиле нижней) ===== */
   .top-bar {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.45rem !important;
-    padding: 0.4rem 0.55rem 0.3rem !important;
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: flex-start;
+    gap: 0.35rem;
+    padding: 0.35rem 0.55rem 0.3rem;
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
   }
-  .top-bar .tb-center { margin-left: auto; margin-right: auto; }
-  .top-bar .ward-label {
-    position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0;
+  .top-bar::-webkit-scrollbar { display: none; }
+  .top-bar .tb {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    min-width: 50px; width: auto; height: 34px;
+    padding: 0 0.95rem; margin: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: var(--btn-text, var(--text));
+    font-size: 1rem; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
   }
-  .overflow-menu.ov-left {
-    left: 0; transform: none;
+  .top-bar .tb .tb-ic { pointer-events: none; }
+  .top-bar .tb.on {
+    background: color-mix(in srgb, var(--accent) 45%, transparent);
+    border-color: transparent;
   }
+  .top-bar .tb.tb-accent {
+    background: var(--accent); color: #1a1220; border-color: transparent;
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .top-bar .tb:active { transform: scale(0.94); opacity: 0.9; }
+  body.theme-light .top-bar .tb {
+    background: rgba(255,255,255,0.55);
+    border-color: rgba(255,255,255,0.8);
+    color: var(--btn-text, #2a2430);
+    box-shadow: none;
+  }
+  body.theme-light .top-bar .tb.on { background: color-mix(in srgb, var(--accent) 35%, #fff); }
+  body.theme-light .top-bar .tb.tb-accent { background: var(--accent); color: #fff; border-color: transparent; }
+  .top-bar .ward-label { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+
+  /* Выпадающие меню — поверх, не обрезаются полоской */
+  .overflow-menu {
+    display: none;
+    position: fixed !important;
+    transform: none !important;
+    right: auto; z-index: 90;
+    padding: 0.4rem;
+    border-radius: 18px;
+    background: rgba(22,16,36,0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .overflow-menu.open { display: block; }
+  body.theme-light .overflow-menu {
+    background: rgba(255,255,255,0.95);
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.14);
+  }
+  .ov-carousel {
+    display: flex; flex-direction: row; gap: 0.4rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    max-width: min(86vw, 330px);
+    padding: 0.1rem; align-items: center;
+  }
+  .ov-carousel::-webkit-scrollbar { display: none; }
+  .ov-item {
+    flex: 0 0 auto;
+    width: 54px; height: 54px;
+    border: none; border-radius: 16px;
+    background: rgba(255,255,255,0.09);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .ov-item .ov-ic { font-size: 1.4rem; line-height: 1; pointer-events: none; }
+  .ov-item:active { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+  body.theme-light .ov-item { background: rgba(0,0,0,0.05); color: #2a2430; }
+  body.theme-light .ov-item:active { background: color-mix(in srgb, var(--accent) 25%, #fff); }
   .ov-color {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.35);
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.6);
     flex: 0 0 auto; padding: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
   }
   .ov-color:active { transform: scale(0.92); }
-  body.theme-light .ov-color { border-color: rgba(0,0,0,0.12); }
-  .set-header .set-name,
-  .set-header .set-theme { display: none !important; }
-  .set-header {
-    justify-content: flex-end !important;
-    gap: 0.35rem !important;
-  }
+  body.theme-light .ov-color { border-color: rgba(0,0,0,0.22); box-shadow: 0 0 0 1px rgba(255,255,255,0.7); }
 
-
+  /* Шапка сета */
   .set-header {
     position: absolute !important;
     top: 0.25rem; right: 0.35rem;
@@ -939,9 +769,27 @@
     color: #2a2430 !important;
     border-color: rgba(0,0,0,0.08) !important;
   }
+  .set-del { width: 36px !important; height: 36px !important; border-radius: 50% !important; }
   .set-page { position: relative; }
-  .piece .p-del { display: none !important; }
 
+  /* Панель группировки в пазле */
+  .puz-bar {
+    position: absolute; left: 8px; bottom: 8px; z-index: 30;
+    display: none; gap: 0.35rem; align-items: center; pointer-events: auto;
+  }
+  .puz-bar button {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.5); color: #fff; font-size: 1rem;
+  }
+  .puz-bar .puz-cnt {
+    min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px;
+    background: var(--accent); color: #1a1220; font-size: 0.72rem; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  body.theme-light .puz-bar button {
+    background: rgba(255,255,255,0.88); color: #2a2430; border-color: rgba(0,0,0,0.1);
+  }
 </style>
 </head>
 <body>
@@ -950,38 +798,30 @@
 
 <div class="app">
   <div class="top-bar" id="topBar">
-    <div class="overflow-wrap">
-      <button id="btn-add" class="tb tb-accent" type="button" title="Добавить"><span class="tb-ic">＋</span></button>
-      <div class="overflow-menu ov-left" id="addMenu">
-        <div class="ov-carousel">
-          <button type="button" id="btn-add-photo" class="ov-item"><span class="ov-ic">＋</span><span class="ov-lab">＋</span></button>
-          <button type="button" id="btn-new-set" class="ov-item"><span class="ov-ic">▣</span><span class="ov-lab">▣</span></button>
-        </div>
-      </div>
-    </div>
-    <div class="overflow-wrap tb-center">
-      <button id="btn-color" class="tb" type="button" title="Цвет"><span class="tb-ic">◐</span></button>
-      <div class="overflow-menu" id="colorMenu">
-        <div class="ov-carousel" id="colorCarousel"></div>
-      </div>
-    </div>
+    <button id="btn-add" class="tb tb-accent" type="button" title="Добавить"><span class="tb-ic">＋</span></button>
+    <button id="btn-color" class="tb" type="button" title="Цвет"><span class="tb-ic">◐</span></button>
+    <button id="btn-auto" class="tb" type="button" title="Авто-сеты"><span class="tb-ic">✨</span></button>
     <button id="btn-mode" class="tb" type="button" title="Режим"><span class="tb-ic" id="modeIcon">🧩</span></button>
     <button id="btn-gallery" class="tb" type="button" title="Вещи"><span class="tb-ic">▦</span></button>
     <button id="btn-settings" class="tb" type="button" title="Настройки"><span class="tb-ic">⚙</span></button>
     <span class="ward-label" id="closetTitle"></span>
-    <!-- hidden legacy ids for wiring -->
-    <button id="btn-auto" type="button" style="display:none"></button>
     <button id="btn-suggest" type="button" style="display:none"></button>
     <button id="btn-parts" type="button" style="display:none"></button>
-    <button id="btn-more" type="button" style="display:none"></button>
   </div>
+  <div class="overflow-menu" id="addMenu">
+    <div class="ov-carousel">
+      <button type="button" id="btn-add-photo" class="ov-item" title="Фото"><span class="ov-ic">＋</span></button>
+      <button type="button" id="btn-new-set" class="ov-item" title="Новый сет"><span class="ov-ic">🗂</span></button>
+    </div>
+  </div>
+  <div class="overflow-menu" id="colorMenu">
+    <div class="ov-carousel" id="colorCarousel"></div>
+  </div>
+
   <div class="sets-wrapper" id="setsWrapper"></div>
   <div class="set-dots" id="setDots"></div>
 
   <div class="closet">
-    <div class="closet-header">
-      <div class="closet-title">ГАРДЕРОБ</div>
-    </div>
     <div class="cat-tabs" id="catTabs"></div>
     <div class="items-row" id="closetRow"></div>
   </div>
@@ -993,6 +833,7 @@
     <button type="button" id="gallery-close">Готово</button>
   </div>
   <div class="gal-chips" id="galleryChips"></div>
+  <div class="hint">Долгое нажатие на вещь — повернуть / изменить масштаб</div>
   <div class="gal-grid" id="galleryGrid"></div>
 </div>
 <div id="bgChip"></div>
@@ -1029,18 +870,23 @@
   </div>
   <div class="preview-area checker"><img id="editImg" alt="" draggable="false"></div>
   <div class="angle-row">
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Угол</span>
+    <span class="row-lab">Угол</span>
     <input type="range" id="angleRange" min="-180" max="180" step="1" value="0">
     <span class="angle-val" id="angleVal">0°</span>
+  </div>
+  <div class="angle-row">
+    <span class="row-lab">Размер</span>
+    <input type="range" id="scaleRange" min="0.4" max="2.5" step="0.05" value="1">
+    <span class="angle-val" id="scaleVal">100%</span>
   </div>
   <div class="edit-tools">
     <button id="btn-rot-l">↺ 90°</button>
     <button id="btn-rot-r">90° ↻</button>
     <button id="btn-flip">⇋ Зеркало</button>
-    <button id="btn-angle-reset">0°</button>
+    <button id="btn-angle-reset">Сброс</button>
     <button id="btn-edit-bg" class="bg-btn">✂️ Убрать фон</button>
   </div>
-  <div class="hint" style="padding-bottom:0.2rem">Поверни слайдером или кнопками · категория</div>
+  <div class="hint" style="padding-bottom:0.2rem">Угол — меняет фото · Размер — стартовый масштаб в пазле · категория</div>
   <div class="cat-grid" id="editCatGrid"></div>
   <div class="modal-bottom">
     <button id="edit-delete" class="danger">Удалить</button>
@@ -1163,13 +1009,13 @@ const THEMES = {
   color:   { emoji: '🎨', label: 'Цвет', slots: ['bluse','hose','tasche','schuhe'], color: '#f472b6' },
   empty:   { emoji: '➕', label: 'Пустой', slots: ['bluse','hose'], color: '#94a3b8' },
 };
-const PREP_MAX = 640;     // макс. сторона сохранённого фото
-const THUMB_MAX = 160;    // макс. сторона миниатюры
-const ROT_MAX = 760;      // макс. сторона после поворота
-const BG_INFER_MAX = 720; // сторона для нейросети (баланс качество/скорость)
+const PREP_MAX = 640;
+const THUMB_MAX = 160;
+const ROT_MAX = 760;
+const BG_INFER_MAX = 720;
 
 /* =====================================================================
-   ТАБЛИЦА СОЧЕТАНИЯ ЦВЕТОВ (как на картинке) + тема UI
+   ТАБЛИЦА СОЧЕТАНИЯ ЦВЕТОВ + тема UI
    ===================================================================== */
 const UI_THEMES = {
   pearl:   { bg0:'#f7f4ef', bg1:'#efe8df', blob1:'#e8d5c4', blob2:'#d4c4b0', blob3:'#c9b8a8', light:true,  label:'Жемчуг' },
@@ -1183,10 +1029,8 @@ const UI_THEMES = {
   warm:    { bg0:'#1c120c', bg1:'#120a06', blob1:'#b45309', blob2:'#9a3412', blob3:'#a16207', light:false, label:'Тёплый' },
   rose:    { bg0:'#1a0e14', bg1:'#12080e', blob1:'#9d174d', blob2:'#be185d', blob3:'#7c3aed', light:false, label:'Роза' },
 };
-const ACCENT_COLORS_EXTRA = ['#c4a574','#8b7355','#a78bfa','#f472b6','#60a5fa','#4ade80','#fbbf24','#2dd4bf','#f87171','#e8b4b8'];
 const ACCENT_COLORS = ['#c4a574','#8b7355','#a78bfa','#f472b6','#60a5fa','#4ade80','#fbbf24','#2dd4bf','#f87171','#e8b4b8'];
 
-/* Основной цвет → допустимые вторичные (имена корзин) */
 const COLOR_HARMONY = {
   white:     ['black'],
   beige:     ['black','brown','red','green'],
@@ -1238,7 +1082,6 @@ function classifyColor(r, g, b) {
     if (l > 0.72) return 'white';
     return 'gray';
   }
-  // beige / brown
   if (h >= 20 && h < 50 && s < 0.55 && l > 0.55) return 'beige';
   if (h >= 15 && h < 45 && l < 0.45) return 'brown';
   if (h >= 35 && h < 55 && s > 0.45 && l > 0.35 && l < 0.65) return 'gold';
@@ -1265,9 +1108,7 @@ async function detectItemColor(item) {
     let r = 0, g = 0, b = 0, n = 0;
     for (let i = 0; i < data.length; i += 4) {
       if (data[i + 3] < 128) continue;
-      // skip near-white/near-black edges lightly
-      const rr = data[i], gg = data[i+1], bb = data[i+2];
-      r += rr; g += gg; b += bb; n++;
+      r += data[i]; g += data[i+1]; b += data[i+2]; n++;
     }
     if (!n) { item.colorName = 'gray'; item.colorHex = COLOR_HEX.gray; return item.colorName; }
     r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
@@ -1282,41 +1123,35 @@ async function detectItemColor(item) {
 }
 
 function colorsMatch(primary, secondary) {
-  if (!primary || !secondary) return false;
+  if (!primary || !secondary) return true;
   if (primary === secondary) return true;
   const allowed = COLOR_HARMONY[primary];
   if (allowed && allowed.includes(secondary)) return true;
-  // симметрия: если B допустим к A — ок и наоборот для нейтралей
   const rev = COLOR_HARMONY[secondary];
   if (rev && rev.includes(primary)) return true;
-  // нейтрали дружат почти со всеми
-  if (primary === 'black' || primary === 'white' || primary === 'gray' || primary === 'beige') return true;
-  if (secondary === 'black' || secondary === 'white' || secondary === 'gray' || secondary === 'beige') return true;
+  if (['black','white','gray','beige'].includes(primary)) return true;
+  if (['black','white','gray','beige'].includes(secondary)) return true;
   return false;
 }
 
 function applyUiTheme() {
-  const t = UI_THEMES[prefs.uiTheme] || UI_THEMES.pearl;
+  const th = UI_THEMES[prefs.uiTheme] || UI_THEMES.pearl;
   const root = document.documentElement;
-  root.style.setProperty('--bg0', t.bg0);
-  root.style.setProperty('--bg1', t.bg1);
-  root.style.setProperty('--blob1', t.blob1);
-  root.style.setProperty('--blob2', t.blob2);
-  root.style.setProperty('--blob3', t.blob3);
+  root.style.setProperty('--bg0', th.bg0);
+  root.style.setProperty('--bg1', th.bg1);
+  root.style.setProperty('--blob1', th.blob1);
+  root.style.setProperty('--blob2', th.blob2);
+  root.style.setProperty('--blob3', th.blob3);
   root.style.setProperty('--accent', prefs.accent || '#c4a574');
-  const autoText = t.light ? '#2a2430' : '#ffffff';
+  const autoText = th.light ? '#2a2430' : '#ffffff';
   const textCol = prefs.text || autoText;
   root.style.setProperty('--text', textCol);
   document.body.style.color = textCol;
-  const btnText = prefs.btnText || textCol;
+  const btnText = prefs.btnText || autoText;
   root.style.setProperty('--btn-text', btnText);
-  document.querySelectorAll('.top-bar .tb, .ov-item, .cat-tab, .set-photo, .set-del').forEach(el => {
-    if (el.classList.contains('tb-accent')) return;
-    el.style.color = btnText;
-  });
-  document.body.classList.toggle('theme-light', !!t.light);
+  document.body.classList.toggle('theme-light', !!th.light);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', t.bg0);
+  if (meta) meta.setAttribute('content', th.bg0);
   updateModeIcon();
 }
 
@@ -1327,8 +1162,8 @@ function renderThemeSettings() {
     [['ru','Русский'],['de','Deutsch'],['en','English']].forEach(([code, label]) => {
       const b = document.createElement('button');
       b.textContent = label;
-      b.style.cssText = 'height:32px;padding:0 0.7rem;border-radius:8px;border:none;font-weight:700;font-size:0.75rem;' +
-        (prefs.lang === code ? 'background:var(--accent);color:#062;' : 'background:rgba(255,255,255,0.12);color:#fff;');
+      b.style.cssText = 'height:32px;padding:0 0.7rem;border-radius:8px;border:none;font-weight:700;font-size:0.75rem;width:auto;margin-top:0;' +
+        (prefs.lang === code ? 'background:var(--accent);color:#062;' : 'background:rgba(128,128,128,0.2);color:inherit;');
       b.onclick = () => {
         prefs.lang = code; savePrefs();
         applyStaticI18n(); renderThemeSettings(); renderAll();
@@ -1346,6 +1181,8 @@ function renderThemeSettings() {
     const d = document.createElement('div');
     d.className = 'theme-swatch' + (prefs.uiTheme === key ? ' on' : '');
     d.style.background = `linear-gradient(145deg, ${th.blob1}, ${th.bg0} 55%, ${th.blob2})`;
+    d.style.color = th.light ? '#2a2430' : '#fff';
+    d.style.textShadow = 'none';
     d.textContent = th.label;
     d.onclick = () => { prefs.uiTheme = key; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     box.appendChild(d);
@@ -1357,10 +1194,10 @@ function renderThemeSettings() {
     const d = document.createElement('button');
     d.className = 'accent-dot' + (prefs.accent === c ? ' on' : '');
     d.style.background = c;
+    d.style.cssText += 'width:28px;height:28px;margin-top:0;padding:0;';
     d.onclick = () => { prefs.accent = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     row.appendChild(d);
   });
-  // цвет текста
   let tr = $('textRow');
   if (!tr) {
     const card = row.parentElement;
@@ -1376,24 +1213,23 @@ function renderThemeSettings() {
       card.appendChild(tr);
     }
   }
+  const dotStyle = 'width:28px;height:28px;margin-top:0;padding:0;border:1px solid rgba(128,128,128,0.35);';
   if (tr) {
     tr.innerHTML = '';
     const auto = document.createElement('button');
     auto.className = 'accent-dot' + (!prefs.text ? ' on' : '');
-    auto.style.background = 'conic-gradient(#fff, #888, #111, #fff)';
+    auto.style.cssText = dotStyle + 'background:conic-gradient(#fff,#888,#111,#fff);';
     auto.title = 'Авто';
     auto.onclick = () => { prefs.text = ''; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     tr.appendChild(auto);
     ['#ffffff','#f5f0e8','#2a2430','#1a1228','#e8e0f0','#c4a574'].forEach(c => {
       const d = document.createElement('button');
       d.className = 'accent-dot' + (prefs.text === c ? ' on' : '');
-      d.style.background = c;
-      d.style.border = '1px solid rgba(128,128,128,0.35)';
+      d.style.cssText = dotStyle + 'background:' + c + ';';
       d.onclick = () => { prefs.text = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
       tr.appendChild(d);
     });
   }
-  // цвет текста на кнопках
   let br = $('btnTextRow');
   if (!br && tr && tr.parentElement) {
     const h = document.createElement('h4');
@@ -1409,22 +1245,23 @@ function renderThemeSettings() {
     br.innerHTML = '';
     const auto = document.createElement('button');
     auto.className = 'accent-dot' + (!prefs.btnText ? ' on' : '');
-    auto.style.background = 'conic-gradient(#fff, #888, #111, #fff)';
+    auto.style.cssText = dotStyle + 'background:conic-gradient(#fff,#888,#111,#fff);';
     auto.title = 'Авто';
     auto.onclick = () => { prefs.btnText = ''; savePrefs(); applyUiTheme(); renderThemeSettings(); };
     br.appendChild(auto);
     ['#ffffff','#f5f0e8','#2a2430','#1a1228','#c4a574','#4ade80'].forEach(c => {
       const d = document.createElement('button');
       d.className = 'accent-dot' + (prefs.btnText === c ? ' on' : '');
-      d.style.background = c;
-      d.style.border = '1px solid rgba(128,128,128,0.35)';
+      d.style.cssText = dotStyle + 'background:' + c + ';';
       d.onclick = () => { prefs.btnText = c; savePrefs(); applyUiTheme(); renderThemeSettings(); };
       br.appendChild(d);
     });
   }
 }
 
-/** Собрать готовые сеты из гардероба по гармонии цветов */
+/* =====================================================================
+   АВТО-СЕТЫ по таблице сочетания цветов
+   ===================================================================== */
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -1434,101 +1271,44 @@ function shuffle(arr) {
   return a;
 }
 function pickMatching(list, usedColors, usedIds, offset) {
-  const cand = list.filter(s => !usedIds.has(s.id) && usedColors.some(c => colorsMatch(c, s.colorName) || colorsMatch(s.colorName, c)));
+  const cand = list.filter(s => !usedIds.has(s.id) && usedColors.some(c => colorsMatch(c, s.colorName)));
   if (!cand.length) return null;
   return cand[(offset || 0) % cand.length];
 }
 async function buildAutoOutfits() {
   for (const it of wardrobe) await detectItemColor(it);
-  const bySlot = {};
-  ALL_SLOTS.forEach(s => { bySlot[s] = itemsForSlot(s); });
-  const tops = shuffle(bySlot.bluse || []);
-  const bottoms = shuffle(bySlot.hose || []);
-  const shoes = shuffle(bySlot.schuhe || []);
-  const bags = shuffle(bySlot.tasche || []);
-  const jackets = shuffle(bySlot.jacke || []);
-  const belts = shuffle(bySlot.gurtel || []);
+  const by = {};
+  ALL_SLOTS.forEach(s => { by[s] = shuffle(itemsForSlot(s)); });
+  const tops = by.bluse, bottoms = by.hose;
+  if (!tops.length || !bottoms.length) return [];
+
+  let pairs = [];
+  tops.forEach(tp => bottoms.forEach(bt => { if (colorsMatch(tp.colorName, bt.colorName)) pairs.push([tp, bt]); }));
+  pairs = shuffle(pairs).slice(0, 60);
+
   const results = [];
   const seen = new Set();
-  const usedTopIds = new Set();
-  const usedBotIds = new Set();
-  let variant = 0;
-
-  function keyOf(parts) { return parts.map(p => p.id).sort().join('|'); }
-
-  // Проходим в случайном порядке; для каждой пары берём разные аксессуары (offset)
-  for (const top of tops) {
-    for (const bottom of bottoms) {
-      if (!colorsMatch(top.colorName, bottom.colorName) && !colorsMatch(bottom.colorName, top.colorName)) continue;
-      // не повторяем одну и ту же первую пару слишком часто
-      const pairKey = top.id + '+' + bottom.id;
-      if (seen.has(pairKey)) continue;
-
-      for (let tryN = 0; tryN < 3; tryN++) {
-        const picks = { bluse: top, hose: bottom };
-        const usedColors = [top.colorName, bottom.colorName];
-        const usedIds = new Set([top.id, bottom.id]);
-        const off = variant + tryN;
-
-        const shoe = pickMatching(shoes, usedColors, usedIds, off);
-        if (shoe) { picks.schuhe = shoe; usedColors.push(shoe.colorName); usedIds.add(shoe.id); }
-        const bag = pickMatching(bags, usedColors, usedIds, off + 1);
-        if (bag) { picks.tasche = bag; usedColors.push(bag.colorName); usedIds.add(bag.id); }
-        const jack = pickMatching(jackets, usedColors, usedIds, off + 2);
-        if (jack) { picks.jacke = jack; usedColors.push(jack.colorName); usedIds.add(jack.id); }
-        const belt = pickMatching(belts, usedColors, usedIds, off + 3);
-        if (belt) { picks.gurtel = belt; usedIds.add(belt.id); }
-
-        const parts = Object.values(picks);
-        const k = keyOf(parts);
-        if (seen.has(k)) continue;
-        seen.add(k); seen.add(pairKey);
-        usedTopIds.add(top.id); usedBotIds.add(bottom.id);
-
-        const titleColors = [...new Set(usedColors)].slice(0, 4);
-        results.push({
-          title: titleColors.map(c => COLOR_LABEL_RU[c] || c).join(' + ') || 'Образ',
-          colors: titleColors.map(c => COLOR_HEX[c] || '#888'),
-          picks,
-          score: parts.length * 12 + (shoe ? 4 : 0) + (bag ? 3 : 0) + (jack ? 3 : 0) + (belt ? 2 : 0)
-            + (usedTopIds.has(top.id) ? 0 : 2)
-        });
-        variant++;
-        break;
-      }
-      if (results.length >= 16) break;
-    }
-    if (results.length >= 16) break;
-  }
-
-  // Дополнительно: образы, которые покрывают ещё не использованные вещи
-  const leftoverTops = tops.filter(t => !usedTopIds.has(t.id));
-  const leftoverBots = bottoms.filter(b => !usedBotIds.has(b.id));
-  for (const top of leftoverTops) {
-    for (const bottom of leftoverBots) {
-      if (!colorsMatch(top.colorName, bottom.colorName) && !colorsMatch(bottom.colorName, top.colorName)) continue;
-      const picks = { bluse: top, hose: bottom };
-      const usedColors = [top.colorName, bottom.colorName];
-      const usedIds = new Set([top.id, bottom.id]);
-      const shoe = pickMatching(shoes, usedColors, usedIds, variant++);
-      if (shoe) picks.schuhe = shoe;
-      const bag = pickMatching(bags, usedColors, usedIds, variant++);
-      if (bag) picks.tasche = bag;
-      const k = keyOf(Object.values(picks));
-      if (seen.has(k)) continue;
-      seen.add(k);
-      results.push({
-        title: [top.colorName, bottom.colorName].map(c => COLOR_LABEL_RU[c] || c).join(' + '),
-        colors: [COLOR_HEX[top.colorName], COLOR_HEX[bottom.colorName]],
-        picks,
-        score: 20
-      });
-      if (results.length >= 20) break;
-    }
-    if (results.length >= 20) break;
-  }
-
-  return shuffle(results).sort((a, b) => b.score - a.score).slice(0, 12);
+  pairs.forEach(([top, bottom], n) => {
+    const picks = { bluse: top, hose: bottom };
+    const cols = [top.colorName, bottom.colorName];
+    const ids = new Set([top.id, bottom.id]);
+    [['schuhe', 0], ['tasche', 1], ['jacke', 2], ['gurtel', 3]].forEach(([slot, off]) => {
+      const p = pickMatching(by[slot], cols, ids, n + off);
+      if (p) { picks[slot] = p; cols.push(p.colorName); ids.add(p.id); }
+    });
+    const key = Object.values(picks).map(p => p.id).sort().join('|');
+    if (seen.has(key)) return;
+    seen.add(key);
+    const uniq = [...new Set(cols)].slice(0, 4);
+    results.push({
+      title: uniq.map(c => COLOR_LABEL_RU[c] || c).join(' + ') || 'Образ',
+      colors: uniq.map(c => COLOR_HEX[c] || '#888'),
+      colorNames: uniq,
+      picks,
+      score: Object.keys(picks).length * 10 + Math.random() * 6
+    });
+  });
+  return results.sort((a, b) => b.score - a.score).slice(0, 24);
 }
 
 function applyAutoOutfit(picks) {
@@ -1550,15 +1330,8 @@ function applyAutoOutfit(picks) {
   toast('Сет создан: ' + set.name);
 }
 
-async function openAutoModal() {
+function renderAutoList(outfits) {
   const list = $('autoList');
-  list.innerHTML = '<div class="auto-empty">' + t('analyzing') + '</div>';
-  $('autoModal').classList.add('open');
-  if (wardrobe.length < 2) {
-    list.innerHTML = '<div class="auto-empty">' + t('need_items') + '</div>';
-    return;
-  }
-  const outfits = await buildAutoOutfits();
   list.innerHTML = '';
   if (!outfits.length) {
     list.innerHTML = '<div class="auto-empty">' + t('no_match') + '</div>';
@@ -1568,7 +1341,7 @@ async function openAutoModal() {
     const card = document.createElement('div');
     card.className = 'auto-card';
     const previews = Object.entries(o.picks).map(([slot, it]) =>
-      `<div class="ap checker"><img src="${it.turl}" alt=""><span>${SLOT_LABELS[slot].split(' ')[0]}</span></div>`
+      `<div class="ap checker"><img src="${it.turl}" alt=""><span>${esc(SLOT_LABELS[slot].split(' ')[0])}</span></div>`
     ).join('');
     card.innerHTML = `
       <h4>${i + 1}. ${esc(o.title)}</h4>
@@ -1583,6 +1356,28 @@ async function openAutoModal() {
   });
 }
 
+async function openAutoModal(colorId) {
+  const list = $('autoList');
+  list.innerHTML = '<div class="auto-empty">' + t('analyzing') + '</div>';
+  $('autoModal').classList.add('open');
+  if (wardrobe.length < 2) {
+    list.innerHTML = '<div class="auto-empty">' + t('need_items') + '</div>';
+    return;
+  }
+  try {
+    let outfits = await buildAutoOutfits();
+    if (typeof colorId === 'string' && colorId) {
+      const f = outfits.filter(o => o.colorNames.includes(colorId));
+      if (f.length) outfits = f;
+      else if (outfits.length) toast('Точных сочетаний с этим цветом нет — показал все');
+    }
+    renderAutoList(outfits);
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = '<div class="auto-empty">' + t('photo_fail') + '</div>';
+  }
+}
+
 
 const $ = id => document.getElementById(id);
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -1593,10 +1388,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* =====================================================================
    СОСТОЯНИЕ
    ===================================================================== */
-let wardrobe = [];        // вещи: {id, cat, blob, thumb, alpha, cut, bg, t, url, turl}
+let wardrobe = [];
 let sets = [];
 let activeSetIndex = 0;
 let activeFilter = null;
+let galleryFilter = null;
 let prefs = { bgDefault: true, uiTheme: 'pearl', accent: '#c4a574', text: '', btnText: '', lang: 'ru' };
 let db = null;
 
@@ -1609,7 +1405,7 @@ const fileInput = $('fileInput');
 const getItem = id => wardrobe.find(w => w.id === id);
 
 /* =====================================================================
-   ХРАНИЛИЩЕ: IndexedDB (картинки как Blob, без base64)
+   ХРАНИЛИЩЕ: IndexedDB
    ===================================================================== */
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -1628,14 +1424,14 @@ function openDB() {
 function idb(store, mode, fn) {
   if (!db) return Promise.resolve(undefined);
   return new Promise((resolve, reject) => {
-    let t;
-    try { t = db.transaction(store, mode); } catch (e) { return reject(e); }
+    let tx;
+    try { tx = db.transaction(store, mode); } catch (e) { return reject(e); }
     let out;
-    const rq = fn(t.objectStore(store));
+    const rq = fn(tx.objectStore(store));
     if (rq) rq.onsuccess = () => { out = rq.result; };
-    t.oncomplete = () => resolve(out);
-    t.onerror = () => reject(t.error);
-    t.onabort = () => reject(t.error || new Error('abort'));
+    tx.oncomplete = () => resolve(out);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('abort'));
   });
 }
 const dbGetAll = s => idb(s, 'readonly', st => st.getAll());
@@ -1648,7 +1444,7 @@ function storeError(e) {
   console.error(e);
   toast(e && e.name === 'QuotaExceededError' ? 'Память заполнена — удали лишнее' : 'Не удалось сохранить');
 }
-const ser = it => ({ id: it.id, cat: it.cat, blob: it.blob, thumb: it.thumb, alpha: it.alpha, cut: it.cut, bg: it.bg, t: it.t });
+const ser = it => ({ id: it.id, cat: it.cat, blob: it.blob, thumb: it.thumb, alpha: it.alpha, cut: it.cut, bg: it.bg, t: it.t, defScale: it.defScale });
 async function persistItem(it) { try { await dbPut('items', ser(it)); } catch (e) { storeError(e); } }
 function saveSets() { dbPut('meta', { k: 'sets', v: sets }).catch(storeError); }
 function savePrefs() { dbPut('meta', { k: 'prefs', v: prefs }).catch(() => {}); }
@@ -1665,6 +1461,7 @@ function setImage(it, blob, thumb, alpha) {
   it.blob = blob; it.thumb = thumb; it.alpha = alpha;
   it.url = URL.createObjectURL(blob);
   it.turl = URL.createObjectURL(thumb);
+  it.colorName = null;
 }
 
 /* =====================================================================
@@ -1695,8 +1492,8 @@ const canvasToBlob = (c, type, q) => new Promise(r => c.toBlob(b => r(b), type, 
 const blobToDataURL = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(null); r.readAsDataURL(b); });
 
 function canvasHasAlpha(c) {
-  const t = document.createElement('canvas'); t.width = t.height = 32;
-  const x = t.getContext('2d'); x.drawImage(c, 0, 0, 32, 32);
+  const tc = document.createElement('canvas'); tc.width = tc.height = 32;
+  const x = tc.getContext('2d'); x.drawImage(c, 0, 0, 32, 32);
   const d = x.getImageData(0, 0, 32, 32).data;
   for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return true;
   return false;
@@ -1727,7 +1524,6 @@ async function makeThumb(blob, alpha) {
   const c = await toCanvas(blob, THUMB_MAX);
   return alpha ? canvasToBlob(c, 'image/png') : canvasToBlob(c, 'image/jpeg', 0.75);
 }
-/* Подготовка загруженного фото: уменьшить, JPEG (или PNG, если уже прозрачное) */
 async function prepare(file) {
   const c = await toCanvas(file, PREP_MAX);
   const alpha = /png|webp|gif/i.test(file.type) && canvasHasAlpha(c);
@@ -1735,7 +1531,6 @@ async function prepare(file) {
   if (!blob) throw new Error('blob');
   return { blob, alpha };
 }
-/* Поворот на любой угол + зеркало, потом обрезка пустых краёв («вписать») */
 async function bake(blob, angle, flip, wasAlpha) {
   const src = await toCanvas(blob, 0);
   const rad = angle * Math.PI / 180;
@@ -1755,7 +1550,7 @@ async function bake(blob, angle, flip, wasAlpha) {
 }
 
 /* =====================================================================
-   УДАЛЕНИЕ ФОНА (очередь в фоне, приложение не блокируется)
+   УДАЛЕНИЕ ФОНА
    ===================================================================== */
 let removeBackgroundFn = null;
 async function loadBackgroundRemover() {
@@ -1771,9 +1566,9 @@ async function loadBackgroundRemover() {
 const bg = { queue: [], running: false, total: 0, done: 0, pct: null, prog: {} };
 function onModelProgress(key, cur, tot) {
   bg.prog[key] = [cur, tot];
-  let c = 0, t = 0;
-  for (const k in bg.prog) { c += bg.prog[k][0]; t += bg.prog[k][1]; }
-  bg.pct = t ? Math.round(100 * c / t) : null;
+  let c = 0, tt = 0;
+  for (const k in bg.prog) { c += bg.prog[k][0]; tt += bg.prog[k][1]; }
+  bg.pct = tt ? Math.round(100 * c / tt) : null;
   updateChip();
 }
 function updateChip() {
@@ -1785,7 +1580,6 @@ function updateChip() {
 }
 async function cutout(blob) {
   const rm = await loadBackgroundRemover();
-  // Больше сторона + PNG на входе → меньше артефактов и сдвига цвета
   const srcC = await toCanvas(blob, Math.max(BG_INFER_MAX, 640));
   const inputBlob = await canvasToBlob(srcC, 'image/png');
   const out = await rm(inputBlob, {
@@ -1794,7 +1588,6 @@ async function cutout(blob) {
     progress: onModelProgress
   });
   let c = await toCanvas(out, 0);
-  // не трогаем цвета — только обрезка прозрачных краёв
   c = trimCanvas(c);
   if (Math.max(c.width, c.height) > PREP_MAX) {
     const k = PREP_MAX / Math.max(c.width, c.height);
@@ -1865,10 +1658,10 @@ window.addEventListener('online', resumePending);
    ===================================================================== */
 let toastT;
 function toast(msg, ms = 2600) {
-  const t = $('toast');
-  t.textContent = msg; t.classList.add('show');
+  const el = $('toast');
+  el.textContent = msg; el.classList.add('show');
   clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('show'), ms);
+  toastT = setTimeout(() => el.classList.remove('show'), ms);
 }
 
 /* =====================================================================
@@ -1876,48 +1669,30 @@ function toast(msg, ms = 2600) {
    ===================================================================== */
 const I18N = {
   ru: {
-    wardrobe: 'ГАРДЕРОБ', set: 'Сет', parts: 'Части', colors: 'Цвета', auto: 'Авто',
-    add_photo: '+ Фото', new_set: '+ Сет', settings: 'Настройки', done: 'Готово',
-    cancel: 'Отмена', close: 'Закрыть', save: 'Сохранить', delete: 'Удалить',
-    rename_hint: 'Нажми, чтобы переименовать', bg_app: 'Фон приложения',
-    accent: 'Цвет акцента (кнопки)', memory: 'Память', backup: 'Резервная копия',
-    danger: 'Опасная зона', clear_all: 'Удалить все вещи и сеты',
-    export_copy: '⬇️ Сохранить копию (файл)', import_copy: '⬆️ Загрузить копию',
-    language: 'Язык', photo_saved: 'Сохранено в Фото',
-    photo_fail: 'Не удалось сохранить фото', share_photo: 'Поделиться фото сета',
-    auto_title: 'Авто-сеты', auto_hint: 'Готовые образы из твоих вещей по таблице цветов',
+    wardrobe: 'ГАРДЕРОБ', set: 'Сет', bg_app: 'Фон приложения',
+    accent: 'Цвет акцента (кнопки)',
+    photo_saved: 'Сохранено в Фото',
+    photo_fail: 'Не удалось сохранить фото',
     pick_set: 'Выбрать этот сет', analyzing: 'Анализирую цвета вещей…',
-    need_items: 'Нужно минимум 2 вещи (верх и низ).', no_match: 'Пока нет сочетаний. Добавь верх и низ разных цветов.',
+    need_items: 'Нужно минимум 2 вещи (верх и низ).', no_match: 'Пока нет сочетаний. Добавь верх (блузка/свитер/футболка) и низ (брюки/юбка/шорты).',
     classic: 'Классика', sport: 'Спорт', elegant: 'Элегант', casual: 'Кэжуал', color: 'Цвет', empty: 'Пустой',
   },
   de: {
-    wardrobe: 'KLEIDERSCHRANK', set: 'Set', parts: 'Teile', colors: 'Farben', auto: 'Auto',
-    add_photo: '+ Foto', new_set: '+ Set', settings: 'Einstellungen', done: 'Fertig',
-    cancel: 'Abbrechen', close: 'Schließen', save: 'Speichern', delete: 'Löschen',
-    rename_hint: 'Tippen zum Umbenennen', bg_app: 'App-Hintergrund',
-    accent: 'Akzentfarbe (Buttons)', memory: 'Speicher', backup: 'Backup',
-    danger: 'Gefahrenzone', clear_all: 'Alles löschen',
-    export_copy: '⬇️ Backup speichern', import_copy: '⬆️ Backup laden',
-    language: 'Sprache', photo_saved: 'Foto fertig — in „Fotos“ speichern',
-    photo_fail: 'Foto speichern fehlgeschlagen', share_photo: 'Outfit-Foto teilen',
-    auto_title: 'Auto-Sets', auto_hint: 'Fertige Outfits nach Farbtabelle',
+    wardrobe: 'KLEIDERSCHRANK', set: 'Set', bg_app: 'App-Hintergrund',
+    accent: 'Akzentfarbe (Buttons)',
+    photo_saved: 'Foto fertig — in „Fotos“ speichern',
+    photo_fail: 'Foto speichern fehlgeschlagen',
     pick_set: 'Dieses Set wählen', analyzing: 'Farben werden analysiert…',
-    need_items: 'Mindestens 2 Teile (oben + unten).', no_match: 'Keine Kombinationen. Mehr Teile hinzufügen.',
+    need_items: 'Mindestens 2 Teile (oben + unten).', no_match: 'Keine Kombinationen. Oberteil und Unterteil hinzufügen.',
     classic: 'Klassisch', sport: 'Sportlich', elegant: 'Elegant', casual: 'Casual', color: 'Farbe', empty: 'Leer',
   },
   en: {
-    wardrobe: 'WARDROBE', set: 'Set', parts: 'Parts', colors: 'Colors', auto: 'Auto',
-    add_photo: '+ Photo', new_set: '+ Set', settings: 'Settings', done: 'Done',
-    cancel: 'Cancel', close: 'Close', save: 'Save', delete: 'Delete',
-    rename_hint: 'Tap to rename', bg_app: 'App background',
-    accent: 'Accent color (buttons)', memory: 'Storage', backup: 'Backup',
-    danger: 'Danger zone', clear_all: 'Delete all items and sets',
-    export_copy: '⬇️ Save backup file', import_copy: '⬆️ Load backup',
-    language: 'Language', photo_saved: 'Photo ready — save to Photos',
-    photo_fail: 'Could not save photo', share_photo: 'Share outfit photo',
-    auto_title: 'Auto sets', auto_hint: 'Ready outfits from your clothes by color table',
+    wardrobe: 'WARDROBE', set: 'Set', bg_app: 'App background',
+    accent: 'Accent color (buttons)',
+    photo_saved: 'Photo ready — save to Photos',
+    photo_fail: 'Could not save photo',
     pick_set: 'Choose this set', analyzing: 'Analyzing colors…',
-    need_items: 'Need at least 2 items (top + bottom).', no_match: 'No matches yet. Add more tops and bottoms.',
+    need_items: 'Need at least 2 items (top + bottom).', no_match: 'No matches yet. Add a top and a bottom.',
     classic: 'Classic', sport: 'Sport', elegant: 'Elegant', casual: 'Casual', color: 'Color', empty: 'Empty',
   }
 };
@@ -1925,27 +1700,9 @@ function t(key) {
   const lang = (prefs && prefs.lang) || 'ru';
   return (I18N[lang] && I18N[lang][key]) || (I18N.ru[key]) || key;
 }
-function themeLabel(themeKey) {
-  const map = { classic: t('classic'), sport: t('sport'), elegant: t('elegant'), casual: t('casual'), color: t('color'), empty: t('empty') };
-  const th = THEMES[themeKey] || THEMES.empty;
-  return map[themeKey] || th.label;
-}
-function applyStaticI18n() {
-  try {
-    const ct = $('closetTitle');
-    if (ct) ct.textContent = t('wardrobe') + ' · ' + wardrobe.length;
-    const map = {
-      'btn-auto': 'auto', 'btn-suggest': 'colors', 'btn-parts': 'parts',
-      'btn-new-set': 'new_set', 'btn-add': 'add_photo'
-    };
-    Object.entries(map).forEach(([id, key]) => {
-      const el = $(id); if (el) el.textContent = t(key);
-    });
-  } catch (e) {}
-}
+function applyStaticI18n() { updateTitle(); }
 
-/* Сохранить текущий сет как фото (для «Фото» на iPhone) */
-
+/* Сохранить текущий сет как фото */
 async function exportSetAsPhoto(setIdx) {
   const set = sets[setIdx];
   if (!set) return;
@@ -1963,7 +1720,6 @@ async function exportSetAsPhoto(setIdx) {
       });
     }
     async function shareBlob(blob, name) {
-      // Как в рабочей версии: PNG → Share → «Сохранить изображение»
       const safe = String(name || 'outfit').replace(/[^\w\-]+/g, '_').slice(0, 36) || 'outfit';
       const file = new File([blob], safe + '.png', { type: 'image/png' });
       try {
@@ -1979,7 +1735,6 @@ async function exportSetAsPhoto(setIdx) {
         }
         console.warn('share failed', err);
       }
-      // fallback
       try {
         if (navigator.share) {
           await navigator.share({ files: [file] });
@@ -2008,12 +1763,11 @@ async function exportSetAsPhoto(setIdx) {
       const board = page && page.querySelector('.collage-board');
       if (!board) { toast(t('photo_fail')); return; }
 
-      // как на экране: без выделения и крестиков
-      const prevActive = [];
+      const prevActive = [], prevSel = [];
       board.querySelectorAll('.piece').forEach(el => {
         if (el.classList.contains('active')) { prevActive.push(el); el.classList.remove('active'); }
+        if (el.classList.contains('sel')) { prevSel.push(el); el.classList.remove('sel'); }
       });
-      board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = 'hidden'; });
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
       const br = board.getBoundingClientRect();
@@ -2024,19 +1778,16 @@ async function exportSetAsPhoto(setIdx) {
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d');
 
-      // фон
       const grd = ctx.createLinearGradient(0, 0, 0, H);
       grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, W, H);
 
-      // жёсткая обрезка по рамке поля (как overflow:hidden)
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, 0, W, H);
       ctx.clip();
 
-      // рисуем каждую вещь по реальному положению на экране
       const pieceEls = [...board.querySelectorAll('.piece')];
       for (const el of pieceEls) {
         const imgEl = el.querySelector('img');
@@ -2049,13 +1800,10 @@ async function exportSetAsPhoto(setIdx) {
         const rotDeg = pc.rot || 0;
         const sc = pc.scale != null ? pc.scale : 1;
 
-        // центр визуального элемента относительно board
         const er = el.getBoundingClientRect();
         const cx = ((er.left + er.right) / 2 - br.left) * dpr;
         const cy = ((er.top + er.bottom) / 2 - br.top) * dpr;
 
-        // размер layout-коробки (до rotate; scale учитываем отдельно)
-        // offsetWidth/Height — до transform
         let layoutW = el.offsetWidth || 0;
         let layoutH = el.offsetHeight || 0;
         if (!layoutW) layoutW = (br.width * ((pc.w || 36) / 100));
@@ -2074,15 +1822,14 @@ async function exportSetAsPhoto(setIdx) {
       }
       ctx.restore();
 
-      board.querySelectorAll('.p-del').forEach(b => { b.style.visibility = ''; });
       prevActive.forEach(el => el.classList.add('active'));
+      prevSel.forEach(el => el.classList.add('sel'));
 
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       if (!blob) throw new Error('blob');
       await shareBlob(blob, set.name);
       return;
     }
-
 
     // slots layout
     const W = 1080, pad = 28, gap = 16;
@@ -2102,7 +1849,7 @@ async function exportSetAsPhoto(setIdx) {
     const grd = ctx.createLinearGradient(0, 0, 0, totalH);
     grd.addColorStop(0, tTheme.bg0); grd.addColorStop(1, tTheme.bg1);
     ctx.fillStyle = grd; ctx.fillRect(0, 0, W, totalH);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = tTheme.light ? '#2a2430' : '#fff';
     ctx.font = '600 28px -apple-system, sans-serif';
     ctx.fillText(set.name || t('set'), pad, 36);
     let y = pad + 50;
@@ -2141,11 +1888,11 @@ async function exportSetAsPhoto(setIdx) {
    СЕТЫ
    ===================================================================== */
 function createEmptySet(themeKey = 'empty') {
-  const t = THEMES[themeKey] || THEMES.empty;
+  const th = THEMES[themeKey] || THEMES.empty;
   return {
-    id: uid('set_'), name: t.label + ' сет', theme: themeKey,
+    id: uid('set_'), name: th.label + ' сет', theme: themeKey,
     indices: { jacke:0, bluse:0, gurtel:0, hose:0, tasche:0, schuhe:0 },
-    activeSlots: [...t.slots]
+    activeSlots: [...th.slots]
   };
 }
 function normalizeSets() {
@@ -2177,13 +1924,10 @@ function slotHTML(s, cls, style) {
 function buildSlotsHTML(activeSlots) {
   const has = s => activeSlots.includes(s);
   let html = '<div class="slots-container">';
-  // Верх: куртка + блузка
   const top = ['jacke', 'bluse'].filter(has);
   if (top.length === 2) html += `<div class="row flex-2">${slotHTML('jacke','flex-1')}${slotHTML('bluse','flex-2')}</div>`;
   else if (top.length === 1) html += `<div class="row flex-2">${slotHTML(top[0],'flex-1')}</div>`;
-  // Середина: брюки / юбка
   if (has('hose')) html += `<div class="row flex-3">${slotHTML('hose','flex-1')}</div>`;
-  // Низ в один ряд: ремень · обувь · сумка
   const bot = ['gurtel', 'schuhe', 'tasche'].filter(has);
   if (bot.length) {
     html += `<div class="row bottom-row">${bot.map(s => slotHTML(s, 'bottom-item')).join('')}</div>`;
@@ -2192,13 +1936,13 @@ function buildSlotsHTML(activeSlots) {
 }
 
 function renderSets() {
+  sel.on = false; sel.idx.clear();
   setsWrapper.innerHTML = '';
   setDots.innerHTML = '';
   sets.forEach((set, idx) => {
     const page = document.createElement('div');
     page.className = 'set-page' + (set.layout === 'free' ? ' free-mode' : '');
     page.dataset.index = idx;
-    const theme = THEMES[set.theme] || THEMES.empty;
     ensurePieces(set);
     const isFree = set.layout === 'free';
     page.innerHTML = `
@@ -2216,10 +1960,6 @@ function renderSets() {
     }
     const photoBtn = page.querySelector('.set-photo');
     if (photoBtn) photoBtn.onclick = (e) => { e.stopPropagation(); exportSetAsPhoto(idx); };
-    page.querySelector('.set-name').onclick = () => {
-      const n = prompt('Название сета', set.name);
-      if (n && n.trim()) { set.name = n.trim().slice(0, 40); saveSets(); renderSets(); }
-    };
     const del = page.querySelector('.set-del');
     if (del) del.onclick = () => {
       if (!confirm('Удалить сет «' + set.name + '»? Вещи останутся.')) return;
@@ -2238,11 +1978,13 @@ function renderSets() {
 function updateCollageFocus() {
   const set = sets[activeSetIndex];
   document.querySelector('.app')?.classList.toggle('collage-focus', !!(set && set.layout === 'free'));
+  updateModeIcon();
 }
 function goToSet(idx) {
   activeSetIndex = idx;
   setsWrapper.scrollTo({ left: idx * setsWrapper.clientWidth, behavior: 'smooth' });
   setDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  updateCollageFocus();
 }
 function fillSlots(page, set) {
   page.querySelectorAll('.slot').forEach(slotEl => {
@@ -2276,30 +2018,39 @@ function fillSlots(page, set) {
 }
 
 /* =====================================================================
-   СВОБОДНЫЙ КОЛЛАЖ: вещи как пазл, двигай куда хочешь
+   СВОБОДНЫЙ КОЛЛАЖ (пазл): вещи и группы вещей
    ===================================================================== */
 const PIECE_W = { jacke: 38, bluse: 42, gurtel: 32, hose: 36, tasche: 26, schuhe: 28 };
+const sel = { on: false, setId: null, idx: new Set() };
 
 function ensurePieces(set) {
   if (!Array.isArray(set.pieces)) set.pieces = [];
   if (!set.layout) set.layout = 'slots';
 }
 function defaultPiecePos(slot, index) {
-  /* x,y = центр вещи на поле (0..100) */
   const map = {
     jacke: { x: 28, y: 18 }, bluse: { x: 50, y: 22 },
     hose: { x: 50, y: 58 }, gurtel: { x: 50, y: 42 },
     tasche: { x: 82, y: 62 }, schuhe: { x: 50, y: 88 }
   };
   const b = map[slot] || { x: 30 + (index % 3) * 20, y: 25 + Math.floor(index / 3) * 25 };
-  return { x: b.x, y: b.y, w: PIECE_W[slot] || 36, rot: 0, scale: 1 };
+  return { x: b.x, y: b.y, w: PIECE_W[slot] || 36 };
 }
 function applyPieceTransform(el, pc) {
   const rot = pc.rot || 0;
   const sc = pc.scale != null ? pc.scale : 1;
-  /* translate(-50%,-50%) — left/top это центр */
   el.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${sc})`;
 }
+/* индексы всех вещей группы (или только сама вещь) */
+function groupIdx(set, i) {
+  const p = set.pieces[i];
+  if (!p) return [];
+  if (!p.g) return [i];
+  const out = [];
+  set.pieces.forEach((q, k) => { if (q.g === p.g) out.push(k); });
+  return out;
+}
+
 function renderCollageBoard(page, set, setIdx) {
   ensurePieces(set);
   let board = page.querySelector('.collage-board');
@@ -2310,8 +2061,7 @@ function renderCollageBoard(page, set, setIdx) {
   }
   board.innerHTML = '';
   if (!set.pieces.length) {
-    board.innerHTML = '<div class="hint-free">Нажми вещь в гардеробе — она появится здесь.<br>1 палец — двигать · 2 пальца — размер и поворот</div>';
-    return;
+    board.innerHTML = '<div class="hint-free">Нажми вещь в галерее (▦) или перетащи вещь из гардероба сюда.<br>1 палец — двигать · 2 пальца — размер и поворот</div>';
   }
   set.pieces.forEach((pc, i) => {
     if (pc.scale == null) pc.scale = 1;
@@ -2329,8 +2079,70 @@ function renderCollageBoard(page, set, setIdx) {
     el.innerHTML = `<img src="${item.url}" alt="" style="width:100%;height:auto;display:block;">`;
     applyPieceTransform(el, pc);
     board.appendChild(el);
-    bindPieceGestures(el, set, setIdx, i);
   });
+  syncSel(board, set);
+  updatePuzBar(board, set);
+  if (!board._bound) {
+    board._bound = true;
+    bindBoardGestures(board, set, setIdx);
+  }
+}
+function syncSel(board, set) {
+  const on = sel.on && sel.setId === set.id;
+  board.querySelectorAll('.piece').forEach(el => {
+    el.classList.toggle('sel', on && sel.idx.has(parseInt(el.dataset.pi, 10)));
+  });
+}
+function updatePuzBar(board, set) {
+  let bar = board.querySelector('.puz-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'puz-bar';
+    board.appendChild(bar);
+    bar.addEventListener('pointerdown', e => e.stopPropagation());
+    bar.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      e.stopPropagation();
+      const a = b.dataset.a;
+      const chosen = [...sel.idx].filter(k => set.pieces[k]);
+      if (a === 'select') {
+        sel.on = true; sel.setId = set.id; sel.idx.clear();
+        board.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
+        toast('Отметь вещи касанием, затем 🔗');
+      } else if (a === 'exit') {
+        sel.on = false; sel.idx.clear();
+      } else if (a === 'group') {
+        if (chosen.length >= 2) {
+          const g = uid('g_');
+          chosen.forEach(k => { set.pieces[k].g = g; });
+          saveSets();
+          toast('Группа создана: двигай, крути и масштабируй вместе');
+          sel.on = false; sel.idx.clear();
+        }
+      } else if (a === 'ungroup') {
+        chosen.forEach(k => { delete set.pieces[k].g; });
+        saveSets();
+        toast('Группа разъединена');
+        sel.on = false; sel.idx.clear();
+      }
+      syncSel(board, set);
+      updatePuzBar(board, set);
+    });
+  }
+  const n = set.pieces.length;
+  const on = sel.on && sel.setId === set.id;
+  bar.style.display = n >= 2 ? 'flex' : 'none';
+  const chosen = [...sel.idx].filter(k => set.pieces[k]);
+  const anyG = on && chosen.some(k => set.pieces[k].g);
+  if (on) {
+    bar.innerHTML = '<button type="button" data-a="exit" title="Выйти">✕</button>' +
+      (chosen.length >= 2 ? '<button type="button" data-a="group" title="Сгруппировать">🔗</button>' : '') +
+      (anyG ? '<button type="button" data-a="ungroup" title="Разгруппировать">🔓</button>' : '') +
+      '<span class="puz-cnt">' + chosen.length + '</span>';
+  } else {
+    bar.innerHTML = '<button type="button" data-a="select" title="Группа">☑︎</button>';
+  }
 }
 function showPieceMenu(set, setIdx, index, page) {
   let ov = document.getElementById('pieceMenu');
@@ -2340,6 +2152,7 @@ function showPieceMenu(set, setIdx, index, page) {
     ov.style.cssText = 'position:fixed;inset:0;z-index:560;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom));';
     ov.innerHTML = `<div style="width:100%;max-width:400px;background:#1a1228;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.12)">
       <button type="button" data-act="del" style="width:100%;height:52px;border:none;background:transparent;color:#f87171;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.1)">Удалить с сета</button>
+      <button type="button" data-act="delgroup" style="width:100%;height:52px;border:none;background:transparent;color:#f87171;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.1)">Удалить всю группу</button>
       <button type="button" data-act="cancel" style="width:100%;height:52px;border:none;background:transparent;color:rgba(255,255,255,0.7);font-size:1rem;font-weight:600">Отмена</button>
     </div>`;
     document.body.appendChild(ov);
@@ -2353,174 +2166,222 @@ function showPieceMenu(set, setIdx, index, page) {
       if (!ctx || act === 'cancel') return;
       if (act === 'del') {
         ctx.set.pieces.splice(ctx.index, 1);
-        saveSets();
-        renderCollageBoard(ctx.page, ctx.set, ctx.setIdx);
+      } else if (act === 'delgroup') {
+        const g = ctx.set.pieces[ctx.index] && ctx.set.pieces[ctx.index].g;
+        ctx.set.pieces = ctx.set.pieces.filter((p, k) => g ? p.g !== g : k !== ctx.index);
       }
+      sel.on = false; sel.idx.clear();
+      saveSets();
+      renderCollageBoard(ctx.page, ctx.set, ctx.setIdx);
     });
   }
   ov._ctx = { set, setIdx, index, page };
+  const grouped = !!(set.pieces[index] && set.pieces[index].g);
+  ov.querySelector('[data-act="delgroup"]').style.display = grouped ? 'block' : 'none';
   ov.style.display = 'flex';
 }
 
-function bindPieceGestures(el, set, setIdx, index) {
+/* Жесты на всём поле: 1 палец — двигать вещь/группу; 2 пальца (где угодно) — масштаб и поворот вещи/группы */
+function bindBoardGestures(board, set, setIdx) {
   const pointers = new Map();
-  let mode = null;
-  let start = null;
-  let changed = false;
+  let mode = null, start = null, changed = false, cur = null;
+  let longTimer = null, longFired = false;
+  const page = board.closest('.set-page');
+  const pcEl = k => board.querySelector('.piece[data-pi="' + k + '"]');
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const ang = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
 
-  function pc() { return set.pieces[index]; }
-  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-  function angle(a, b) { return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; }
-
-  let longTimer = null;
-  let longFired = false;
-  const page = el.closest('.set-page');
-  el.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    el.setPointerCapture(e.pointerId);
-    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    document.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    const board = el.parentElement;
+  function setActive(i) {
+    board.querySelectorAll('.piece').forEach(p => p.classList.remove('active'));
+    if (i == null) return;
+    groupIdx(set, i).forEach(k => { const el = pcEl(k); if (el) el.classList.add('active'); });
+  }
+  function dragStart(pt) {
     const br = board.getBoundingClientRect();
-    const p = pc();
-    longFired = false;
-    clearTimeout(longTimer);
+    start = {
+      x: pt.x, y: pt.y, br,
+      m: groupIdx(set, cur).map(k => ({ k, ox: set.pieces[k].x, oy: set.pieces[k].y }))
+    };
+    mode = 'drag';
+  }
+  function pinchStart(a, b) {
+    const br = board.getBoundingClientRect();
+    const idxs = groupIdx(set, cur);
+    const ps = idxs.map(k => set.pieces[k]);
+    const cx = (ps.reduce((s, p) => s + p.x, 0) / ps.length) * br.width / 100;
+    const cy = (ps.reduce((s, p) => s + p.y, 0) / ps.length) * br.height / 100;
+    start = {
+      d: dist(a, b) || 1, a: ang(a, b), br, cx, cy,
+      m: idxs.map(k => {
+        const p = set.pieces[k];
+        return {
+          k, rx: p.x * br.width / 100 - cx, ry: p.y * br.height / 100 - cy,
+          sc: p.scale != null ? p.scale : 1, rot: p.rot || 0
+        };
+      })
+    };
+    mode = 'pinch';
+  }
+
+  board.addEventListener('pointerdown', e => {
+    if (e.target.closest('.puz-bar')) return;
+    const hit = e.target.closest('.piece');
+
+    // режим выбора для группы
+    if (sel.on && sel.setId === set.id) {
+      if (hit) {
+        e.preventDefault();
+        const i = parseInt(hit.dataset.pi, 10);
+        const mem = groupIdx(set, i);
+        const has = sel.idx.has(i);
+        mem.forEach(k => { if (has) sel.idx.delete(k); else sel.idx.add(k); });
+        syncSel(board, set);
+        updatePuzBar(board, set);
+      }
+      return;
+    }
+
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try { board.setPointerCapture(e.pointerId); } catch (err) {}
+
     if (pointers.size === 1) {
-      longTimer = setTimeout(() => {
-        if (pointers.size === 1 && !changed) {
-          longFired = true;
-          mode = null;
-          showPieceMenu(set, setIdx, index, page);
-        }
-      }, 480);
-      mode = 'drag';
-      start = { x: e.clientX, y: e.clientY, ox: p.x, oy: p.y, br };
-    } else if (pointers.size >= 2) {
+      changed = false; longFired = false;
       clearTimeout(longTimer);
-      mode = 'pinch';
+      if (!hit) { cur = null; mode = null; start = null; setActive(null); return; }
+      e.preventDefault();
+      cur = parseInt(hit.dataset.pi, 10);
+      setActive(cur);
+      dragStart({ x: e.clientX, y: e.clientY });
+      longTimer = setTimeout(() => {
+        if (pointers.size === 1 && !changed && cur != null) {
+          longFired = true; mode = null;
+          showPieceMenu(set, setIdx, cur, page);
+        }
+      }, 520);
+    } else if (cur != null) {
+      clearTimeout(longTimer);
       const pts = [...pointers.values()];
-      start = {
-        dist: dist(pts[0], pts[1]) || 1,
-        angle: angle(pts[0], pts[1]),
-        scale: p.scale != null ? p.scale : 1,
-        rot: p.rot || 0,
-        br
-      };
+      pinchStart(pts[0], pts[1]);
     }
   });
 
-  el.addEventListener('pointermove', e => {
+  board.addEventListener('pointermove', e => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    const p = pc();
-    if (!p || !start) return;
+    if (cur == null || !start || longFired) return;
 
-    if (mode === 'drag' && pointers.size === 1) {
-      const dx = ((e.clientX - start.x) / start.br.width) * 100;
-      const dy = ((e.clientY - start.y) / start.br.height) * 100;
-      if (Math.abs(dx) + Math.abs(dy) > 0.2) {
-        changed = true;
-        clearTimeout(longTimer);
-      }
-      // центр может быть у самого края (0..100)
-      p.x = Math.max(0, Math.min(100, start.ox + dx));
-      p.y = Math.max(0, Math.min(100, start.oy + dy));
-      el.style.left = p.x + '%';
-      el.style.top = p.y + '%';
-    } else if (pointers.size >= 2) {
-      mode = 'pinch';
+    if (pointers.size >= 2) {
       const pts = [...pointers.values()];
-      if (pts.length < 2) return;
-      if (!start.dist) {
-        start = {
-          dist: dist(pts[0], pts[1]) || 1,
-          angle: angle(pts[0], pts[1]),
-          scale: p.scale != null ? p.scale : 1,
-          rot: p.rot || 0,
-          br: el.parentElement.getBoundingClientRect()
-        };
-      }
-      const d = dist(pts[0], pts[1]);
-      const a = angle(pts[0], pts[1]);
-      if (start.dist > 0) {
-        p.scale = Math.max(0.3, Math.min(3.5, start.scale * (d / start.dist)));
-      }
-      let rot = start.rot + (a - start.angle);
-      while (rot > 180) rot -= 360;
-      while (rot < -180) rot += 360;
-      p.rot = rot;
-      applyPieceTransform(el, p);
+      if (mode !== 'pinch') { clearTimeout(longTimer); pinchStart(pts[0], pts[1]); }
+      let s = dist(pts[0], pts[1]) / start.d;
+      const da = ang(pts[0], pts[1]) - start.a;
+      let lo = 0, hi = Infinity;
+      start.m.forEach(m => { lo = Math.max(lo, 0.3 / m.sc); hi = Math.min(hi, 3.5 / m.sc); });
+      s = Math.min(hi, Math.max(lo, s));
+      const cs = Math.cos(da), sn = Math.sin(da);
+      start.m.forEach(m => {
+        const p = set.pieces[m.k];
+        const rx = (m.rx * cs - m.ry * sn) * s;
+        const ry = (m.rx * sn + m.ry * cs) * s;
+        p.x = (start.cx + rx) / start.br.width * 100;
+        p.y = (start.cy + ry) / start.br.height * 100;
+        p.scale = m.sc * s;
+        let r = m.rot + da * 180 / Math.PI;
+        while (r > 180) r -= 360;
+        while (r < -180) r += 360;
+        p.rot = r;
+        const el = pcEl(m.k);
+        if (el) {
+          el.style.left = p.x + '%';
+          el.style.top = p.y + '%';
+          applyPieceTransform(el, p);
+        }
+      });
       changed = true;
+    } else if (mode === 'drag') {
+      let dx = (e.clientX - start.x) / start.br.width * 100;
+      let dy = (e.clientY - start.y) / start.br.height * 100;
+      if (Math.abs(dx) + Math.abs(dy) > 0.2) { changed = true; clearTimeout(longTimer); }
+      const minX = Math.min(...start.m.map(m => m.ox)), maxX = Math.max(...start.m.map(m => m.ox));
+      const minY = Math.min(...start.m.map(m => m.oy)), maxY = Math.max(...start.m.map(m => m.oy));
+      dx = Math.max(-minX, Math.min(100 - maxX, dx));
+      dy = Math.max(-minY, Math.min(100 - maxY, dy));
+      start.m.forEach(m => {
+        const p = set.pieces[m.k];
+        p.x = m.ox + dx; p.y = m.oy + dy;
+        const el = pcEl(m.k);
+        if (el) { el.style.left = p.x + '%'; el.style.top = p.y + '%'; }
+      });
     }
   });
 
   function endPointer(e) {
     clearTimeout(longTimer);
-    if (pointers.has(e.pointerId)) {
-      try { el.releasePointerCapture(e.pointerId); } catch (err) {}
-      pointers.delete(e.pointerId);
-    }
+    if (!pointers.has(e.pointerId)) return;
+    try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+    pointers.delete(e.pointerId);
     if (pointers.size === 0) {
       mode = null; start = null;
       if (longFired) { longFired = false; changed = false; return; }
       if (changed) { saveSets(); changed = false; }
-    } else if (pointers.size === 1) {
-      const pt = [...pointers.values()][0];
-      const p = pc();
-      mode = 'drag';
-      start = {
-        x: pt.x, y: pt.y, ox: p.x, oy: p.y,
-        br: el.parentElement.getBoundingClientRect()
-      };
+    } else if (pointers.size === 1 && cur != null) {
+      dragStart([...pointers.values()][0]);
     }
   }
-  el.addEventListener('pointerup', endPointer);
-  el.addEventListener('pointercancel', endPointer);
+  board.addEventListener('pointerup', endPointer);
+  board.addEventListener('pointercancel', endPointer);
 }
-function addItemToCollage(setIdx, item) {
+
+/* Добавление ровно ОДНОЙ вещи в пазл (защита от двойного срабатывания) */
+let lastAdd = { id: null, t: 0 };
+function addPiece(setIdx, item, clientX, clientY) {
+  const now = Date.now();
+  if (lastAdd.id === item.id && now - lastAdd.t < 800) return false;
+  lastAdd = { id: item.id, t: now };
+
   const set = sets[setIdx];
   ensurePieces(set);
   set.layout = 'free';
   const slot = CATEGORIES[item.cat] ? CATEGORIES[item.cat].slot : 'bluse';
   const pos = defaultPiecePos(slot, set.pieces.length);
-  pos.x = Math.min(90, pos.x + (set.pieces.length % 3) * 4);
-  pos.y = Math.min(90, pos.y + (set.pieces.length % 2) * 5);
-  set.pieces.push({ itemId: item.id, x: pos.x, y: pos.y, w: pos.w, slot, rot: 0, scale: 1 });
-  const items = itemsForSlot(slot);
-  const idx = items.findIndex(i => i.id === item.id);
+  let x = pos.x, y = pos.y;
+  if (clientX != null && clientY != null) {
+    const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
+    const rectEl = (page && page.querySelector('.collage-board')) || page || setsWrapper;
+    const br = rectEl.getBoundingClientRect();
+    if (br.width > 0 && br.height > 0) {
+      x = Math.max(5, Math.min(95, ((clientX - br.left) / br.width) * 100));
+      y = Math.max(5, Math.min(95, ((clientY - br.top) / br.height) * 100));
+    }
+  } else {
+    x = Math.min(90, x + (set.pieces.length % 3) * 4);
+    y = Math.min(90, y + (set.pieces.length % 2) * 5);
+  }
+  set.pieces.push({ itemId: item.id, x, y, w: pos.w, slot, rot: 0, scale: item.defScale || 1 });
+  const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
   if (idx >= 0) set.indices[slot] = idx;
   ensureSlot(set, slot);
   saveSets();
   renderSets();
   toast('На сете · 1 палец — двигать · 2 — размер/поворот');
+  return true;
 }
+const addItemToCollage = (setIdx, item) => addPiece(setIdx, item);
+const addItemToCollageAt = (setIdx, item, x, y) => addPiece(setIdx, item, x, y);
+
 function toggleSetLayout(setIdx) {
   const set = sets[setIdx];
   ensurePieces(set);
   set.layout = set.layout === 'free' ? 'slots' : 'free';
-  // при первом входе в free — перенести текущие слоты как стартовые позиции
-  if (set.layout === 'free' && !set.pieces.length) {
-    ALL_SLOTS.forEach(slot => {
-      if (!(set.activeSlots || []).includes(slot)) return;
-      const items = itemsForSlot(slot);
-      const idx = set.indices[slot] || 0;
-      const it = items[idx];
-      if (!it) return;
-      const pos = defaultPiecePos(slot, set.pieces.length);
-      set.pieces.push({ itemId: it.id, x: pos.x, y: pos.y, w: pos.w, slot, rot: 0, scale: 1 });
-    });
-  }
   saveSets();
   renderSets();
-  toast(set.layout === 'free' ? 'Коллаж · 💾 сохранить фото · свайп между сетами' : 'Слоты');
+  toast(set.layout === 'free' ? 'Пазл: добавляй вещи из галереи ▦ или перетаскивай' : 'Слоты');
 }
 
 function refreshSlots() {
   sets.forEach((set, i) => {
     const page = setsWrapper.querySelector(`.set-page[data-index="${i}"]`);
-    if (page) fillSlots(page, set);
+    if (page && set.layout !== 'free') fillSlots(page, set);
   });
 }
 function setupSlot(slotEl, setIdx) {
@@ -2539,7 +2400,6 @@ function setupSlot(slotEl, setIdx) {
       if (navigator.vibrate) navigator.vibrate(25);
     }, 650);
     try { slotEl.setPointerCapture(e.pointerId); } catch (err) {}
-    // активируем слот сразу — видны крупные кнопки
     document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
     slotEl.classList.add('active');
     activeSetIndex = setIdx;
@@ -2553,7 +2413,6 @@ function setupSlot(slotEl, setIdx) {
       clearTimeout(longTimer);
       moved = true;
     }
-    // горизонтальный жест — не даём листать сеты
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6) {
       e.preventDefault();
       e.stopPropagation();
@@ -2568,11 +2427,9 @@ function setupSlot(slotEl, setIdx) {
     if (longPressed) return;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    // свайп влево/вправо в маленьком окне
     if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.1) {
       e.preventDefault();
       e.stopPropagation();
-      // палец вправо → предыдущий, влево → следующий (как лента фото)
       changeVariant(setIdx, slotName, dx > 0 ? -1 : 1);
       if (navigator.vibrate) navigator.vibrate(8);
       return;
@@ -2624,21 +2481,6 @@ setsWrapper.addEventListener('scroll', () => {
    ===================================================================== */
 function renderTabs() {
   catTabs.innerHTML = '';
-  // подпись что смотрим сейчас
-  let label = catTabs.previousElementSibling;
-  if (!label || !label.classList.contains('closet-filter-label')) {
-    label = document.createElement('div');
-    label.className = 'closet-filter-label';
-    catTabs.parentNode.insertBefore(label, catTabs);
-  }
-  const curName = activeFilter && CATEGORIES[activeFilter]
-    ? (CATEGORIES[activeFilter].emoji + ' ' + CATEGORIES[activeFilter].label)
-    : 'Все вещи';
-  const curN = activeFilter
-    ? wardrobe.filter(w => w.cat === activeFilter).length
-    : wardrobe.length;
-  label.textContent = curName + ' · ' + curN;
-
   const all = document.createElement('button');
   all.className = 'cat-tab' + (activeFilter === null ? ' active' : '');
   all.innerHTML = 'Все <span class="count-pill">' + wardrobe.length + '</span>';
@@ -2653,7 +2495,6 @@ function renderTabs() {
     btn.onclick = () => {
       activeFilter = activeFilter === key ? null : key;
       renderTabs(); renderCloset();
-      // прокрутить активный чип в центр карусели
       requestAnimationFrame(() => {
         const act = catTabs.querySelector('.cat-tab.active');
         if (act) act.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
@@ -2686,7 +2527,6 @@ function renderCloset() {
     const img = document.createElement('img');
     img.src = item.turl; img.draggable = false; img.alt = '';
     el.appendChild(img);
-    // без × / ✎ — изменить/удалить через долгое нажатие
     el.addEventListener('contextmenu', e => e.preventDefault());
     bindThumbDrag(el, item);
     closetRow.appendChild(el);
@@ -2699,12 +2539,27 @@ function updateTitle() {
   el.innerHTML = '<span class="count-pill">' + wardrobe.length + '</span>';
 }
 
-/* Gallery + overflow */
+/* Положить вещь на текущий сет (слот или пазл) */
+function placeItem(item) {
+  const set = sets[activeSetIndex];
+  ensurePieces(set);
+  if (set.layout === 'free') { addPiece(activeSetIndex, item); return; }
+  const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
+  if (!slot) return;
+  const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
+  if (idx < 0) return;
+  set.indices[slot] = idx;
+  ensureSlot(set, slot);
+  saveSets(); renderSets();
+}
+
+/* Галерея: тап — положить на сет, долгое нажатие — повернуть/масштабировать */
 function openGallery(filter) {
   const chips = $('galleryChips');
   const grid = $('galleryGrid');
   if (!chips || !grid) return;
-  let f = filter === undefined ? activeFilter : filter;
+  const f = filter === undefined ? activeFilter : filter;
+  galleryFilter = f;
   chips.innerHTML = '';
   const mk = (key, label, n) => {
     const b = document.createElement('button');
@@ -2727,21 +2582,26 @@ function openGallery(filter) {
   list.forEach(item => {
     const d = document.createElement('div');
     d.className = 'gal-item checker';
-    d.innerHTML = '<img src="' + item.turl + '" alt="">';
+    d.innerHTML = '<img src="' + item.turl + '" alt="" draggable="false">';
+    let lt = null, long = false, sx = 0, sy = 0;
+    d.addEventListener('pointerdown', e => {
+      long = false; sx = e.clientX; sy = e.clientY;
+      clearTimeout(lt);
+      lt = setTimeout(() => {
+        long = true;
+        if (navigator.vibrate) navigator.vibrate(15);
+        openEdit(item);
+      }, 450);
+    });
+    d.addEventListener('pointermove', e => {
+      if (Math.hypot(e.clientX - sx, e.clientY - sy) > 10) clearTimeout(lt);
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => d.addEventListener(ev, () => clearTimeout(lt)));
+    d.addEventListener('contextmenu', e => e.preventDefault());
     d.onclick = () => {
+      if (long) { long = false; return; }
       $('galleryModal').classList.remove('open');
-      const set = sets[activeSetIndex];
-      ensurePieces(set);
-      if (set.layout === 'free') addItemToCollage(activeSetIndex, item);
-      else {
-        const slot = CATEGORIES[item.cat] && CATEGORIES[item.cat].slot;
-        if (!slot) return;
-        const idx = itemsForSlot(slot).findIndex(i => i.id === item.id);
-        if (idx < 0) return;
-        set.indices[slot] = idx;
-        ensureSlot(set, slot);
-        saveSets(); renderSets();
-      }
+      placeItem(item);
     };
     grid.appendChild(d);
   });
@@ -2758,7 +2618,16 @@ async function deleteItem(id) {
   if (it.url) URL.revokeObjectURL(it.url);
   if (it.turl) URL.revokeObjectURL(it.turl);
   try { await dbDel('items', id); } catch (e) { storeError(e); }
+  let piecesChanged = false;
+  sets.forEach(s => {
+    if (Array.isArray(s.pieces) && s.pieces.some(p => p.itemId === id)) {
+      s.pieces = s.pieces.filter(p => p.itemId !== id);
+      piecesChanged = true;
+    }
+  });
+  if (piecesChanged) { saveSets(); renderSets(); }
   renderTabs(); renderCloset(); refreshSlots();
+  if ($('galleryModal').classList.contains('open')) openGallery(galleryFilter);
 }
 function moveItem(item, newCat) {
   if (item.cat === newCat) return;
@@ -2776,12 +2645,13 @@ function moveItem(item, newCat) {
 }
 
 /* =====================================================================
-   DRAG: из гардероба вверх на сет (коллаж) или на категорию / корзину
+   DRAG: из гардероба на сет (пазл) или на категорию / корзину
    ===================================================================== */
 const drag = {
   timer: null, active: false, item: null, el: null, ghost: null,
   x: 0, y: 0, sx: 0, sy: 0, suppress: false,
-  target: null, onSet: false
+  target: null, onSet: false, moved: false, menuOpen: false,
+  menuTimer: null, _pendingItem: null, _pendingEl: null
 };
 (function buildDropbar() {
   const g = $('dropGrid');
@@ -2792,20 +2662,11 @@ const drag = {
     d.innerHTML = `<span class="e">${CATEGORIES[k].emoji}</span>${esc(shortName(k))}`;
     g.appendChild(d);
   });
-  const t = document.createElement('div');
-  t.className = 'drop-chip trash'; t.dataset.drop = '__trash';
-  t.innerHTML = '<span class="e">🗑</span>Удалить';
-  g.appendChild(t);
+  const tr = document.createElement('div');
+  tr.className = 'drop-chip trash'; tr.dataset.drop = '__trash';
+  tr.innerHTML = '<span class="e">🗑</span>Удалить';
+  g.appendChild(tr);
 })();
-function showThumbMenu(item) {
-  drag.menuOpen = true;
-  const choice = window.prompt('1 — изменить · 2 — удалить · пусто — отмена', '');
-  drag.menuOpen = false;
-  if (choice === '1') openEdit(item);
-  else if (choice === '2') {
-    if (confirm('Удалить это фото?')) deleteItem(item.id);
-  }
-}
 function showThumbMenuUI(item) {
   drag.menuOpen = true;
   let ov = document.getElementById('thumbMenu');
@@ -2846,7 +2707,6 @@ function bindThumbDrag(el, item) {
     drag._pendingEl = el;
     clearTimeout(drag.timer);
     clearTimeout(drag.menuTimer);
-    // удержание на месте → меню изменить/удалить
     drag.menuTimer = setTimeout(() => {
       if (!drag.active && !drag.moved) {
         drag.timer = null;
@@ -2877,7 +2737,6 @@ function moveGhost() {
   if (!drag.ghost) return;
   drag.ghost.style.left = drag.x + 'px';
   drag.ghost.style.top = drag.y + 'px';
-  // временно прячем ghost, чтобы elementFromPoint видел то, что под пальцем
   drag.ghost.style.pointerEvents = 'none';
   const under = document.elementFromPoint(drag.x, drag.y);
   const chip = under && under.closest ? under.closest('.drop-chip') : null;
@@ -2885,40 +2744,11 @@ function moveGhost() {
   if (chip) chip.classList.add('hover');
   drag.target = chip ? chip.dataset.drop : null;
 
-  // зона сета / коллажа
   const page = under && under.closest ? under.closest('.set-page') : null;
   const board = under && under.closest ? under.closest('.collage-board') : null;
   const slots = under && under.closest ? under.closest('.slots-container') : null;
   drag.onSet = !!(page || board || slots);
   setsWrapper.classList.toggle('drop-target', drag.onSet && !drag.target);
-}
-function addItemToCollageAt(setIdx, item, clientX, clientY) {
-  const set = sets[setIdx];
-  ensurePieces(set);
-  set.layout = 'free';
-  const slot = CATEGORIES[item.cat] ? CATEGORIES[item.cat].slot : 'bluse';
-  let x = 50, y = 40;
-  const page = setsWrapper.querySelector(`.set-page[data-index="${setIdx}"]`);
-  let board = page && page.querySelector('.collage-board');
-  // если ещё не free — renderSets создаст board; координаты от set-page
-  const rectEl = board || page || setsWrapper;
-  const br = rectEl.getBoundingClientRect();
-  if (br.width > 0 && br.height > 0) {
-    x = ((clientX - br.left) / br.width) * 100;
-    y = ((clientY - br.top) / br.height) * 100;
-    x = Math.max(5, Math.min(95, x));
-    y = Math.max(5, Math.min(95, y));
-  }
-  const w = PIECE_W[slot] || 36;
-  set.pieces.push({ itemId: item.id, x, y, w, slot, rot: 0, scale: 1 });
-  // если вещь ещё не в слотах — тоже обновим индекс
-  const items = itemsForSlot(slot);
-  const idx = items.findIndex(i => i.id === item.id);
-  if (idx >= 0) set.indices[slot] = idx;
-  ensureSlot(set, slot);
-  saveSets();
-  renderSets();
-  toast('На сете · двигай · 2 пальца — размер/поворот');
 }
 function finishDrag(drop) {
   clearTimeout(drag.timer); drag.timer = null;
@@ -2931,6 +2761,7 @@ function finishDrag(drop) {
   $('dropbar').classList.remove('show');
   setsWrapper.classList.remove('drop-target');
   drag.ghost = null; drag.el = null; drag.item = null; drag.target = null; drag.onSet = false;
+  drag._pendingItem = null; drag._pendingEl = null;
   drag.suppress = true; setTimeout(() => { drag.suppress = false; }, 100);
   if (!drop || !item) return;
   if (target === '__trash') {
@@ -2941,38 +2772,19 @@ function finishDrag(drop) {
     moveItem(item, target);
     return;
   }
-  // отпустили на область сета → коллаж
-  if (onSet) {
-    addItemToCollageAt(activeSetIndex, item, cx, cy);
-  }
+  if (onSet) addItemToCollageAt(activeSetIndex, item, cx, cy);
 }
 window.addEventListener('pointermove', e => {
   drag.x = e.clientX; drag.y = e.clientY;
-  const dist = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy);
-  if (dist > 10) {
+  const d = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy);
+  if (d > 10) {
     drag.moved = true;
     clearTimeout(drag.menuTimer); drag.menuTimer = null;
   }
-  // движение — начинаем перетаскивание (на сет или категорию)
-  if (!drag.active && !drag.menuOpen && dist > 14 && (drag.sx || drag.sy)) {
-    const el0 = document.elementFromPoint(drag.sx, drag.sy);
-    // use last known thumb under start point — dataset from any active tracking
-    // recover item from start coordinates
-    const el = el0 && el0.closest ? el0.closest('.thumb') : null;
-    // fallback: find thumb that is being pressed
-    let item = null, elThumb = el;
-    if (elThumb && elThumb.dataset.id) item = getItem(elThumb.dataset.id);
-    if (!item) {
-      // pointer may already be away from thumb — search by drag start via document.elementFromPoint was wrong
-    }
-  }
-  if (!drag.active && !drag.menuOpen && dist > 14) {
-    // find item: store on pointerdown
-    if (drag._pendingItem && drag._pendingEl) {
-      clearTimeout(drag.menuTimer); drag.menuTimer = null;
-      clearTimeout(drag.timer); drag.timer = null;
-      beginDrag(drag._pendingItem, drag._pendingEl);
-    }
+  if (!drag.active && !drag.menuOpen && d > 14 && drag._pendingItem && drag._pendingEl) {
+    clearTimeout(drag.menuTimer); drag.menuTimer = null;
+    clearTimeout(drag.timer); drag.timer = null;
+    beginDrag(drag._pendingItem, drag._pendingEl);
   }
   if (drag.active) moveGhost();
 }, { passive: true });
@@ -2983,11 +2795,14 @@ window.addEventListener('pointerup', e => {
   finishDrag(true);
   drag._pendingItem = null; drag._pendingEl = null;
 });
-window.addEventListener('pointercancel', () => finishDrag(false));
+window.addEventListener('pointercancel', () => {
+  finishDrag(false);
+  drag._pendingItem = null; drag._pendingEl = null;
+});
 window.addEventListener('touchmove', e => { if (drag.active) e.preventDefault(); }, { passive: false });
 
 /* =====================================================================
-   ДОБАВЛЕНИЕ: сначала выбор (фон да/нет, категория), потом всё сразу
+   ДОБАВЛЕНИЕ ФОТО
    ===================================================================== */
 const stageModal = $('stageModal'), stageGrid = $('stageGrid'), stageCat = $('stageCat');
 let staged = [], stageToken = 0;
@@ -3007,9 +2822,9 @@ function addTile(s) {
   d.className = 'tile checker loading'; d.dataset.sid = s.sid;
   d.innerHTML = `<img alt="" draggable="false"><button class="t-x" aria-label="Убрать">✕</button><button class="t-bg"></button><select class="t-cat">${
     CAT_ORDER.map(k => `<option value="${k}">${CATEGORIES[k].emoji} ${esc(shortName(k))}</option>`).join('')}</select>`;
-  const sel = d.querySelector('.t-cat');
-  sel.value = s.cat;
-  sel.onchange = () => { s.cat = sel.value; s.manualCat = true; };
+  const sl = d.querySelector('.t-cat');
+  sl.value = s.cat;
+  sl.onchange = () => { s.cat = sl.value; s.manualCat = true; };
   d.querySelector('.t-x').onclick = () => { s.removed = true; d.remove(); updateStageUI(); };
   d.querySelector('.t-bg').onclick = () => { if (!s.alpha) { s.bg = !s.bg; updateTile(s); } };
   stageGrid.appendChild(d);
@@ -3108,21 +2923,23 @@ async function commitStage() {
 }
 
 /* =====================================================================
-   РЕДАКТОР: угол, зеркало, категория, фон — после добавления
+   РЕДАКТОР: угол, размер, зеркало, категория, фон
    ===================================================================== */
-const edit = { item: null, angle: 0, flip: false, cat: null, wantBg: false };
+const edit = { item: null, angle: 0, flip: false, cat: null, wantBg: false, scale: 1 };
 function openEdit(item) {
   if (item.bg === 'pending') { toast('Фон ещё обрабатывается…'); return; }
-  Object.assign(edit, { item, angle: 0, flip: false, cat: item.cat, wantBg: false });
+  Object.assign(edit, { item, angle: 0, flip: false, cat: item.cat, wantBg: false, scale: item.defScale || 1 });
   $('editImg').src = item.url;
   $('angleRange').value = 0;
   renderEditCats(); updateEditUI();
   $('editModal').classList.add('open');
 }
 function updateEditUI() {
-  $('editImg').style.transform = `rotate(${edit.angle}deg) scaleX(${edit.flip ? -1 : 1})`;
+  $('editImg').style.transform = `rotate(${edit.angle}deg) scaleX(${edit.flip ? -1 : 1}) scale(${edit.scale})`;
   $('angleVal').textContent = edit.angle + '°';
   $('angleRange').value = edit.angle;
+  $('scaleVal').textContent = Math.round(edit.scale * 100) + '%';
+  $('scaleRange').value = edit.scale;
   const b = $('btn-edit-bg');
   b.style.display = (edit.item && !edit.item.cut) ? '' : 'none';
   b.classList.toggle('on', edit.wantBg);
@@ -3140,10 +2957,11 @@ function renderEditCats() {
 }
 const normAngle = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return Math.round(a); };
 $('angleRange').oninput = e => { edit.angle = parseInt(e.target.value, 10) || 0; updateEditUI(); };
+$('scaleRange').oninput = e => { edit.scale = parseFloat(e.target.value) || 1; updateEditUI(); };
 $('btn-rot-l').onclick = () => { edit.angle = normAngle(edit.angle - 90); updateEditUI(); };
 $('btn-rot-r').onclick = () => { edit.angle = normAngle(edit.angle + 90); updateEditUI(); };
 $('btn-flip').onclick = () => { edit.flip = !edit.flip; updateEditUI(); };
-$('btn-angle-reset').onclick = () => { edit.angle = 0; edit.flip = false; updateEditUI(); };
+$('btn-angle-reset').onclick = () => { edit.angle = 0; edit.flip = false; edit.scale = 1; updateEditUI(); };
 $('btn-edit-bg').onclick = () => { edit.wantBg = !edit.wantBg; updateEditUI(); };
 $('edit-cancel').onclick = () => { $('editModal').classList.remove('open'); edit.item = null; };
 $('edit-delete').onclick = () => {
@@ -3161,6 +2979,7 @@ $('edit-save').onclick = async () => {
       const r = await bake(it.blob, edit.angle, edit.flip, it.alpha || it.cut);
       setImage(it, r.blob, r.thumb, r.alpha);
     }
+    it.defScale = Math.abs(edit.scale - 1) < 0.01 ? undefined : edit.scale;
     let slotChanged = false;
     if (edit.cat !== it.cat) {
       it.cat = edit.cat;
@@ -3176,8 +2995,9 @@ $('edit-save').onclick = async () => {
     $('editModal').classList.remove('open');
     edit.item = null;
     renderTabs(); renderCloset();
-    slotChanged ? renderSets() : refreshSlots();
+    slotChanged ? renderSets() : (sets.some(s => s.layout === 'free') ? renderSets() : refreshSlots());
     if (it.bg === 'pending') enqueueBg(it.id);
+    if ($('galleryModal').classList.contains('open')) openGallery(galleryFilter);
     updateStorageInfo();
   } catch (err) {
     console.error(err); toast('Не получилось применить изменения');
@@ -3196,16 +3016,16 @@ function addSetAndShow(set) {
 }
 function openNewSetModal() {
   const grid = $('themeGrid'); grid.innerHTML = '';
-  Object.entries(THEMES).forEach(([key, t]) => {
+  Object.entries(THEMES).forEach(([key, th]) => {
     const card = document.createElement('div');
     card.className = 'theme-card';
-    card.innerHTML = `<span class="emoji">${t.emoji}</span>${t.label}`;
+    card.innerHTML = `<span class="emoji">${th.emoji}</span>${th.label}`;
     card.onclick = () => { newSetModal.classList.remove('open'); addSetAndShow(createEmptySet(key)); };
     grid.appendChild(card);
   });
   newSetModal.classList.add('open');
 }
-$('btn-new-set').onclick = openNewSetModal;
+$('btn-new-set').onclick = () => { closeAllMenus(); openNewSetModal(); };
 $('btn-newset-cancel').onclick = () => newSetModal.classList.remove('open');
 
 function openPartsModal() {
@@ -3256,12 +3076,11 @@ function openSuggestModal() {
 }
 $('btn-suggest').onclick = openSuggestModal;
 $('btn-suggest-cancel').onclick = () => suggestModal.classList.remove('open');
-$('btn-auto').onclick = openAutoModal;
+$('btn-auto').onclick = () => { closeAllMenus(); openAutoModal(); };
 $('btn-auto-cancel').onclick = () => $('autoModal').classList.remove('open');
-// add via submenu
 
 /* =====================================================================
-   НАСТРОЙКИ: память, копия, очистка
+   НАСТРОЙКИ, ВЕРХНЯЯ ПОЛОСКА, МЕНЮ
    ===================================================================== */
 async function updateStorageInfo() {
   let own = 0;
@@ -3281,18 +3100,29 @@ async function updateStorageInfo() {
   const el = $('storageInfo');
   if (el) { el.style.whiteSpace = 'pre-line'; el.textContent = txt; }
 }
-$('btn-settings').onclick = () => { $('settingsModal').classList.add('open'); updateStorageInfo(); renderThemeSettings(); };
-
+$('btn-settings').onclick = () => { closeAllMenus(); $('settingsModal').classList.add('open'); updateStorageInfo(); renderThemeSettings(); };
 
 function closeAllMenus() {
   document.querySelectorAll('.overflow-menu').forEach(m => m.classList.remove('open'));
+}
+function toggleMenu(menu, btn) {
+  const wasOpen = menu.classList.contains('open');
+  closeAllMenus();
+  if (wasOpen) return;
+  menu.classList.add('open');
+  const r = btn.getBoundingClientRect();
+  menu.style.top = (r.bottom + 8) + 'px';
+  const w = menu.offsetWidth;
+  menu.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + 'px';
 }
 function updateModeIcon() {
   const ic = $('modeIcon');
   if (!ic) return;
   const set = sets[activeSetIndex];
-  if (set && set.layout === 'free') ic.textContent = '🧩';
-  else ic.textContent = '▤';
+  const free = !!(set && set.layout === 'free');
+  ic.textContent = free ? '🧩' : '▤';
+  const b = $('btn-mode');
+  if (b) b.classList.toggle('on', free);
 }
 function buildColorCarousel() {
   const box = $('colorCarousel');
@@ -3310,102 +3140,28 @@ function buildColorCarousel() {
     b.type = 'button';
     b.className = 'ov-color';
     b.style.background = c.hex;
-    b.title = (COLOR_LABEL_RU && COLOR_LABEL_RU[c.id]) || c.id;
-    b.onclick = () => {
-      closeAllMenus();
-      openColorSuggest(c.id);
-    };
+    b.title = COLOR_LABEL_RU[c.id] || c.id;
+    b.onclick = () => { closeAllMenus(); openAutoModal(c.id); };
     box.appendChild(b);
   });
 }
-async function openColorSuggest(colorId) {
-  // фильтруем авто-сеты по выбранному цвету
-  $('autoModal').classList.add('open');
-  const list = $('autoList');
-  if (list) list.innerHTML = '<div class="auto-empty">' + t('analyzing') + '</div>';
-  try {
-    const all = await buildAutoOutfits();
-    const filtered = all.filter(r => {
-      const cols = r.colors || [];
-      const names = Object.keys(r.picks || {}).map(k => r.picks[k]).map(it => it && it.colorName).filter(Boolean);
-      return names.includes(colorId) || cols.some(hex => {
-        const entry = Object.entries(COLOR_HEX || {}).find(([, h]) => h.toLowerCase() === String(hex).toLowerCase());
-        return entry && entry[0] === colorId;
-      });
-    });
-    const use = filtered.length ? filtered : all;
-    if (typeof renderAutoList === 'function') renderAutoList(use);
-    else {
-      // fallback: reuse openAutoModal content path
-      list.innerHTML = '';
-      if (!use.length) {
-        list.innerHTML = '<div class="auto-empty">' + t('no_match') + '</div>';
-        return;
-      }
-      use.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'auto-card';
-        const prev = Object.values(r.picks || {}).map(it =>
-          '<div class="ap"><img src="' + (it.turl || it.url) + '"></div>'
-        ).join('');
-        card.innerHTML = '<div class="auto-previews">' + prev + '</div><button type="button">' + t('pick_set') + '</button>';
-        card.querySelector('button').onclick = () => {
-          const ns = createEmptySet('color');
-          ns.name = r.title || 'Сет';
-          Object.entries(r.picks || {}).forEach(([slot, it]) => {
-            ensureSlot(ns, slot);
-            const items = itemsForSlot(slot);
-            const idx = items.findIndex(i => i.id === it.id);
-            if (idx >= 0) ns.indices[slot] = idx;
-          });
-          $('autoModal').classList.remove('open');
-          addSetAndShow(ns);
-        };
-        list.appendChild(card);
-      });
-    }
-  } catch (e) {
-    console.error(e);
-    if (list) list.innerHTML = '<div class="auto-empty">' + t('photo_fail') + '</div>';
-  }
-}
-$('btn-gallery') && ($('btn-gallery').onclick = () => openGallery(activeFilter));
-$('gallery-close') && ($('gallery-close').onclick = () => $('galleryModal').classList.remove('open'));
-$('btn-add') && ($('btn-add').onclick = e => {
-  e.stopPropagation();
-  const m = $('addMenu');
-  const open = m && m.classList.contains('open');
+$('btn-gallery').onclick = () => { closeAllMenus(); openGallery(activeFilter); };
+$('gallery-close').onclick = () => $('galleryModal').classList.remove('open');
+$('btn-add').onclick = e => { e.stopPropagation(); toggleMenu($('addMenu'), $('btn-add')); };
+$('btn-add-photo').onclick = () => { closeAllMenus(); startAdd(); };
+$('btn-color').onclick = e => { e.stopPropagation(); buildColorCarousel(); toggleMenu($('colorMenu'), $('btn-color')); };
+$('btn-mode').onclick = () => {
   closeAllMenus();
-  if (m && !open) m.classList.add('open');
-});
-$('btn-add-photo') && ($('btn-add-photo').onclick = () => { closeAllMenus(); startAdd(); });
-$('btn-color') && ($('btn-color').onclick = e => {
-  e.stopPropagation();
-  buildColorCarousel();
-  const m = $('colorMenu');
-  const open = m && m.classList.contains('open');
-  closeAllMenus();
-  if (m && !open) m.classList.add('open');
-});
-$('btn-mode') && ($('btn-mode').onclick = () => {
   const set = sets[activeSetIndex];
   if (!set) return;
-  // цикл: слоты → коллаж → галерея
-  if (set.layout === 'free') {
-    set.layout = 'slots';
-    saveSets(); renderSets();
-    updateModeIcon();
-  } else {
-    toggleSetLayout(activeSetIndex);
-    updateModeIcon();
-  }
-});
+  toggleSetLayout(activeSetIndex);
+};
 document.querySelectorAll('.overflow-menu').forEach(m => {
   m.addEventListener('click', e => e.stopPropagation());
 });
 document.addEventListener('click', () => closeAllMenus());
+$('topBar').addEventListener('scroll', closeAllMenus, { passive: true });
 buildColorCarousel();
-
 
 $('btn-settings-close').onclick = () => $('settingsModal').classList.remove('open');
 
@@ -3414,7 +3170,7 @@ $('btn-export').onclick = async () => {
     toast('Готовлю файл…');
     const items = [];
     for (const it of wardrobe) {
-      items.push({ id: it.id, cat: it.cat, alpha: it.alpha, cut: it.cut, t: it.t, data: await blobToDataURL(it.blob) });
+      items.push({ id: it.id, cat: it.cat, alpha: it.alpha, cut: it.cut, t: it.t, defScale: it.defScale, data: await blobToDataURL(it.blob) });
     }
     const json = JSON.stringify({ v: 1, items, sets });
     const b = new Blob([json], { type: 'application/json' });
@@ -3436,7 +3192,7 @@ $('importInput').addEventListener('change', async e => {
       const blob = await (await fetch(o.data)).blob();
       const alpha = !!o.alpha;
       const it = { id: o.id || uid('w_'), cat: CATEGORIES[o.cat] ? o.cat : 'bluse', blob, thumb: await makeThumb(blob, alpha),
-        alpha, cut: !!o.cut, bg: 'none', t: o.t || Date.now() + n };
+        alpha, cut: !!o.cut, bg: 'none', t: o.t || Date.now() + n, defScale: o.defScale };
       await persistItem(it);
       wardrobe.push(hydrate(it)); n++;
     }
@@ -3505,7 +3261,6 @@ async function init() {
   applyStaticI18n();
   renderAll();
   resumePending();
-  // Предзагрузка модели удаления фона (не блокирует UI)
   if (navigator.onLine) {
     setTimeout(() => {
       loadBackgroundRemover().then(() => {
@@ -3515,7 +3270,7 @@ async function init() {
     }, 800);
   }
 }
-window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); });
+window.addEventListener('resize', () => { setsWrapper.scrollLeft = activeSetIndex * (setsWrapper.clientWidth || 1); closeAllMenus(); });
 
 (function watchModals() {
   const sync = () => {
